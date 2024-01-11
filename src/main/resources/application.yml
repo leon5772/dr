@@ -1,0 +1,42 @@
+
+
+dl_data_router:
+  # 中转程序dr的ip
+  address: 192.168.1.170
+  # neuro的连接方式(如果没密码可以不用修改name跟password)
+  neuro:
+    address: 192.168.1.180
+    name: admin
+    password: Admin123
+
+  # genesis的连接方式(Data-router程序会跟genesis同机安装)
+  genesis:
+    address: 192.168.1.200
+    name: admin
+    password: admin8888
+
+server:
+  port: 8502
+  servlet:
+    context-path: /
+  tomcat:
+    uri-encoding: UTF-8
+
+logging.config: classpath:logback-spring.xml
+logging:
+  logging:
+    level:
+      com.crane: error
+
+
+#spring:
+#  prefix: classpath:/templates/
+#  datasource:
+#    #连接sqlite3 轻量级数据库，减少系统资源占用
+#    url: jdbc:sqlite:C:/data_library_leader/sqlite/db/glp.db
+#    driver-class-name: org.sqlite.JDBC
+#    # username: 选用 sqlite 数据库不需要配置此项
+#    # password: 选用 sqlite 数据库不需要配置此项
+#mybatis-plus:
+#  mapper-locations: classpath:mapper/*Mapper.xml
+#  type-aliases-package: com.example.springbootsqlite.model
