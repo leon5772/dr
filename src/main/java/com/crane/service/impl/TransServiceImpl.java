@@ -60,14 +60,14 @@ public class TransServiceImpl implements ITransService {
 
         //获取它的类型
         //1: 识别消息（门禁，人脸）.2: 结构化消息.3: 算法仓消息.
-        String recordType = inputJson.getString("recordType");
+        int recordType = inputJson.getIntValue("recordType");
 
         try {
-            if (recordType.equals(1)) {
+            if (recordType == 1) {
 
-            } else if (recordType.equals(2)) {
+            } else if (recordType == 2) {
 
-            } else if (recordType.equals(3)) {
+            } else if (recordType == 3) {
                 GenesisScene genesisBodyEntity = formatAlgoDetails(genesisCid, inputJson.getJSONObject("detail").getJSONObject("warehouseV20Events"));
                 return JSON.toJSONString(genesisBodyEntity);
             }
