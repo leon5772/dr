@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
@@ -26,7 +26,7 @@ public class ForwardController {
     ITransService transService;
 
     @Value("${dl_data_router.genesis.address}")
-    private String address;
+    private String genesisAddress;
 
     @PostMapping("")
     public String forwardRequest(HttpServletRequest request) {
@@ -36,29 +36,33 @@ public class ForwardController {
             return "{\"code\":500}";
         }
 
-        System.out.println(inJson.toJSONString());
-
         //将幻方盒子得到的数据，转为genesis的格式
         transService.transJson(inJson);
+
+        //发给genesis
+        dataToGenesis();
 
         return "{\"code\":200}";
     }
 
-    //获取参数
+    private void dataToGenesis() {
+
+    }
+
+    //获取body参数
     public static JSONObject getBodyJson(HttpServletRequest request) {
+        try (InputStream inputStream = request.getInputStream();
+             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
-        try {
-
-            BufferedReader streamReader = new BufferedReader(new InputStreamReader(request.getInputStream(), StandardCharsets.UTF_8));
-            StringBuilder responseStrBuilder = new StringBuilder();
-
-            String inputStr;
-
-            while ((inputStr = streamReader.readLine()) != null) {
-                responseStrBuilder.append(inputStr);
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
             }
-            return JSONObject.parseObject(responseStrBuilder.toString());
 
+            byte[] requestBodyBytes = outputStream.toByteArray();
+            String requestBody = new String(requestBodyBytes, StandardCharsets.UTF_8);
+            return JSONObject.parseObject(requestBody);
         } catch (Exception e) {
             return null;
         }
