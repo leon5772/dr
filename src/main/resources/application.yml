@@ -19,8 +19,8 @@ dl_data_router:
 
 camera_rel:
   neuro_to_genesis:
-    - 0001_1=34
-    - 0002_2=399
+    - 0001_1
+    - 0002_2
 
 server:
   port: 8502
