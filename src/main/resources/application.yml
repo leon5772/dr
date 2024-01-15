@@ -1,19 +1,26 @@
 
 
 dl_data_router:
-  # 中转程序dr的ip
+
+  # 中转程序dr的ip (Data-router程序会跟genesis同机安装)
   address: 192.168.1.170
+
   # neuro的连接方式(如果没密码可以不用修改name跟password)
   neuro:
     address: 192.168.1.180
     name: admin
     password: Admin123
 
-  # genesis的连接方式(Data-router程序会跟genesis同机安装)
+  # genesis的连接方式
   genesis:
     address: 192.168.1.200
     name: admin
     password: admin8888
+
+camera_rel:
+  neuro_to_genesis:
+    - 0001_1=34
+    - 0002_2=399
 
 server:
   port: 8502

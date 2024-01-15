@@ -39,21 +39,44 @@ public class TransServiceImpl implements ITransService {
     @Value("${dl_data_router.genesis.password}")
     private String genesisPwd;
 
+    @Value("${camera_rel.neuro_to_genesis}")
+    public List<String> cameraRelList;
+
     @Override
     public String transJson(JSONObject inputJson) {
+
+        //获取幻方给的通道名字
+        String channelName = inputJson.getString("channelName");
+
+        System.out.println(getTargetCamForGenesis(channelName));
 
         return null;
     }
 
+    private String getTargetCamForGenesis(String channelName) {
+
+        String genesisCid = "none";
+
+        for (int i = 0; i < cameraRelList.size(); i++) {
+
+            String oneRelStr = cameraRelList.get(i);
+            if (oneRelStr.equals(channelName)) {
+                genesisCid = oneRelStr.split("=")[1];
+            }
+        }
+
+        return genesisCid;
+    }
+
     /**
      * 启动的时候会更新一下genesis的token，避免第一次安装没有token
-     * */
+     */
     @PostConstruct
     @Override
     public void updateGenesisToken() {
 
         //根据账号密码获取token
-        Map<String,String> bodyMap = new HashMap<>();
+        Map<String, String> bodyMap = new HashMap<>();
         bodyMap.put("username", genesisName);
         bodyMap.put("password", genesisPwd);
 
