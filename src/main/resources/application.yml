@@ -18,7 +18,7 @@ dl_data_router:
     password: admin8888
 
 camera_rel:
-  neuro_to_genesis: 0001_1=123,
+  neuro_to_genesis: 0001_1=34,
                     0002_2=456,
                     0003_3=789,
                     0004_4=101,
