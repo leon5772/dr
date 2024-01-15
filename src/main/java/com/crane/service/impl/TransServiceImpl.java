@@ -62,7 +62,7 @@ public class TransServiceImpl implements ITransService {
         //1: 识别消息（门禁，人脸）.2: 结构化消息.3: 算法仓消息.
         String recordType = inputJson.getString("recordType");
 
-        GenesisScene genesisBodyEntity = null;
+        GenesisScene genesisBodyEntity = new GenesisScene();
         try {
             if (recordType.equals(1)) {
 
