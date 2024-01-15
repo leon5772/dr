@@ -37,4 +37,6 @@ public class DataRouterConstant {
     public static final String TAG_FIGHTING = "Fighting";
     public static final String TAG_RUNNING = "Running";
 
+    public static final String[] TAG_SET = {"Male", "Female", "Long_Hair", "Short_Hair", "Hat", "No_Hat", "Bag", "No_Bag", "Long_Sleeve", "Short_Sleeve", "Sleeveless", "Red_Clothes", "Green_Clothes", "Blue_Clothes", "Yellow_Clothes", "Black_Clothes", "White_Clothes", "Grey_Clothes", "Pink_Clothes", "Long_Pants", "Short_Pants", "Red_Pants", "Green_Pants", "Blue_Pants", "Yellow_Pants", "Black_Pants", "White_Pants", "Grey_Pants", "Pink_Pants", "Fighting", "Running"};
+
 }

@@ -319,4 +319,40 @@ public class TransServiceImpl implements ITransService {
         return subMap;
     }
 
+    /**
+     * 开启重新设置tag(这个方法在token方法后)
+     */
+    @PostConstruct
+    public void reSetTag() {
+
+        //获取旧的tag
+        if (removeOldTag()) {
+
+        }
+    }
+
+    private boolean removeOldTag() {
+
+        try {
+
+            //先获取
+            String url = "http://" + genesisAddress + "/ainvr/api/hashtags";
+            Header[] headers = {
+                    new BasicHeader("X-Auth-Token", genesisToken)
+            };
+            String re = HttpPoolUtil.httpGet(url, headers);
+            JSONArray tagJsonArray = JSON.parseArray(re);
+
+            //删除旧的tag
+            for (Object oneTage:tagJsonArray){
+
+            }
+
+        } catch (Exception e) {
+            return false;
+        }
+
+        return false;
+    }
+
 }

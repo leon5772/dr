@@ -105,6 +105,38 @@ public class HttpPoolUtil {
         return null;
     }
 
+    public static String httpGet(String url,Header... heads) {
+        HttpGet httpGet = new HttpGet(url);
+        CloseableHttpResponse response = null;
+
+        try {
+
+            if (heads != null) {
+                httpGet.setHeaders(heads);
+            }
+
+            response = httpClient.execute(httpGet);
+            String result = EntityUtils.toString(response.getEntity());
+            int code = response.getStatusLine().getStatusCode();
+            if (code > 199 && code < 300) {
+                return result;
+            } else {
+                logger.error("请求{}返回错误码：{},{}", url, code, result);
+                return null;
+            }
+        } catch (IOException e) {
+            logger.error("http请求异常，{}", url, e);
+        } finally {
+            try {
+                if (response != null)
+                    response.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
     public static String post(String uri, Object params, Header... heads) {
         logger.error("------------------------------------------------"+uri);
         HttpPost httpPost = new HttpPost(uri);
