@@ -76,7 +76,7 @@ public class TransServiceImpl implements ITransService {
             return null;
         }
 
-        return null;
+        return JSON.toJSONString(genesisBodyEntity);
     }
 
     private GenesisScene formatAlgoDetails(String genesisCid, JSONObject inputJsonObj) {
