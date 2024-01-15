@@ -62,21 +62,21 @@ public class TransServiceImpl implements ITransService {
         //1: 识别消息（门禁，人脸）.2: 结构化消息.3: 算法仓消息.
         String recordType = inputJson.getString("recordType");
 
-        GenesisScene genesisBodyEntity = new GenesisScene();
         try {
             if (recordType.equals(1)) {
 
             } else if (recordType.equals(2)) {
 
             } else if (recordType.equals(3)) {
-                genesisBodyEntity = formatAlgoDetails(genesisCid, inputJson.getJSONObject("detail").getJSONObject("warehouseV20Events"));
+                GenesisScene genesisBodyEntity = formatAlgoDetails(genesisCid, inputJson.getJSONObject("detail").getJSONObject("warehouseV20Events"));
+                return JSON.toJSONString(genesisBodyEntity);
             }
         } catch (Exception e) {
             logger.error("trans json, json get value error: ", e);
             return null;
         }
 
-        return JSON.toJSONString(genesisBodyEntity);
+        return null;
     }
 
     private GenesisScene formatAlgoDetails(String genesisCid, JSONObject inputJsonObj) {
