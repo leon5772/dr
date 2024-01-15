@@ -45,14 +45,17 @@ public class TransServiceImpl implements ITransService {
         return null;
     }
 
+    /**
+     * 启动的时候会更新一下genesis的token，避免第一次安装没有token
+     * */
     @PostConstruct
     @Override
     public void updateGenesisToken() {
 
         //根据账号密码获取token
-        JSONObject body = new JSONObject();
-        body.put("username", genesisName);
-        body.put("password", genesisPwd);
+        Map<String,String> bodyMap = new HashMap<>();
+        bodyMap.put("username", genesisName);
+        bodyMap.put("password", genesisPwd);
 
         //genesis 地址
         String url = "http://" + genesisAddress + "/ainvr/api/auth";
@@ -64,7 +67,7 @@ public class TransServiceImpl implements ITransService {
 
         try {
 
-            String res = HttpPoolUtil.post(url, body.toJSONString(), headers);
+            String res = HttpPoolUtil.post(url, bodyMap, headers);
 
             JSONObject resJson = JSON.parseObject(res);
             String strToken = resJson.getString("token");
@@ -81,7 +84,7 @@ public class TransServiceImpl implements ITransService {
     }
 
     /**
-     * 我们使用http通道订阅
+     * 每次重启会取消一次订阅，然后再重新开始订阅
      */
     @PostConstruct
     public void reSub() {

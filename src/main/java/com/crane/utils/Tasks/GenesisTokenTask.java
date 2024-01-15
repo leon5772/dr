@@ -14,7 +14,7 @@ public class GenesisTokenTask {
     ITransService transService;
 
     /**
-     * 每小时执行
+     * 每小时执行，更新genesis的token
      * */
     @Scheduled(cron = "0 0 0/1 * * ?")
     public void getGenesisToken() {
