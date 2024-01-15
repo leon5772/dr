@@ -101,9 +101,9 @@ public class TransServiceImpl implements ITransService {
             //获取报警的类型
             String inputEventType = eventJson.getString("eventType").toLowerCase();
             if (inputEventType.equals("fight")) {
-                tagArray.add(DataRouterConstant.FIGHTING);
+                tagArray.add(DataRouterConstant.TAG_FIGHTING);
             } else if (inputEventType.equals("run")) {
-                tagArray.add(DataRouterConstant.RUNNING);
+                tagArray.add(DataRouterConstant.TAG_RUNNING);
             } else {
                 return null;
             }
