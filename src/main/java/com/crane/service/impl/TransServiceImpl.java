@@ -116,6 +116,13 @@ public class TransServiceImpl implements ITransService {
             sceneObject.setW(cArray.get(2));
             sceneObject.setH(cArray.get(3));
 
+            //可信度
+            sceneObject.setConfidence(targetJson.getFloatValue("targetScore"));
+
+            //经纬度
+            sceneObject.setLatitude(39.038F);
+            sceneObject.setLongitude(-72.613F);
+
 
         } catch (Exception e) {
             return null;

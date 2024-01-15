@@ -7,11 +7,11 @@ public class SceneObject {
     private Integer y;
     private Integer w;
     private Integer h;
-    private Double confidence;
+    private Float confidence;
 
-    private Double latitude;
+    private Float latitude;
 
-    private Double longitude;
+    private Float longitude;
 
     public String getObjectType() {
         return objectType;
@@ -53,27 +53,27 @@ public class SceneObject {
         this.h = h;
     }
 
-    public Double getConfidence() {
+    public Float getConfidence() {
         return confidence;
     }
 
-    public void setConfidence(Double confidence) {
+    public void setConfidence(Float confidence) {
         this.confidence = confidence;
     }
 
-    public Double getLatitude() {
+    public Float getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(Double latitude) {
+    public void setLatitude(Float latitude) {
         this.latitude = latitude;
     }
 
-    public Double getLongitude() {
+    public Float getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(Double longitude) {
+    public void setLongitude(Float longitude) {
         this.longitude = longitude;
     }
 }
