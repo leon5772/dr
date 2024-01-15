@@ -33,7 +33,7 @@ logging.config: classpath:logback-spring.xml
 logging:
   logging:
     level:
-      com.crane: error
+      com.crane: debug
 
 
 #spring:
