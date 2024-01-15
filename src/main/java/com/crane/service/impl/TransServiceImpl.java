@@ -79,7 +79,7 @@ public class TransServiceImpl implements ITransService {
         return null;
     }
 
-    private GenesisScene formatAlgoDetails(String genesisCid, JSONObject inputJsonObj) {
+    private GenesisScene formatAlgoDetails(String genesisCid, JSONObject algoMsgJson) {
 
         //场景
         GenesisScene resultScene = new GenesisScene();
@@ -96,7 +96,7 @@ public class TransServiceImpl implements ITransService {
         try {
 
             //只取第一个
-            JSONObject eventJson = inputJsonObj.getJSONArray("alarmEvents").getJSONObject(0);
+            JSONObject eventJson = algoMsgJson.getJSONArray("alarmEvents").getJSONObject(0);
 
             //获取报警的类型
             String inputEventType = eventJson.getString("eventType").toLowerCase();
@@ -109,7 +109,7 @@ public class TransServiceImpl implements ITransService {
             }
 
             //坐标
-            JSONObject targetJson = inputJsonObj.getJSONArray("targets").getJSONObject(0);
+            JSONObject targetJson = eventJson.getJSONArray("targets").getJSONObject(0);
             List<Integer> cArray = getGenesisCoord(targetJson.getJSONArray("points"));
             sceneObject.setX(cArray.get(0));
             sceneObject.setY(cArray.get(1));
