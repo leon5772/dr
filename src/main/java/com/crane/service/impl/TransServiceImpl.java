@@ -47,8 +47,53 @@ public class TransServiceImpl implements ITransService {
 
         //获取幻方给的通道名字
         String channelName = inputJson.getString("channelName");
+        //根据通道名字，从配置拿到对应的genesis相机id
+        String genesisCid = getTargetCamForGenesis(channelName);
+        if (genesisCid.equals("none")) {
+            return null;
+        }
 
-        System.out.println(getTargetCamForGenesis(channelName));
+        //获取它的类型
+        //1: 识别消息（门禁，人脸）.2: 结构化消息.3: 算法仓消息.
+        String recordType = inputJson.getString("recordType");
+
+        String genesisBodyStr = null;
+        try {
+            if (recordType.equals(1)) {
+
+            } else if (recordType.equals(2)) {
+
+            } else if (recordType.equals(3)) {
+                genesisBodyStr = formatAlgoDetails(inputJson.getJSONObject("detail").getJSONObject("warehouseV20Events"));
+            }
+        } catch (Exception e) {
+            logger.error("trans json, json get value error: ", e);
+            return null;
+        }
+
+        return null;
+    }
+
+    private String formatAlgoDetails(JSONObject jsonObject) {
+
+        try {
+            //只取第一个
+            JSONObject eventJson = jsonObject.getJSONArray("alarmEvents").getJSONObject(0);
+
+            //获取报警的类型
+            String inputEventType = eventJson.getString("eventType").toLowerCase();
+            if (inputEventType.equals("fight")) {
+
+            } else if (inputEventType.equals("run")) {
+
+            } else {
+                return null;
+            }
+
+
+        } catch (Exception e) {
+            return null;
+        }
 
         return null;
     }
@@ -57,14 +102,14 @@ public class TransServiceImpl implements ITransService {
 
         String genesisCid = "none";
 
-        String[] rel = cameraRelInfo.split("&");
+        String[] rel = cameraRelInfo.split(",");
 
+        for (String oneRel : rel) {
 
-        for (int i = 0; i < rel.length; i++) {
-
-            String oneRelStr = rel[i];
-            if (oneRelStr.equals(channelName)) {
-                genesisCid = oneRelStr.split("=")[1];
+            String[] relArray = oneRel.split("=");
+            if (channelName.equals(relArray[0])) {
+                genesisCid = relArray[1];
+                break;
             }
         }
 
