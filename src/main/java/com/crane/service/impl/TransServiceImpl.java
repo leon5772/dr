@@ -84,12 +84,12 @@ public class TransServiceImpl implements ITransService {
      * 我们使用http通道订阅
      */
     @PostConstruct
-    public void startSub() {
+    public void reSub() {
 
         if (StringUtils.isBlank(neuroAddress) || StringUtils.isBlank(genesisAddress) || StringUtils.isBlank(drAddress)) {
 
             //没填写ip地址直接返回
-            logger.error("ip less");
+            logger.error("on start re-sub some ip less");
 
         } else {
 
@@ -114,7 +114,7 @@ public class TransServiceImpl implements ITransService {
         };
 
         try {
-            String re = HttpPoolUtil.post(unSubQuery, JSON.toJSONString(unSubMap), headers);
+            String re = HttpPoolUtil.post(unSubQuery, unSubMap, headers);
             if (StringUtils.isNotBlank(re) && (re.contains("0,") || re.contains("100005,"))) {
                 logger.error("unSub success");
                 return "1";
@@ -153,7 +153,7 @@ public class TransServiceImpl implements ITransService {
 
         try {
 
-            String re = HttpPoolUtil.post(subQuery, JSON.toJSONString(subMap), headers);
+            String re = HttpPoolUtil.post(subQuery, subMap, headers);
             if (StringUtils.isNotBlank(re) && re.contains("sessionId")) {
                 logger.error("sub success");
             } else {
