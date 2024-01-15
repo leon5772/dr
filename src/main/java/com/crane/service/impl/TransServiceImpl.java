@@ -1,7 +1,10 @@
 package com.crane.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.crane.domain.GenesisScene;
+import com.crane.domain.SceneObject;
 import com.crane.service.ITransService;
 import com.crane.utils.DataRouterConstant;
 import com.crane.utils.http.HttpPoolUtil;
@@ -14,6 +17,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -57,14 +62,14 @@ public class TransServiceImpl implements ITransService {
         //1: 识别消息（门禁，人脸）.2: 结构化消息.3: 算法仓消息.
         String recordType = inputJson.getString("recordType");
 
-        String genesisBodyStr = null;
+        GenesisScene genesisBodyEntity = null;
         try {
             if (recordType.equals(1)) {
 
             } else if (recordType.equals(2)) {
 
             } else if (recordType.equals(3)) {
-                genesisBodyStr = formatAlgoDetails(inputJson.getJSONObject("detail").getJSONObject("warehouseV20Events"));
+                genesisBodyEntity = formatAlgoDetails(genesisCid, inputJson.getJSONObject("detail").getJSONObject("warehouseV20Events"));
             }
         } catch (Exception e) {
             logger.error("trans json, json get value error: ", e);
@@ -74,28 +79,90 @@ public class TransServiceImpl implements ITransService {
         return null;
     }
 
-    private String formatAlgoDetails(JSONObject jsonObject) {
+    private GenesisScene formatAlgoDetails(String genesisCid, JSONObject inputJsonObj) {
+
+        //场景
+        GenesisScene resultScene = new GenesisScene();
+        resultScene.setCameraId(Integer.valueOf(genesisCid));
+
+        //对象
+        List<SceneObject> resultObjects = new ArrayList<>();
+        SceneObject sceneObject = new SceneObject();
+        sceneObject.setObjectType("Person");
+
+        //标签
+        List<String> tagArray = new ArrayList<>();
 
         try {
+
             //只取第一个
-            JSONObject eventJson = jsonObject.getJSONArray("alarmEvents").getJSONObject(0);
+            JSONObject eventJson = inputJsonObj.getJSONArray("alarmEvents").getJSONObject(0);
 
             //获取报警的类型
             String inputEventType = eventJson.getString("eventType").toLowerCase();
             if (inputEventType.equals("fight")) {
-
+                tagArray.add("fight");
             } else if (inputEventType.equals("run")) {
-
+                tagArray.add("run");
             } else {
                 return null;
             }
+
+            //坐标
+            JSONObject targetJson = inputJsonObj.getJSONArray("targets").getJSONObject(0);
+            List<Integer> cArray = getGenesisCoord(targetJson.getJSONArray("points"));
+            sceneObject.setX(cArray.get(0));
+            sceneObject.setY(cArray.get(1));
+            sceneObject.setW(cArray.get(2));
+            sceneObject.setH(cArray.get(3));
 
 
         } catch (Exception e) {
             return null;
         }
 
-        return null;
+        resultObjects.add(sceneObject);
+        resultScene.setSceneObjects(resultObjects);
+        resultScene.setHashtags(tagArray);
+        return resultScene;
+    }
+
+    private List<Integer> getGenesisCoord(JSONArray pointsJsonArray) {
+
+        List<Integer> resultCoord = new ArrayList<>();
+
+        //获取左上角，右下角的坐标
+        JSONObject upperLeftJson = pointsJsonArray.getJSONObject(0);
+        JSONObject bottomRightJson = pointsJsonArray.getJSONObject(1);
+
+        //旷视的分辨率默认解析为1080p
+        BigDecimal cameraResWidBD = new BigDecimal("1920");
+        BigDecimal cameraResHtBD = new BigDecimal("1080");
+
+        //左上角的像素x坐标
+        BigDecimal upperLeftXBD = cameraResWidBD.multiply(BigDecimal.valueOf(upperLeftJson.getFloatValue("x")));
+        //左上角的像素y坐标
+        BigDecimal upperLeftYBD = cameraResHtBD.multiply(BigDecimal.valueOf(upperLeftJson.getFloatValue("y")));
+        //右下角的像素x坐标
+        BigDecimal bottomRightXBD = cameraResWidBD.multiply(BigDecimal.valueOf(bottomRightJson.getFloatValue("x")));
+        //右下角的像素y坐标
+        BigDecimal bottomRightYBD = cameraResHtBD.multiply(BigDecimal.valueOf(bottomRightJson.getFloatValue("y")));
+
+        //Genesis的整数坐标
+        Integer genesisX = upperLeftXBD.setScale(0, RoundingMode.HALF_UP).intValue();
+        resultCoord.add(genesisX);
+
+        Integer genesisY = upperLeftYBD.setScale(0, RoundingMode.HALF_UP).intValue();
+        resultCoord.add(genesisY);
+
+        BigDecimal targetWidBD = bottomRightXBD.subtract(upperLeftXBD);
+        resultCoord.add(targetWidBD.setScale(0, RoundingMode.HALF_UP).intValue());
+
+        BigDecimal targetHtBD = bottomRightYBD.subtract(upperLeftYBD);
+        resultCoord.add(targetHtBD.setScale(0, RoundingMode.HALF_UP).intValue());
+
+        //返回
+        return resultCoord;
     }
 
     private String getTargetCamForGenesis(String channelName) {
