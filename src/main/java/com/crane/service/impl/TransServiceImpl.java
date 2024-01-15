@@ -40,7 +40,7 @@ public class TransServiceImpl implements ITransService {
     private String genesisPwd;
 
     @Value("${camera_rel.neuro_to_genesis}")
-    public List<String> cameraRelList;
+    public String cameraRelInfo;
 
     @Override
     public String transJson(JSONObject inputJson) {
@@ -57,9 +57,12 @@ public class TransServiceImpl implements ITransService {
 
         String genesisCid = "none";
 
-        for (int i = 0; i < cameraRelList.size(); i++) {
+        String[] rel = cameraRelInfo.split("&");
 
-            String oneRelStr = cameraRelList.get(i);
+
+        for (int i = 0; i < rel.length; i++) {
+
+            String oneRelStr = rel[i];
             if (oneRelStr.equals(channelName)) {
                 genesisCid = oneRelStr.split("=")[1];
             }
