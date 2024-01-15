@@ -136,18 +136,7 @@ public class TransServiceImpl implements ITransService {
         String subQuery = "http://" + neuroAddress + DataRouterConstant.NEURO_API + "/v1/event/record/subscribe";
 
         //所有摄像头就是所有通道
-        Map<String, Object> subMap = new HashMap<>();
-        subMap.put("channelUuid", "*");
-
-        List<Map<String, Object>> records = new ArrayList<>();
-        Map<String, Object> recordMap1 = new HashMap<>();
-        //genesis跟dr装同一个机器，所以ip指向到genesis即可
-        recordMap1.put("url", "http://" + drAddress + ":8502/Neuro");
-        records.add(recordMap1);
-        //通道是http，所以subType选2
-        recordMap1.put("pushType", 2);
-        //放入总json
-        subMap.put("records", records);
+        Map<String, Object> subMap = getStringObjectMap();
 
         //头部
         Header[] headers = {
@@ -167,6 +156,22 @@ public class TransServiceImpl implements ITransService {
             logger.error("sub error:", e);
         }
 
+    }
+
+    private Map<String, Object> getStringObjectMap() {
+        Map<String, Object> subMap = new HashMap<>();
+        subMap.put("channelUuid", "*");
+
+        List<Map<String, Object>> records = new ArrayList<>();
+        Map<String, Object> recordMap1 = new HashMap<>();
+        //genesis跟dr装同一个机器，所以ip指向到genesis即可
+        recordMap1.put("url", "http://" + drAddress + ":8502/Neuro");
+        records.add(recordMap1);
+        //通道是http，所以subType选2
+        recordMap1.put("pushType", 2);
+        //放入总json
+        subMap.put("records", records);
+        return subMap;
     }
 
 }
