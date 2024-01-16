@@ -68,6 +68,7 @@ public class TransServiceImpl implements ITransService {
                 } else if (recordType == 2) {
 
                 } else if (recordType == 3) {
+
                     GenesisScene genesisBodyEntity = formatAlgoDetails(genesisCid, inputJson.getJSONObject("detail").getJSONObject("warehouseV20Events"));
 
                     forwardToGenesis(genesisBodyEntity);
@@ -86,10 +87,6 @@ public class TransServiceImpl implements ITransService {
         Header[] headers = {
                 new BasicHeader("X-Auth-Token", genesisToken)
         };
-
-
-
-        //HttpPoolUtil.forwardPost(url, genesisBodyEntity, headers);
 
     }
 
