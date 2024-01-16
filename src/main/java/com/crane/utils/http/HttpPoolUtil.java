@@ -5,6 +5,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.config.Registry;
@@ -116,6 +117,40 @@ public class HttpPoolUtil {
             }
 
             response = httpClient.execute(httpGet);
+            String result = EntityUtils.toString(response.getEntity());
+            int code = response.getStatusLine().getStatusCode();
+            if (code > 199 && code < 300) {
+                return result;
+            } else {
+                logger.error("请求{}返回错误码：{},{}", url, code, result);
+                return null;
+            }
+        } catch (IOException e) {
+            logger.error("http请求异常，{}", url, e);
+        } finally {
+            try {
+                if (response != null)
+                    response.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public static String httpDelete(String url,Header... heads) {
+
+        HttpDelete httpDelete = new HttpDelete(url);
+
+        CloseableHttpResponse response = null;
+
+        try {
+
+            if (heads != null) {
+                httpDelete.setHeaders(heads);
+            }
+
+            response = httpClient.execute(httpDelete);
             String result = EntityUtils.toString(response.getEntity());
             int code = response.getStatusLine().getStatusCode();
             if (code > 199 && code < 300) {

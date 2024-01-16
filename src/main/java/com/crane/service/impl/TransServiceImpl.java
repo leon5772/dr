@@ -324,15 +324,6 @@ public class TransServiceImpl implements ITransService {
      */
     @PostConstruct
     public void reSetTag() {
-
-        //获取旧的tag
-        if (removeOldTag()) {
-
-        }
-    }
-
-    private boolean removeOldTag() {
-
         try {
 
             //先获取
@@ -344,15 +335,18 @@ public class TransServiceImpl implements ITransService {
             JSONArray tagJsonArray = JSON.parseArray(re);
 
             //删除旧的tag
-            for (Object oneTage:tagJsonArray){
-
+            for (Object oneOldTag : tagJsonArray) {
+                String tagStr = (String) oneOldTag;
+                HttpPoolUtil.httpDelete(url + "/" + tagStr, headers);
             }
 
+            //放入新的tag
+            for (String tag : DataRouterConstant.TAG_SET) {
+                HttpPoolUtil.post(url, tag, headers);
+            }
         } catch (Exception e) {
-            return false;
+            logger.error("on start re put tags error: ", e);
         }
-
-        return false;
     }
 
 }
