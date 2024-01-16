@@ -75,7 +75,7 @@ public class HttpPoolUtil {
                 .setConnectionManager(poolConnManager)
                 .setDefaultRequestConfig(config)
                 // 设置重试次数
-                .setRetryHandler(new DefaultHttpRequestRetryHandler(2, false)).build();
+                .setRetryHandler(new DefaultHttpRequestRetryHandler(0, false)).build();
         return httpClient;
     }
 
