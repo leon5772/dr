@@ -246,6 +246,8 @@ public class TransServiceImpl implements ITransService {
     public void reSetTag() {
         try {
 
+            Thread.sleep(1200);
+
             //先获取
             String url = "http://" + genesisAddress + "/ainvr/api/hashtags";
             Header[] headers = {
