@@ -276,6 +276,7 @@ public class TransServiceImpl implements ITransService {
                 HttpPoolUtil.noJsonPost(url, tag, headers);
             }
 
+            logger.error("reset tag success");
         } catch (Exception e) {
             logger.error("on start re put tags error: ", e);
         }
