@@ -18,6 +18,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -83,6 +84,12 @@ public class TransServiceImpl implements ITransService {
         }
     }
 
+//    public static void main(String[] args) {
+//        TransServiceImpl a = new TransServiceImpl();
+//
+//        a.forwardToGenesis();
+//    }
+
     private void forwardToGenesis(GenesisScene genesisBodyEntity) {
 
         String url = "http://" + genesisAddress + "/ainvr/api/scenes?requiredEngines=Unknown&forceSave=false";
@@ -91,8 +98,13 @@ public class TransServiceImpl implements ITransService {
                 new BasicHeader("X-Auth-Token", genesisToken)
         };
 
-        HttpPoolUtil.forwardPost(url, "/opt/dr_metadata/data/pic/md5", JSON.toJSONString(genesisBodyEntity), headers);
+        HttpPoolUtil.forwardPost(url, "/opt/dl_dr_metadata/data/img/1705303209190.jpg", JSON.toJSONString(genesisBodyEntity), headers);
 
+    }
+
+    public static void main(String[] args) {
+        File a = new File("/opt/dl_dr_metadata/data/img/1705303209190.jpg");
+        System.out.println(a.exists());
     }
 
     private GenesisScene formatAlgoDetails(String genesisCid, JSONObject algoMsgJson) {
