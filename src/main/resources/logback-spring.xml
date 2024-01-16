@@ -2,7 +2,7 @@
 
 <configuration>
 
-    <property name="LOG_PATH" value="${LOG_PATH:-D:/DL_Router_Metadata}" />
+    <property name="LOG_PATH" value="${LOG_PATH:-/opt/dr_metadata/data/log}" />
     <property name="LOG_NAME" value="${LOG_NAME:-data_router}" />
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">

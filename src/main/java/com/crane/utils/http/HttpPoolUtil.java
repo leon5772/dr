@@ -3,7 +3,6 @@ package com.crane.utils.http;
 import com.alibaba.fastjson.JSON;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
@@ -263,11 +262,11 @@ public class HttpPoolUtil {
             builder.setCharset(StandardCharsets.UTF_8);
 
             // 添加字符串参数
-            builder.addTextBody("name", "John Doe", ContentType.TEXT_PLAIN);
+            builder.addTextBody("scene", sceneText, ContentType.TEXT_PLAIN);
 
             // 添加图片文件
-            File imageFile = new File("path/to/image.jpg");
-            builder.addBinaryBody("image", imageFile, ContentType.IMAGE_JPEG, imageFile.getName());
+            File imageFile = new File(picFilePath);
+            builder.addBinaryBody("file", imageFile, ContentType.IMAGE_JPEG, imageFile.getName());
 
             // 构建 HttpEntity
             HttpEntity multipartEntity = builder.build();
@@ -282,7 +281,7 @@ public class HttpPoolUtil {
             response = httpClient.execute(httpPost);
             int code = response.getStatusLine().getStatusCode();
             String result = EntityUtils.toString(response.getEntity());
-            if (code == HttpStatus.SC_OK) {
+            if (code > 199 && code < 300) {
                 return result;
             } else {
 

@@ -91,6 +91,8 @@ public class TransServiceImpl implements ITransService {
                 new BasicHeader("X-Auth-Token", genesisToken)
         };
 
+        HttpPoolUtil.forwardPost(url, "/opt/dr_metadata/data/pic/md5", JSON.toJSONString(genesisBodyEntity), headers);
+
     }
 
     private GenesisScene formatAlgoDetails(String genesisCid, JSONObject algoMsgJson) {
@@ -251,7 +253,7 @@ public class TransServiceImpl implements ITransService {
      * 开启重新设置tag(这个方法在token方法后)
      */
     public void reSetTag() {
-        
+
         try {
 
             //先获取
