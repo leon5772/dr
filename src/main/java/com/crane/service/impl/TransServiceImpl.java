@@ -251,9 +251,8 @@ public class TransServiceImpl implements ITransService {
      * 开启重新设置tag(这个方法在token方法后)
      */
     public void reSetTag() {
+        
         try {
-
-            Thread.sleep(1200);
 
             //先获取
             String url = "http://" + genesisAddress + "/ainvr/api/hashtags";
