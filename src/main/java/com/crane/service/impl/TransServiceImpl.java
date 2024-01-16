@@ -253,7 +253,7 @@ public class TransServiceImpl implements ITransService {
 
             //放入新的tag
             for (String tag : DataRouterConstant.TAG_SET) {
-                HttpPoolUtil.post(url, tag, headers);
+                HttpPoolUtil.noJsonPost(url, tag, headers);
             }
 
         } catch (Exception e) {
