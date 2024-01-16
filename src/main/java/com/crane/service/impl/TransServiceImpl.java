@@ -237,12 +237,17 @@ public class TransServiceImpl implements ITransService {
         } catch (Exception e) {
             logger.error("get genesisToken error:", e);
         }
+
+        //第一次启动时，将tag重置，并从新订阅幻方
+        if (!genesisToken.isEmpty()) {
+            reSetTag();
+            reSub();
+        }
     }
 
     /**
      * 开启重新设置tag(这个方法在token方法后)
      */
-    @PostConstruct
     public void reSetTag() {
         try {
 
@@ -277,7 +282,6 @@ public class TransServiceImpl implements ITransService {
     /**
      * 每次重启会取消一次订阅，然后再重新开始订阅
      */
-    @PostConstruct
     public void reSub() {
 
         if (StringUtils.isBlank(neuroAddress) || StringUtils.isBlank(genesisAddress) || StringUtils.isBlank(drAddress)) {
