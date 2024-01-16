@@ -106,7 +106,7 @@ public class HttpPoolUtil {
         return null;
     }
 
-    public static String httpGet(String url,Header... heads) {
+    public static String httpGet(String url, Header... heads) {
         HttpGet httpGet = new HttpGet(url);
         CloseableHttpResponse response = null;
 
@@ -138,7 +138,7 @@ public class HttpPoolUtil {
         return null;
     }
 
-    public static String httpDelete(String url,Header... heads) {
+    public static String httpDelete(String url, Header... heads) {
 
         HttpDelete httpDelete = new HttpDelete(url);
 
@@ -173,7 +173,7 @@ public class HttpPoolUtil {
     }
 
     public static String post(String uri, Object params, Header... heads) {
-        logger.error("------------------------------------------------"+uri);
+        logger.error("------------------------------------------------" + uri);
         HttpPost httpPost = new HttpPost(uri);
         CloseableHttpResponse response = null;
         try {
@@ -187,7 +187,43 @@ public class HttpPoolUtil {
             response = httpClient.execute(httpPost);
             int code = response.getStatusLine().getStatusCode();
             String result = EntityUtils.toString(response.getEntity());
-            logger.error("---------------------------------------------[["+code);
+            logger.error("---------------------------------------------[[" + code);
+            if (code > 199 && code < 300) {
+                return result;
+            } else {
+                logger.error("请求{}返回错误码:{},请求参数:{},{}", uri, code, params, result);
+                return null;
+            }
+        } catch (IOException e) {
+            logger.error("收集服务配置http请求异常", e);
+        } finally {
+            try {
+                if (response != null) {
+                    response.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public static String noJsonPost(String uri, String params, Header... heads) {
+        logger.error("------------------------------------------------" + uri);
+        HttpPost httpPost = new HttpPost(uri);
+        CloseableHttpResponse response = null;
+        try {
+            StringEntity paramEntity = new StringEntity(params);
+            paramEntity.setContentEncoding("UTF-8");
+            paramEntity.setContentType("application/json");
+            httpPost.setEntity(paramEntity);
+            if (heads != null) {
+                httpPost.setHeaders(heads);
+            }
+            response = httpClient.execute(httpPost);
+            int code = response.getStatusLine().getStatusCode();
+            String result = EntityUtils.toString(response.getEntity());
+            logger.error("---------------------------------------------[[" + code);
             if (code > 199 && code < 300) {
                 return result;
             } else {

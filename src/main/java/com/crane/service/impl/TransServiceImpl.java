@@ -229,6 +229,39 @@ public class TransServiceImpl implements ITransService {
     }
 
     /**
+     * 开启重新设置tag(这个方法在token方法后)
+     */
+    @PostConstruct
+    public void reSetTag() {
+        try {
+
+            //先获取
+            String url = "http://" + genesisAddress + "/ainvr/api/hashtags";
+            Header[] headers = {
+                    new BasicHeader("X-Auth-Token", genesisToken)
+            };
+            String re = HttpPoolUtil.httpGet(url, headers);
+            JSONArray tagJsonArray = JSON.parseArray(re);
+
+            //删除旧的tag
+            if (tagJsonArray != null && !tagJsonArray.isEmpty()) {
+                for (Object oneOldTag : tagJsonArray) {
+                    String tagStr = (String) oneOldTag;
+                    HttpPoolUtil.httpDelete(url + "/" + tagStr, headers);
+                }
+            }
+
+            //放入新的tag
+            for (String tag : DataRouterConstant.TAG_SET) {
+                HttpPoolUtil.post(url, tag, headers);
+            }
+
+        } catch (Exception e) {
+            logger.error("on start re put tags error: ", e);
+        }
+    }
+
+    /**
      * 每次重启会取消一次订阅，然后再重新开始订阅
      */
     @PostConstruct
@@ -317,36 +350,6 @@ public class TransServiceImpl implements ITransService {
         //放入总json
         subMap.put("records", records);
         return subMap;
-    }
-
-    /**
-     * 开启重新设置tag(这个方法在token方法后)
-     */
-    @PostConstruct
-    public void reSetTag() {
-        try {
-
-            //先获取
-            String url = "http://" + genesisAddress + "/ainvr/api/hashtags";
-            Header[] headers = {
-                    new BasicHeader("X-Auth-Token", genesisToken)
-            };
-            String re = HttpPoolUtil.httpGet(url, headers);
-            JSONArray tagJsonArray = JSON.parseArray(re);
-
-            //删除旧的tag
-            for (Object oneOldTag : tagJsonArray) {
-                String tagStr = (String) oneOldTag;
-                HttpPoolUtil.httpDelete(url + "/" + tagStr, headers);
-            }
-
-            //放入新的tag
-            for (String tag : DataRouterConstant.TAG_SET) {
-                HttpPoolUtil.post(url, tag, headers);
-            }
-        } catch (Exception e) {
-            logger.error("on start re put tags error: ", e);
-        }
     }
 
 }
