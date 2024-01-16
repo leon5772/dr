@@ -239,7 +239,7 @@ public class TransServiceImpl implements ITransService {
         }
 
         //第一次启动时，将tag重置，并从新订阅幻方
-        if (!genesisToken.isEmpty()) {
+        if (genesisToken.isEmpty()) {
             reSetTag();
             reSub();
         }
