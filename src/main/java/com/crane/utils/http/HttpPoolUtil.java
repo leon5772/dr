@@ -173,7 +173,7 @@ public class HttpPoolUtil {
     }
 
     public static String post(String uri, Object params, Header... heads) {
-        logger.error("------------------------------------------------" + uri);
+
         HttpPost httpPost = new HttpPost(uri);
         CloseableHttpResponse response = null;
         try {
@@ -187,7 +187,7 @@ public class HttpPoolUtil {
             response = httpClient.execute(httpPost);
             int code = response.getStatusLine().getStatusCode();
             String result = EntityUtils.toString(response.getEntity());
-            logger.error("---------------------------------------------[[" + code);
+
             if (code > 199 && code < 300) {
                 return result;
             } else {
@@ -209,7 +209,7 @@ public class HttpPoolUtil {
     }
 
     public static String noJsonPost(String uri, String params, Header... heads) {
-        logger.error("------------------------------------------------" + uri);
+
         HttpPost httpPost = new HttpPost(uri);
         CloseableHttpResponse response = null;
         try {
@@ -223,7 +223,7 @@ public class HttpPoolUtil {
             response = httpClient.execute(httpPost);
             int code = response.getStatusLine().getStatusCode();
             String result = EntityUtils.toString(response.getEntity());
-            logger.error("---------------------------------------------[[" + code);
+
             if (code > 199 && code < 300) {
                 return result;
             } else {
