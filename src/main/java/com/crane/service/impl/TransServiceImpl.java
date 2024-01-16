@@ -14,6 +14,7 @@ import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -48,35 +49,32 @@ public class TransServiceImpl implements ITransService {
     public String cameraRelInfo;
 
     @Override
-    public String transJson(JSONObject inputJson) {
+    @Async("asyncServiceExecutor")
+    public void transJson(JSONObject inputJson) {
 
         //获取幻方给的通道名字
         String channelName = inputJson.getString("channelName");
         //根据通道名字，从配置拿到对应的genesis相机id
         String genesisCid = getTargetCamForGenesis(channelName);
-        if (genesisCid.equals("none")) {
-            return null;
-        }
+        if (!genesisCid.equals("none")) {
+            //获取它的类型
+            //1: 识别消息（门禁，人脸）.2: 结构化消息.3: 算法仓消息.
+            int recordType = inputJson.getIntValue("recordType");
 
-        //获取它的类型
-        //1: 识别消息（门禁，人脸）.2: 结构化消息.3: 算法仓消息.
-        int recordType = inputJson.getIntValue("recordType");
+            try {
 
-        try {
-            if (recordType == 1) {
+                if (recordType == 1) {
 
-            } else if (recordType == 2) {
+                } else if (recordType == 2) {
 
-            } else if (recordType == 3) {
-                GenesisScene genesisBodyEntity = formatAlgoDetails(genesisCid, inputJson.getJSONObject("detail").getJSONObject("warehouseV20Events"));
-                return JSON.toJSONString(genesisBodyEntity);
+                } else if (recordType == 3) {
+                    GenesisScene genesisBodyEntity = formatAlgoDetails(genesisCid, inputJson.getJSONObject("detail").getJSONObject("warehouseV20Events"));
+                }
+
+            } catch (Exception e) {
+                logger.error("trans json, json get value error: ", e);
             }
-        } catch (Exception e) {
-            logger.error("trans json, json get value error: ", e);
-            return null;
         }
-
-        return null;
     }
 
     private GenesisScene formatAlgoDetails(String genesisCid, JSONObject algoMsgJson) {

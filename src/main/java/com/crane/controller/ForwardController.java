@@ -38,15 +38,7 @@ public class ForwardController {
 
         //将幻方盒子得到的数据，转为genesis的格式
         transService.transJson(inJson);
-
-        //发给genesis
-        dataToGenesis();
-
         return "{\"code\":200}";
-    }
-
-    private void dataToGenesis() {
-
     }
 
     //获取body参数
