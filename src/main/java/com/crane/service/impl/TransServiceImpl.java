@@ -69,12 +69,28 @@ public class TransServiceImpl implements ITransService {
 
                 } else if (recordType == 3) {
                     GenesisScene genesisBodyEntity = formatAlgoDetails(genesisCid, inputJson.getJSONObject("detail").getJSONObject("warehouseV20Events"));
+
+                    forwardToGenesis(genesisBodyEntity);
                 }
 
             } catch (Exception e) {
                 logger.error("trans json, json get value error: ", e);
             }
         }
+    }
+
+    private void forwardToGenesis(GenesisScene genesisBodyEntity) {
+
+        String url = "http://" + genesisAddress + "/ainvr/api/scenes?requiredEngines=Unknown&forceSave=false";
+
+        Header[] headers = {
+                new BasicHeader("X-Auth-Token", genesisToken)
+        };
+
+
+
+        //HttpPoolUtil.forwardPost(url, genesisBodyEntity, headers);
+
     }
 
     private GenesisScene formatAlgoDetails(String genesisCid, JSONObject algoMsgJson) {

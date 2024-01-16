@@ -2,6 +2,7 @@ package com.crane.utils.http;
 
 import com.alibaba.fastjson.JSON;
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -14,7 +15,10 @@ import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClients;
@@ -24,7 +28,9 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -244,24 +250,42 @@ public class HttpPoolUtil {
         return null;
     }
 
-    public static String forwardPost(String uri, Object params, Header... heads) {
+    public static String forwardPost(String uri, String picFilePath, String sceneText, Header... heads) {
+
         HttpPost httpPost = new HttpPost(uri);
         CloseableHttpResponse response = null;
+
         try {
-            StringEntity paramEntity = new StringEntity(JSON.toJSONString(params));
-            paramEntity.setContentEncoding("UTF-8");
-            paramEntity.setContentType("application/json");
-            httpPost.setEntity(paramEntity);
+
+            // 创建 MultipartEntityBuilder
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+            builder.setCharset(StandardCharsets.UTF_8);
+
+            // 添加字符串参数
+            builder.addTextBody("name", "John Doe", ContentType.TEXT_PLAIN);
+
+            // 添加图片文件
+            File imageFile = new File("path/to/image.jpg");
+            builder.addBinaryBody("image", imageFile, ContentType.IMAGE_JPEG, imageFile.getName());
+
+            // 构建 HttpEntity
+            HttpEntity multipartEntity = builder.build();
+
+            // 设置请求的实体部分
+            httpPost.setEntity(multipartEntity);
+
             if (heads != null) {
                 httpPost.setHeaders(heads);
             }
+
             response = httpClient.execute(httpPost);
             int code = response.getStatusLine().getStatusCode();
             String result = EntityUtils.toString(response.getEntity());
             if (code == HttpStatus.SC_OK) {
                 return result;
             } else {
-                logger.error("请求{}返回错误码:{},请求参数:{},{}", uri, code, params, result);
+
                 return null;
             }
         } catch (IOException e) {
