@@ -32,6 +32,9 @@ public class TransServiceImpl implements ITransService {
 
     public static String genesisToken = "";
 
+    //第一次启动时，将tag重置，并从新订阅幻方消息
+    private static boolean isFirstFlag = true;
+
     @Value("${dl_data_router.address}")
     private String drAddress;
 
@@ -231,17 +234,16 @@ public class TransServiceImpl implements ITransService {
                 genesisToken = strToken;
                 logger.error("token-update-finished:>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
                 logger.error(genesisToken);
-                logger.error("token-update-finished:<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
             }
 
         } catch (Exception e) {
             logger.error("get genesisToken error:", e);
         }
 
-        //第一次启动时，将tag重置，并从新订阅幻方
-        if (genesisToken.isEmpty()) {
+        if (isFirstFlag) {
             reSetTag();
             reSub();
+            isFirstFlag = false;
         }
     }
 
