@@ -84,12 +84,6 @@ public class TransServiceImpl implements ITransService {
         }
     }
 
-//    public static void main(String[] args) {
-//        TransServiceImpl a = new TransServiceImpl();
-//
-//        a.forwardToGenesis();
-//    }
-
     private void forwardToGenesis(GenesisScene genesisBodyEntity) {
 
         String url = "http://" + genesisAddress + "/ainvr/api/scenes?requiredEngines=Unknown&forceSave=false";
