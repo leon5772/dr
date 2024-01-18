@@ -19,8 +19,16 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,7 +83,26 @@ public class TransServiceImpl implements ITransService {
 
                     GenesisScene genesisBodyEntity = formatAlgoDetails(genesisCid, inputJson.getJSONObject("detail").getJSONObject("warehouseV20Events"));
 
-                    forwardToGenesis(genesisBodyEntity);
+                    String sourceImgUrl = "https://upload-images.jianshu.io/upload_images/31920-c579166152e93584.png";
+                    String imgSavePath = downloadPic(sourceImgUrl);
+
+                    boolean sendStatus = forwardToGenesis(genesisBodyEntity, imgSavePath);
+
+                    if (sendStatus) {
+                        try {
+                            File f = new File(imgSavePath);
+                            if (f.delete()) {
+
+                            } else {
+                                logger.error("send finished, delete pic failed");
+                            }
+
+                        } catch (Exception e) {
+                            logger.error("send finished, delete pic error : ", e);
+                        }
+                    }
+
+
                 }
 
             } catch (Exception e) {
@@ -84,21 +111,50 @@ public class TransServiceImpl implements ITransService {
         }
     }
 
-    private void forwardToGenesis(GenesisScene genesisBodyEntity) {
+    public static void main(String[] args) {
+        String sourceImgUrl = "https://upload-images.jianshu.io/upload_images/31920-c579166152e93584.png";
 
-        String url = "http://" + genesisAddress + "/ainvr/api/scenes?requiredEngines=Unknown&forceSave=false";
-
-        Header[] headers = {
-                new BasicHeader("X-Auth-Token", genesisToken)
-        };
-
-        HttpPoolUtil.forwardPost(url, "/opt/dl_dr_metadata/data/img/1705303209190.jpg", JSON.toJSONString(genesisBodyEntity), headers);
-
+        try {
+            downloadPic(sourceImgUrl);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
-    public static void main(String[] args) {
-        File a = new File("/opt/dl_dr_metadata/data/img/1705303209190.jpg");
-        System.out.println(a.exists());
+    /**
+     * 下载幻方给的图片
+     */
+    private static String downloadPic(String sourceImgUrl) throws IOException {
+
+        String folderPath = "/opt/dl_dr_metadata/data/img/test.jpg";
+
+        URL url = new URL(sourceImgUrl);
+
+        try (ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream()); InputStream in = Channels.newInputStream(readableByteChannel)) {
+
+            Files.copy(in, Paths.get(folderPath), StandardCopyOption.REPLACE_EXISTING);
+
+        }
+
+        return folderPath;
+    }
+
+    private boolean forwardToGenesis(GenesisScene genesisBodyEntity, String imgPath) {
+
+        try {
+
+            String url = "http://" + genesisAddress + "/ainvr/api/scenes?requiredEngines=Unknown&forceSave=false";
+
+            Header[] headers = {new BasicHeader("X-Auth-Token", genesisToken)};
+
+            HttpPoolUtil.forwardPost(url, "/opt/dl_dr_metadata/data/img/1705303209190.jpg", JSON.toJSONString(genesisBodyEntity), headers);
+
+        } catch (Exception e) {
+            logger.error("send data to genesis error: ", e);
+            return false;
+        }
+
+        return true;
     }
 
     private GenesisScene formatAlgoDetails(String genesisCid, JSONObject algoMsgJson) {
@@ -228,9 +284,7 @@ public class TransServiceImpl implements ITransService {
         String url = "http://" + genesisAddress + "/ainvr/api/auth";
 
         //头部
-        Header[] headers = {
-                new BasicHeader("Content-Type", "application/json")
-        };
+        Header[] headers = {new BasicHeader("Content-Type", "application/json")};
 
         try {
 
@@ -264,9 +318,7 @@ public class TransServiceImpl implements ITransService {
 
             //先获取
             String url = "http://" + genesisAddress + "/ainvr/api/hashtags";
-            Header[] headers = {
-                    new BasicHeader("X-Auth-Token", genesisToken)
-            };
+            Header[] headers = {new BasicHeader("X-Auth-Token", genesisToken)};
             String re = HttpPoolUtil.httpGet(url, headers);
             JSONArray tagJsonArray = JSON.parseArray(re);
 
@@ -317,9 +369,7 @@ public class TransServiceImpl implements ITransService {
         Map<String, Object> unSubMap = new HashMap<>();
         unSubMap.put("channelUuid", "*");
 
-        Header[] headers = {
-                new BasicHeader("Content-Type", "application/json")
-        };
+        Header[] headers = {new BasicHeader("Content-Type", "application/json")};
 
         try {
             String re = HttpPoolUtil.post(unSubQuery, unSubMap, headers);
@@ -344,9 +394,7 @@ public class TransServiceImpl implements ITransService {
         Map<String, Object> subMap = getStringObjectMap();
 
         //头部
-        Header[] headers = {
-                new BasicHeader("Content-Type", "application/json")
-        };
+        Header[] headers = {new BasicHeader("Content-Type", "application/json")};
 
         try {
 
