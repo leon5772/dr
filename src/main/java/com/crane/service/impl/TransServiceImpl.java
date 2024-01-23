@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -126,22 +125,31 @@ public class TransServiceImpl implements ITransService {
     /**
      * 下载幻方给的图片
      */
-    private static String downloadPic(String sourceImgUrl) throws IOException {
+    private static String downloadPic(String sourceImgUrl) {
+
+        String savedPath = "none";
+
+        try {
+
+            URL url = new URL(sourceImgUrl);
+
+            try (ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream()); InputStream in = Channels.newInputStream(readableByteChannel)) {
+
+                Files.copy(in, Paths.get(jvafolderPath), StandardCopyOption.REPLACE_EXISTING);
+
+            }
+
+        } catch (Exception e) {
+            logger.error("download pic error ", e);
+        }
 
         String folderPath = "/opt/dl_dr_metadata/data/img/test.jpg";
 
-        URL url = new URL(sourceImgUrl);
-
-        try (ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream()); InputStream in = Channels.newInputStream(readableByteChannel)) {
-
-            Files.copy(in, Paths.get(folderPath), StandardCopyOption.REPLACE_EXISTING);
-
-        }
 
         return folderPath;
     }
 
-    private boolean forwardToGenesis(GenesisScene genesisBodyEntity, String imgPath) {
+    private boolean forwardToGenesis(GenesisScene genesisBodyEntity, String imgSavePath) {
 
         try {
 
@@ -149,7 +157,7 @@ public class TransServiceImpl implements ITransService {
 
             Header[] headers = {new BasicHeader("X-Auth-Token", genesisToken)};
 
-            HttpPoolUtil.forwardPost(url, "/opt/dl_dr_metadata/data/img/1705303209190.jpg", JSON.toJSONString(genesisBodyEntity), headers);
+            HttpPoolUtil.forwardPost(url, imgSavePath, JSON.toJSONString(genesisBodyEntity), headers);
 
         } catch (Exception e) {
             logger.error("send data to genesis error: ", e);
