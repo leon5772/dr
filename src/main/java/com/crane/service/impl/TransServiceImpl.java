@@ -42,10 +42,10 @@ public class TransServiceImpl implements ITransService {
     public static String genesisToken = "";
 
     //第一次启动时，将tag重置，并从新订阅幻方消息
-    private static boolean isFirstFlag = true;
+    private static boolean isAppFirstStartFlag = true;
 
-    @Value("${dl_data_router.address}")
-    private String drAddress;
+    @Value("${tag_agent_config.tag_agent.address}")
+    private String tagAgentAddress;
 
     @Value("${dl_data_router.neuro.address}")
     private String neuroAddress;
@@ -294,18 +294,19 @@ public class TransServiceImpl implements ITransService {
             String strToken = resJson.getString("token");
             if (StringUtils.isNotBlank(strToken)) {
                 genesisToken = strToken;
-                logger.error("token-update-finished:>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+                logger.error("token-update-finished:>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ");
                 logger.error(genesisToken);
+            }
+
+            //第一次启动的话，重新将默认tag写入到genesis，并重新订阅幻方盒子
+            if (isAppFirstStartFlag) {
+                reSetTag();
+                reSub();
+                isAppFirstStartFlag = false;
             }
 
         } catch (Exception e) {
             logger.error("get genesisToken error:", e);
-        }
-
-        if (isFirstFlag) {
-            reSetTag();
-            reSub();
-            isFirstFlag = false;
         }
     }
 
@@ -346,7 +347,7 @@ public class TransServiceImpl implements ITransService {
      */
     public void reSub() {
 
-        if (StringUtils.isBlank(neuroAddress) || StringUtils.isBlank(genesisAddress) || StringUtils.isBlank(drAddress)) {
+        if (StringUtils.isBlank(neuroAddress) || StringUtils.isBlank(genesisAddress) || StringUtils.isBlank(tagAgentAddress)) {
 
             //没填写ip地址直接返回
             logger.error("on start re-sub some ip less");
@@ -418,7 +419,7 @@ public class TransServiceImpl implements ITransService {
         List<Map<String, Object>> records = new ArrayList<>();
         Map<String, Object> recordMap1 = new HashMap<>();
         //genesis跟dr装同一个机器，所以ip指向到genesis即可
-        recordMap1.put("url", "http://" + drAddress + ":8502/Neuro");
+        recordMap1.put("url", "http://" + tagAgentAddress + ":8502/Neuro");
         records.add(recordMap1);
         //通道是http，所以subType选2
         recordMap1.put("pushType", 2);
