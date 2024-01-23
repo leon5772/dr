@@ -4,7 +4,6 @@ public class DataRouterConstant {
 
     public static final String NEURO_API = "/cube/api";
 
-
     public static final String TAG_MALE = "Male";
     public static final String TAG_FEMALE = "Female";
     public static final String TAG_LONG_HAIR = "Long_Hair";

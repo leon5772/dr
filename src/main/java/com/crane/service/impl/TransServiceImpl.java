@@ -258,7 +258,7 @@ public class TransServiceImpl implements ITransService {
 
         for (String oneRel : rel) {
 
-            String[] relArray = oneRel.split("=");
+            String[] relArray = oneRel.split("@");
             if (channelName.equals(relArray[0])) {
                 genesisCid = relArray[1];
                 break;
