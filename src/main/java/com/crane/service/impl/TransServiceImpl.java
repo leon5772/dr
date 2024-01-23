@@ -47,17 +47,17 @@ public class TransServiceImpl implements ITransService {
     @Value("${tag_agent_config.tag_agent.address}")
     private String tagAgentAddress;
 
-    @Value("${dl_data_router.neuro.address}")
+    @Value("${tag_agent_config.neuro.address}")
     private String neuroAddress;
 
-    @Value("${dl_data_router.genesis.address}")
+    @Value("${tag_agent_config.genesis.address}")
     private String genesisAddress;
-    @Value("${dl_data_router.genesis.name}")
+    @Value("${tag_agent_config.genesis.name}")
     private String genesisName;
-    @Value("${dl_data_router.genesis.password}")
+    @Value("${tag_agent_config.genesis.password}")
     private String genesisPwd;
 
-    @Value("${camera_rel.neuro_to_genesis}")
+    @Value("${tag_agent_config.camera_rel.neuro_to_genesis}")
     public String cameraRelInfo;
 
     @Override
