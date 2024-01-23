@@ -135,7 +135,7 @@ public class TransServiceImpl implements ITransService {
 
             try (ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream()); InputStream in = Channels.newInputStream(readableByteChannel)) {
 
-                Files.copy(in, Paths.get(jvafolderPath), StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(in, Paths.get(savedPath), StandardCopyOption.REPLACE_EXISTING);
 
             }
 
