@@ -68,7 +68,9 @@ public class TransServiceImpl implements ITransService {
         String channelName = inputJson.getString("channelName");
         //根据通道名字，从配置拿到对应的genesis相机id
         String genesisCid = getTargetCamForGenesis(channelName);
+
         if (!genesisCid.equals("none")) {
+
             //获取它的类型
             //1: 识别消息（门禁，人脸）.2: 结构化消息.3: 算法仓消息.
             int recordType = inputJson.getIntValue("recordType");

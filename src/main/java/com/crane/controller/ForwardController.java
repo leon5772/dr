@@ -25,7 +25,7 @@ public class ForwardController {
     @Autowired
     ITransService transService;
 
-    @Value("${dl_data_router.genesis.address}")
+    @Value("${tag_agent_config.genesis.address}")
     private String genesisAddress;
 
     @PostMapping("")
