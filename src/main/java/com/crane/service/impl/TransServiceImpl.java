@@ -60,11 +60,6 @@ public class TransServiceImpl implements ITransService {
     @Async("asyncServiceExecutor")
     public void transJson(JSONObject inputJson) {
 
-        String a = inputJson.toJSONString();
-        if (a.contains("esolution") ||a.contains("ixels")){
-            System.out.println("have res");
-        }
-
         //获取幻方给的通道名字
         String channelName = inputJson.getString("channelName");
         //根据通道名字，从配置拿到对应的genesis相机id
