@@ -25,9 +25,6 @@ public class ForwardController {
     @Autowired
     ITransService transService;
 
-    @Value("${tag_agent_config.genesis.address}")
-    private String genesisAddress;
-
     @PostMapping("")
     public String forwardRequest(HttpServletRequest request) {
 

@@ -49,6 +49,7 @@ public class HttpPoolUtil {
             SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(builder.build());
             // 配置同时支持 HTTP 和 HTPPS
             Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create().register("http", PlainConnectionSocketFactory.getSocketFactory()).register("https", sslsf).build();
+            //Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create().register("http", PlainConnectionSocketFactory.getSocketFactory()).register("https", sslsf).build();
             // 初始化连接管理器
             poolConnManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
             poolConnManager.setMaxTotal(60);// 同时最多连接数
@@ -266,7 +267,7 @@ public class HttpPoolUtil {
 
             // 添加图片文件
             File imageFile = new File(picFilePath);
-            builder.addBinaryBody("file", imageFile, ContentType.IMAGE_JPEG, imageFile.getName());
+            builder.addBinaryBody("file", imageFile, ContentType.MULTIPART_FORM_DATA, imageFile.getName());
 
             // 构建 HttpEntity
             HttpEntity multipartEntity = builder.build();

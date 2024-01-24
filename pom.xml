@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>DL_DR</artifactId>
+	<artifactId>tag_agent_v1</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>DL_DR</name>
+	<name>tag_agent_v1</name>
 	<description>Demo project for Spring Boot1</description>
 	<properties>
 		<java.version>1.8</java.version>
@@ -70,7 +70,7 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
-		<finalName>DL_DR</finalName>
+		<finalName>tag_agent_v1</finalName>
 	</build>
 	<repositories>
 		<repository>

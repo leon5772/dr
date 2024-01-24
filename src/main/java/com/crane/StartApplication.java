@@ -10,7 +10,11 @@ public class StartApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(StartApplication.class, args);
-		System.out.println(">>>>>>>>>Run Success!!!<<<<<<<<<<");
+		System.out.println("//////////////////////////////////");
+		System.out.println("//                              //");
+		System.out.println("//       Agent Is Running       //");
+		System.out.println("//                              //");
+		System.out.println("//////////////////////////////////");
 	}
 
 }

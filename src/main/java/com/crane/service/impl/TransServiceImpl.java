@@ -28,10 +28,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class TransServiceImpl implements ITransService {
@@ -63,6 +60,11 @@ public class TransServiceImpl implements ITransService {
     @Async("asyncServiceExecutor")
     public void transJson(JSONObject inputJson) {
 
+        String a = inputJson.toJSONString();
+        if (a.contains("esolution") ||a.contains("ixels")){
+            System.out.println("have res");
+        }
+
         //获取幻方给的通道名字
         String channelName = inputJson.getString("channelName");
         //根据通道名字，从配置拿到对应的genesis相机id
@@ -82,28 +84,29 @@ public class TransServiceImpl implements ITransService {
 
                 } else if (recordType == 3) {
 
+                    //format json to genesis input ask
                     GenesisScene genesisBodyEntity = formatAlgoDetails(genesisCid, inputJson.getJSONObject("detail").getJSONObject("warehouseV20Events"));
 
-                    String sourceImgUrl = "https://upload-images.jianshu.io/upload_images/31920-c579166152e93584.png";
-                    String imgSavePath = downloadPic(sourceImgUrl);
+                    //download img
+                    JSONObject imgInfoJson = inputJson.getJSONObject("detail").getJSONArray("fullImages").getJSONObject(0);
+                    String imgUid = imgInfoJson.getJSONObject("imageData").getString("value");
+                    String sourceImgUrl = "http://" + neuroAddress + DataRouterConstant.NEURO_API + "/v1/storage/download/"+imgUid;
+                    String imgSavePath = downloadPic(channelName, sourceImgUrl);
 
-                    boolean sendStatus = forwardToGenesis(genesisBodyEntity, imgSavePath);
+                    if (!imgSavePath.equals("failed")) {
+                        boolean sendStatus = forwardToGenesis(genesisBodyEntity, imgSavePath);
 
-                    if (sendStatus) {
-                        try {
-                            File f = new File(imgSavePath);
-                            if (f.delete()) {
-
-                            } else {
-                                logger.error("send finished, delete pic failed");
+                        if (sendStatus) {
+                            try {
+                                File f = new File(imgSavePath);
+                                if (!f.delete()) {
+                                    logger.error("send finished, delete pic failed: ");
+                                }
+                            } catch (Exception e) {
+                                logger.error("send finished, delete pic error : ", e);
                             }
-
-                        } catch (Exception e) {
-                            logger.error("send finished, delete pic error : ", e);
                         }
                     }
-
-
                 }
 
             } catch (Exception e) {
@@ -112,41 +115,29 @@ public class TransServiceImpl implements ITransService {
         }
     }
 
-    public static void main(String[] args) {
-        String sourceImgUrl = "https://upload-images.jianshu.io/upload_images/31920-c579166152e93584.png";
-
-        try {
-            downloadPic(sourceImgUrl);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
     /**
      * 下载幻方给的图片
      */
-    private static String downloadPic(String sourceImgUrl) {
+    private static String downloadPic(String channelName, String sourceImgUrl) {
 
-        String savedPath = "none";
+        //图片指定的路径，一般下载完自动删掉
+        String picSavedPath = "./metadata/data/img/";
+        picSavedPath = picSavedPath + channelName + "-" + UUID.randomUUID() + ".jpeg";
 
         try {
 
             URL url = new URL(sourceImgUrl);
 
             try (ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream()); InputStream in = Channels.newInputStream(readableByteChannel)) {
-
-                Files.copy(in, Paths.get(savedPath), StandardCopyOption.REPLACE_EXISTING);
-
+                Files.copy(in, Paths.get(picSavedPath), StandardCopyOption.REPLACE_EXISTING);
             }
 
         } catch (Exception e) {
             logger.error("download pic error ", e);
+            return "failed";
         }
 
-        String folderPath = "/opt/dl_dr_metadata/data/img/test.jpg";
-
-
-        return folderPath;
+        return picSavedPath;
     }
 
     private boolean forwardToGenesis(GenesisScene genesisBodyEntity, String imgSavePath) {
@@ -211,7 +202,6 @@ public class TransServiceImpl implements ITransService {
             sceneObject.setLatitude(39.038F);
             sceneObject.setLongitude(-72.613F);
 
-
         } catch (Exception e) {
             return null;
         }
@@ -231,8 +221,8 @@ public class TransServiceImpl implements ITransService {
         JSONObject bottomRightJson = pointsJsonArray.getJSONObject(1);
 
         //旷视的分辨率默认解析为1080p
-        BigDecimal cameraResWidBD = new BigDecimal("1920");
-        BigDecimal cameraResHtBD = new BigDecimal("1080");
+        BigDecimal cameraResWidBD = new BigDecimal("1280");
+        BigDecimal cameraResHtBD = new BigDecimal("720");
 
         //左上角的像素x坐标
         BigDecimal upperLeftXBD = cameraResWidBD.multiply(BigDecimal.valueOf(upperLeftJson.getFloatValue("x")));
