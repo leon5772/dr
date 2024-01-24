@@ -77,7 +77,7 @@ public class TransServiceImpl implements ITransService {
                 if (recordType == 2) {
 
                     //图片是共用的，并携带分辨率
-                    JSONObject imgInfoJson = inputJson.getJSONArray("fullImages").getJSONObject(0);
+                    JSONObject imgInfoJson = inputJson.getJSONObject("detail").getJSONArray("fullImages").getJSONObject(0);
                     String imgUid = imgInfoJson.getJSONObject("imageData").getString("value");
                     String sourceImgUrl = "http://" + neuroAddress + DataRouterConstant.NEURO_API + "/v1/storage/download/" + imgUid;
                     //分辨率
