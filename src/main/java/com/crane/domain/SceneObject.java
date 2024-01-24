@@ -1,5 +1,7 @@
 package com.crane.domain;
 
+import java.util.Map;
+
 public class SceneObject {
 
     private String objectType;
@@ -8,6 +10,8 @@ public class SceneObject {
     private Integer w;
     private Integer h;
     private Float confidence;
+
+    private TargetMetadata metadata;
 
     private Float latitude;
 
@@ -75,5 +79,13 @@ public class SceneObject {
 
     public void setLongitude(Float longitude) {
         this.longitude = longitude;
+    }
+
+    public TargetMetadata getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(TargetMetadata metadata) {
+        this.metadata = metadata;
     }
 }

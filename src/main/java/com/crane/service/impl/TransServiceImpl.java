@@ -90,7 +90,7 @@ public class TransServiceImpl implements ITransService {
                     JSONArray headJsonArray = inputJson.getJSONObject("detail").getJSONArray("heads");
                     JSONArray faceJsonArray = inputJson.getJSONObject("detail").getJSONArray("faces");
                     if (!bodyJsonArray.isEmpty()) {
-                        genesisEntity = formatStructureBody(genesisCid, bodyJsonArray.getJSONObject(0), imgResWid + "*" + imgResHt);
+                        genesisEntity = formatStructureBody(genesisCid, bodyJsonArray.getJSONObject(0), imgResWid + "x" + imgResHt);
                     } else if (!headJsonArray.isEmpty()) {
                         //genesisEntity = formatStructureHead(genesisCid, headJsonArray);
                     } else if (!faceJsonArray.isEmpty()) {
@@ -164,29 +164,69 @@ public class TransServiceImpl implements ITransService {
 
         try {
 
-            //只取第一个
-            JSONObject eventJson = structureBodyJson.getJSONArray("alarmEvents").getJSONObject(0);
-
-            //获取报警的类型
-            String inputEventType = eventJson.getString("eventType").toLowerCase();
-            if (inputEventType.equals("fight")) {
-                tagArray.add(DataRouterConstant.TAG_FIGHTING);
-            } else if (inputEventType.equals("run")) {
-                tagArray.add(DataRouterConstant.TAG_RUNNING);
-            } else {
-                return null;
+            //性别
+            if (structureBodyJson.containsKey("gender")) {
+                int genderCode = structureBodyJson.getIntValue("gender");
+                if (genderCode == 1) {
+                    tagArray.add(DataRouterConstant.TAG_MALE);
+                } else if (genderCode == 2) {
+                    tagArray.add(DataRouterConstant.TAG_FEMALE);
+                }
             }
 
+            //发型
+            if (structureBodyJson.containsKey("hairStyle")) {
+                int hairCode = structureBodyJson.getIntValue("hairStyle");
+                if (DataRouterConstant.HAIR_STYLE_SHORT.contains(hairCode)) {
+                    tagArray.add(DataRouterConstant.TAG_SHORT_HAIR);
+                } else if (DataRouterConstant.HAIR_STYLE_LONG.contains(hairCode)) {
+                    tagArray.add(DataRouterConstant.TAG_LONG_HAIR);
+                }
+            }
+
+            //是否戴帽子
+            if (structureBodyJson.containsKey("wearHat")) {
+                int wearHatCode = structureBodyJson.getIntValue("wearHat");
+                if (wearHatCode == 2) {
+                    tagArray.add(DataRouterConstant.TAG_NO_HAT);
+                } else if (wearHatCode == 3) {
+                    tagArray.add(DataRouterConstant.TAG_HAT);
+                }
+            }
+
+            //是否携带包
+            if (structureBodyJson.containsKey("carryBag")) {
+                int carryBagCode = structureBodyJson.getIntValue("carryBag");
+                if (carryBagCode == 2) {
+                    tagArray.add(DataRouterConstant.TAG_NO_BAG);
+                } else if (carryBagCode == 3) {
+                    tagArray.add(DataRouterConstant.TAG_BAG);
+                }
+            }
+
+            //上衣的长度
+            if (structureBodyJson.containsKey("coatLength")) {
+                int coatLengthCode = structureBodyJson.getIntValue("coatLength");
+                if (coatLengthCode == 2) {
+                    tagArray.add(DataRouterConstant.TAG_LONG_SLEEVE);
+                } else if (coatLengthCode == 3) {
+                    tagArray.add(DataRouterConstant.TAG_SHORT_SLEEVE);
+                } else if (coatLengthCode == 4) {
+                    tagArray.add(DataRouterConstant.TAG_SLEEVELESS);
+                }
+            }
+
+
             //坐标
-            JSONObject targetJson = eventJson.getJSONArray("targets").getJSONObject(0);
-            List<Integer> cArray = getGenesisCoord(targetJson.getJSONArray("points"), res);
+            JSONObject targetJson = structureBodyJson.getJSONObject("targetRect");
+            List<Integer> cArray = getGenesisCoordByTarget(targetJson, res);
             sceneObject.setX(cArray.get(0));
             sceneObject.setY(cArray.get(1));
             sceneObject.setW(cArray.get(2));
             sceneObject.setH(cArray.get(3));
 
             //可信度
-            sceneObject.setConfidence(targetJson.getFloatValue("targetScore"));
+            sceneObject.setConfidence(0.9999999F);
 
             //经纬度
             sceneObject.setLatitude(39.038F);
@@ -201,6 +241,16 @@ public class TransServiceImpl implements ITransService {
         resultScene.setHashtags(tagArray);
         return resultScene;
 
+    }
+
+    private List<Integer> getGenesisCoordByTarget(JSONObject targetJson, String res) {
+
+        List<Integer> genesisCoordArray = new ArrayList<>();
+        genesisCoordArray.add(targetJson.getIntValue("left"));
+        genesisCoordArray.add(targetJson.getIntValue("top"));
+        genesisCoordArray.add(targetJson.getIntValue("width"));
+        genesisCoordArray.add(targetJson.getIntValue("height"));
+        return genesisCoordArray;
     }
 
     /**
@@ -277,7 +327,7 @@ public class TransServiceImpl implements ITransService {
 
             //坐标
             JSONObject targetJson = eventJson.getJSONArray("targets").getJSONObject(0);
-            List<Integer> cArray = getGenesisCoord(targetJson.getJSONArray("points"), "1280x720");
+            List<Integer> cArray = getGenesisCoordByCorner(targetJson.getJSONArray("points"), "1280x720");
             sceneObject.setX(cArray.get(0));
             sceneObject.setY(cArray.get(1));
             sceneObject.setW(cArray.get(2));
@@ -300,7 +350,7 @@ public class TransServiceImpl implements ITransService {
         return resultScene;
     }
 
-    private List<Integer> getGenesisCoord(JSONArray pointsJsonArray, String res) {
+    private List<Integer> getGenesisCoordByCorner(JSONArray pointsJsonArray, String res) {
 
         List<Integer> resultCoord = new ArrayList<>();
 
