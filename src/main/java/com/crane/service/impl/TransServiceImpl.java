@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.crane.domain.GenesisScene;
 import com.crane.domain.SceneObject;
+import com.crane.domain.TargetMetadata;
 import com.crane.service.ITransService;
 import com.crane.utils.DataRouterConstant;
 import com.crane.utils.http.HttpPoolUtil;
@@ -292,6 +293,11 @@ public class TransServiceImpl implements ITransService {
             sceneObject.setY(cArray.get(1));
             sceneObject.setW(cArray.get(2));
             sceneObject.setH(cArray.get(3));
+
+            //metadata
+            TargetMetadata metadata = new TargetMetadata();
+            metadata.setColors(metadataColorSet.toArray(new String[0]));
+            sceneObject.setMetadata(metadata);
 
             //可信度
             sceneObject.setConfidence(0.9999999F);

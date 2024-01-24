@@ -2,13 +2,13 @@ package com.crane.domain;
 
 public class TargetMetadata {
 
-    private static String[] colors;
+    private  String[] colors;
 
-    public static String[] getColors() {
+    public String[] getColors() {
         return colors;
     }
 
-    public static void setColors(String[] colors) {
-        TargetMetadata.colors = colors;
+    public void setColors(String[] colors) {
+        this.colors = colors;
     }
 }
