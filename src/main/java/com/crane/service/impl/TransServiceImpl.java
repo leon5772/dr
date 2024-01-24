@@ -73,23 +73,61 @@ public class TransServiceImpl implements ITransService {
 
             try {
 
-                if (recordType == 1) {
+                if (recordType == 2) {
 
-                } else if (recordType == 2) {
+                    //图片是共用的，并携带分辨率
+                    JSONObject imgInfoJson = inputJson.getJSONArray("fullImages").getJSONObject(0);
+                    String imgUid = imgInfoJson.getJSONObject("imageData").getString("value");
+                    String sourceImgUrl = "http://" + neuroAddress + DataRouterConstant.NEURO_API + "/v1/storage/download/" + imgUid;
+                    //分辨率
+                    int imgResWid = imgInfoJson.getJSONObject("savedResolution").getIntValue("widthPixels");
+                    int imgResHt = imgInfoJson.getJSONObject("savedResolution").getIntValue("heightPixels");
+
+                    GenesisScene genesisEntity = new GenesisScene();
+
+                    //结构化有多种类型，我们做细分
+                    JSONArray bodyJsonArray = inputJson.getJSONObject("detail").getJSONArray("pedestrians");
+                    JSONArray headJsonArray = inputJson.getJSONObject("detail").getJSONArray("heads");
+                    JSONArray faceJsonArray = inputJson.getJSONObject("detail").getJSONArray("faces");
+                    if (!bodyJsonArray.isEmpty()) {
+                        genesisEntity = formatStructureBody(genesisCid, bodyJsonArray.getJSONObject(0), imgResWid + "*" + imgResHt);
+                    } else if (!headJsonArray.isEmpty()) {
+                        //genesisEntity = formatStructureHead(genesisCid, headJsonArray);
+                    } else if (!faceJsonArray.isEmpty()) {
+                        //genesisEntity = formatStructureFace(genesisCid, faceJsonArray);
+                    }
+
+                    String imgSavePath = downloadPic(channelName, sourceImgUrl);
+
+                    if (!imgSavePath.equals("failed")) {
+                        boolean sendStatus = forwardToGenesis(genesisEntity, imgSavePath);
+
+                        if (sendStatus) {
+                            try {
+                                File f = new File(imgSavePath);
+                                if (!f.delete()) {
+                                    logger.error("send finished, delete pic failed: ");
+                                }
+                            } catch (Exception e) {
+                                logger.error("send finished, delete pic error : ", e);
+                            }
+                        }
+                    }
+
 
                 } else if (recordType == 3) {
 
                     //format json to genesis input ask
-                    GenesisScene genesisBodyEntity = formatAlgoDetails(genesisCid, inputJson.getJSONObject("detail").getJSONObject("warehouseV20Events"));
+                    GenesisScene genesisEntity = formatAlgoDetails(genesisCid, inputJson.getJSONObject("detail").getJSONObject("warehouseV20Events"));
 
                     //download img
                     JSONObject imgInfoJson = inputJson.getJSONObject("detail").getJSONArray("fullImages").getJSONObject(0);
                     String imgUid = imgInfoJson.getJSONObject("imageData").getString("value");
-                    String sourceImgUrl = "http://" + neuroAddress + DataRouterConstant.NEURO_API + "/v1/storage/download/"+imgUid;
+                    String sourceImgUrl = "http://" + neuroAddress + DataRouterConstant.NEURO_API + "/v1/storage/download/" + imgUid;
                     String imgSavePath = downloadPic(channelName, sourceImgUrl);
 
                     if (!imgSavePath.equals("failed")) {
-                        boolean sendStatus = forwardToGenesis(genesisBodyEntity, imgSavePath);
+                        boolean sendStatus = forwardToGenesis(genesisEntity, imgSavePath);
 
                         if (sendStatus) {
                             try {
@@ -108,6 +146,61 @@ public class TransServiceImpl implements ITransService {
                 logger.error("trans json, json get value error: ", e);
             }
         }
+    }
+
+    private GenesisScene formatStructureBody(String genesisCid, JSONObject structureBodyJson, String res) {
+
+        //场景
+        GenesisScene resultScene = new GenesisScene();
+        resultScene.setCameraId(Integer.valueOf(genesisCid));
+
+        //对象
+        List<SceneObject> resultObjects = new ArrayList<>();
+        SceneObject sceneObject = new SceneObject();
+        sceneObject.setObjectType("Person");
+
+        //标签
+        List<String> tagArray = new ArrayList<>();
+
+        try {
+
+            //只取第一个
+            JSONObject eventJson = structureBodyJson.getJSONArray("alarmEvents").getJSONObject(0);
+
+            //获取报警的类型
+            String inputEventType = eventJson.getString("eventType").toLowerCase();
+            if (inputEventType.equals("fight")) {
+                tagArray.add(DataRouterConstant.TAG_FIGHTING);
+            } else if (inputEventType.equals("run")) {
+                tagArray.add(DataRouterConstant.TAG_RUNNING);
+            } else {
+                return null;
+            }
+
+            //坐标
+            JSONObject targetJson = eventJson.getJSONArray("targets").getJSONObject(0);
+            List<Integer> cArray = getGenesisCoord(targetJson.getJSONArray("points"), res);
+            sceneObject.setX(cArray.get(0));
+            sceneObject.setY(cArray.get(1));
+            sceneObject.setW(cArray.get(2));
+            sceneObject.setH(cArray.get(3));
+
+            //可信度
+            sceneObject.setConfidence(targetJson.getFloatValue("targetScore"));
+
+            //经纬度
+            sceneObject.setLatitude(39.038F);
+            sceneObject.setLongitude(-72.613F);
+
+        } catch (Exception e) {
+            return null;
+        }
+
+        resultObjects.add(sceneObject);
+        resultScene.setSceneObjects(resultObjects);
+        resultScene.setHashtags(tagArray);
+        return resultScene;
+
     }
 
     /**
@@ -184,7 +277,7 @@ public class TransServiceImpl implements ITransService {
 
             //坐标
             JSONObject targetJson = eventJson.getJSONArray("targets").getJSONObject(0);
-            List<Integer> cArray = getGenesisCoord(targetJson.getJSONArray("points"));
+            List<Integer> cArray = getGenesisCoord(targetJson.getJSONArray("points"), "1280x720");
             sceneObject.setX(cArray.get(0));
             sceneObject.setY(cArray.get(1));
             sceneObject.setW(cArray.get(2));
@@ -207,7 +300,7 @@ public class TransServiceImpl implements ITransService {
         return resultScene;
     }
 
-    private List<Integer> getGenesisCoord(JSONArray pointsJsonArray) {
+    private List<Integer> getGenesisCoord(JSONArray pointsJsonArray, String res) {
 
         List<Integer> resultCoord = new ArrayList<>();
 
@@ -216,8 +309,9 @@ public class TransServiceImpl implements ITransService {
         JSONObject bottomRightJson = pointsJsonArray.getJSONObject(1);
 
         //旷视的分辨率默认解析为1080p
-        BigDecimal cameraResWidBD = new BigDecimal("1280");
-        BigDecimal cameraResHtBD = new BigDecimal("720");
+        String[] resArray = res.split("x");
+        BigDecimal cameraResWidBD = new BigDecimal(resArray[0]);
+        BigDecimal cameraResHtBD = new BigDecimal(resArray[1]);
 
         //左上角的像素x坐标
         BigDecimal upperLeftXBD = cameraResWidBD.multiply(BigDecimal.valueOf(upperLeftJson.getFloatValue("x")));
