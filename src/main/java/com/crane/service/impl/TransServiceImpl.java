@@ -159,9 +159,9 @@ public class TransServiceImpl implements ITransService {
         SceneObject sceneObject = new SceneObject();
         sceneObject.setObjectType("Person");
 
-        //标签
+        //标签以及metadata的颜色
         List<String> tagArray = new ArrayList<>();
-
+        HashSet<String> metadataColorSet = new HashSet<>();
         try {
 
             //性别
@@ -215,7 +215,75 @@ public class TransServiceImpl implements ITransService {
                     tagArray.add(DataRouterConstant.TAG_SLEEVELESS);
                 }
             }
+            //上衣的颜色
+            if (structureBodyJson.containsKey("coatColor")) {
+                int coatColorCode = structureBodyJson.getIntValue("coatColor");
+                if (coatColorCode == 5) {
+                    tagArray.add(DataRouterConstant.TAG_RED_CLOTHES);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_RED);
+                } else if (coatColorCode == 8) {
+                    tagArray.add(DataRouterConstant.TAG_GREEN_CLOTHES);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_GREEN);
+                } else if (coatColorCode == 9 || coatColorCode == 10 || coatColorCode == 15 || coatColorCode == 16) {
+                    tagArray.add(DataRouterConstant.TAG_BLUE_CLOTHES);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_BLUE);
+                } else if (coatColorCode == 6 || coatColorCode == 7 || coatColorCode == 13) {
+                    tagArray.add(DataRouterConstant.TAG_YELLOW_CLOTHES);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_YELLOW);
+                } else if (coatColorCode == 2) {
+                    tagArray.add(DataRouterConstant.TAG_BLACK_CLOTHES);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_BLACK);
+                } else if (coatColorCode == 3) {
+                    tagArray.add(DataRouterConstant.TAG_WHITE_CLOTHES);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_WHITE);
+                } else if (coatColorCode == 4) {
+                    tagArray.add(DataRouterConstant.TAG_GREY_CLOTHES);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_GREY);
+                } else if (coatColorCode == 11 || coatColorCode == 12) {
+                    tagArray.add(DataRouterConstant.TAG_PINK_CLOTHES);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_PINK);
+                }
+            }
 
+            //裤子的长短
+            if (structureBodyJson.containsKey("pantsLength")) {
+                int pantsLengthCode = structureBodyJson.getIntValue("pantsLength");
+                if (pantsLengthCode == 2) {
+                    tagArray.add(DataRouterConstant.TAG_LONG_PANTS);
+                } else if (pantsLengthCode == 3) {
+                    tagArray.add(DataRouterConstant.TAG_SHORT_PANTS);
+                }
+            }
+            //裤子的颜色
+            if (structureBodyJson.containsKey("pantsColor")) {
+                int pantsColorCode = structureBodyJson.getIntValue("pantsColor");
+                if (pantsColorCode == 5) {
+                    tagArray.add(DataRouterConstant.TAG_RED_CLOTHES);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_RED);
+                } else if (pantsColorCode == 8) {
+                    tagArray.add(DataRouterConstant.TAG_GREEN_CLOTHES);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_GREEN);
+                } else if (pantsColorCode == 9 || pantsColorCode == 10 || pantsColorCode == 14 || pantsColorCode == 15) {
+                    //裤子跟上衣颜色有差别
+                    tagArray.add(DataRouterConstant.TAG_BLUE_CLOTHES);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_BLUE);
+                } else if (pantsColorCode == 6 || pantsColorCode == 7 || pantsColorCode == 13) {
+                    tagArray.add(DataRouterConstant.TAG_YELLOW_CLOTHES);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_YELLOW);
+                } else if (pantsColorCode == 2) {
+                    tagArray.add(DataRouterConstant.TAG_BLACK_CLOTHES);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_BLACK);
+                } else if (pantsColorCode == 3) {
+                    tagArray.add(DataRouterConstant.TAG_WHITE_CLOTHES);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_WHITE);
+                } else if (pantsColorCode == 4) {
+                    tagArray.add(DataRouterConstant.TAG_GREY_CLOTHES);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_GREY);
+                } else if (pantsColorCode == 11 || pantsColorCode == 12) {
+                    tagArray.add(DataRouterConstant.TAG_PINK_CLOTHES);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_PINK);
+                }
+            }
 
             //坐标
             JSONObject targetJson = structureBodyJson.getJSONObject("targetRect");

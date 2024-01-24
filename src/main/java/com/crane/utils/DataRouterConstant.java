@@ -45,4 +45,14 @@ public class DataRouterConstant {
     public static final Set<Integer> HAIR_STYLE_SHORT = new HashSet<>(Arrays.asList(2, 3, 4, 5, 6, 11, 13));
     public static final Set<Integer> HAIR_STYLE_LONG = new HashSet<>(Arrays.asList(8, 9, 10, 12, 14));
 
+
+    public static final String MD_COLOR_RED = "Red";
+    public static final String MD_COLOR_GREEN = "Green";
+    public static final String MD_COLOR_BLUE = "Blue";
+    public static final String MD_COLOR_YELLOW = "Yellow";
+    public static final String MD_COLOR_BLACK = "Black";
+    public static final String MD_COLOR_WHITE = "White";
+    public static final String MD_COLOR_GREY = "Grey";
+    public static final String MD_COLOR_PINK = "Pink";
+
 }
