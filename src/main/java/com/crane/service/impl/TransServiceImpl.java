@@ -62,6 +62,8 @@ public class TransServiceImpl implements ITransService {
     @Async("asyncServiceExecutor")
     public void transJson(JSONObject inputJson) {
 
+        String a = inputJson.toJSONString();
+
         //获取幻方给的通道名字
         String channelName = inputJson.getString("channelName");
         //根据通道名字，从配置拿到对应的genesis相机id
@@ -94,17 +96,17 @@ public class TransServiceImpl implements ITransService {
                     if (!bodyJsonArray.isEmpty()) {
                         genesisEntity = formatStructureBody(genesisCid, bodyJsonArray.getJSONObject(0), imgResWid + "x" + imgResHt);
 
-                        //按genesis要求的格式传递时间
-                        long inputMs = inputJson.getJSONObject("detail").getJSONObject("globalInfo").getLongValue("timeMs");
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-                        sdf.setTimeZone(TimeZone.getDefault());
-                        genesisEntity.setDatetime(sdf.format(inputMs));
-
                     } else if (!headJsonArray.isEmpty()) {
                         //genesisEntity = formatStructureHead(genesisCid, headJsonArray);
                     } else if (!faceJsonArray.isEmpty()) {
-                        //genesisEntity = formatStructureFace(genesisCid, faceJsonArray);
+                        genesisEntity = formatStructureFace(genesisCid, faceJsonArray.getJSONObject(0),imgResWid+"x"+imgResHt);
                     }
+
+                    //按genesis要求的格式传递时间
+                    long inputMs = inputJson.getJSONObject("detail").getJSONObject("globalInfo").getLongValue("timeMs");
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+                    sdf.setTimeZone(TimeZone.getDefault());
+                    genesisEntity.setDatetime(sdf.format(inputMs));
 
                     String imgSavePath = downloadPic(channelName, sourceImgUrl);
 
@@ -176,9 +178,9 @@ public class TransServiceImpl implements ITransService {
             //性别
             if (structureBodyJson.containsKey("gender")) {
                 int genderCode = structureBodyJson.getIntValue("gender");
-                if (genderCode == 1) {
+                if (genderCode == 2) {
                     tagArray.add(DataRouterConstant.TAG_MALE);
-                } else if (genderCode == 2) {
+                } else if (genderCode == 3) {
                     tagArray.add(DataRouterConstant.TAG_FEMALE);
                 }
             }
@@ -309,6 +311,77 @@ public class TransServiceImpl implements ITransService {
 
             //可信度
             sceneObject.setConfidence(0.9999999F);
+
+            //经纬度
+            sceneObject.setLatitude(39.038F);
+            sceneObject.setLongitude(-72.613F);
+
+        } catch (Exception e) {
+            return null;
+        }
+
+        resultObjects.add(sceneObject);
+        resultScene.setSceneObjects(resultObjects);
+        resultScene.setHashtags(tagArray);
+        return resultScene;
+
+    }
+
+    private GenesisScene formatStructureFace(String genesisCid, JSONObject structureFaceJson, String res) {
+
+        //场景
+        GenesisScene resultScene = new GenesisScene();
+        resultScene.setCameraId(Integer.valueOf(genesisCid));
+
+        //对象
+        List<SceneObject> resultObjects = new ArrayList<>();
+        SceneObject sceneObject = new SceneObject();
+        sceneObject.setObjectType("Person");
+
+        //标签以及metadata的颜色
+        List<String> tagArray = new ArrayList<>();
+        HashSet<String> metadataColorSet = new HashSet<>();
+        try {
+
+            //性别
+            if (structureFaceJson.containsKey("gender")) {
+                int genderCode = structureFaceJson.getIntValue("gender");
+                if (genderCode == 2) {
+                    tagArray.add(DataRouterConstant.TAG_MALE);
+                } else if (genderCode == 3) {
+                    tagArray.add(DataRouterConstant.TAG_FEMALE);
+                }
+            }
+
+            //发型
+            if (structureFaceJson.containsKey("hairStyle")) {
+                int hairCode = structureFaceJson.getIntValue("hairStyle");
+                if (DataRouterConstant.HAIR_STYLE_SHORT.contains(hairCode)) {
+                    tagArray.add(DataRouterConstant.TAG_SHORT_HAIR);
+                } else if (DataRouterConstant.HAIR_STYLE_LONG.contains(hairCode)) {
+                    tagArray.add(DataRouterConstant.TAG_LONG_HAIR);
+                }
+            }
+
+            //是否戴帽子
+            if (structureFaceJson.containsKey("wearHat")) {
+                int wearHatCode = structureFaceJson.getIntValue("wearHat");
+                if (wearHatCode == 2) {
+                    tagArray.add(DataRouterConstant.TAG_NO_HAT);
+                } else if (wearHatCode == 3) {
+                    tagArray.add(DataRouterConstant.TAG_HAT);
+                }
+            }
+
+            sceneObject.setH(cArray.get(3));
+
+            //metadata
+            TargetMetadata metadata = new TargetMetadata();
+            metadata.setColors(metadataColorSet.toArray(new String[0]));
+            sceneObject.setMetadata(metadata);
+
+            //可信度
+            sceneObject.setConfidence(structureFaceJson.getFloatValue("quality"));
 
             //经纬度
             sceneObject.setLatitude(39.038F);
