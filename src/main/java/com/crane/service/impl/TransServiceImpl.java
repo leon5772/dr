@@ -373,11 +373,39 @@ public class TransServiceImpl implements ITransService {
                 }
             }
 
+            //skin color
+            if (structureFaceJson.containsKey("skinColor")){
+                int skinColorCode = structureFaceJson.getIntValue("skinColor");
+                if (skinColorCode==2){
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_BLACK);
+                }else if(skinColorCode==3){
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_WHITE);
+                }else if(skinColorCode==4 || skinColorCode==5){
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_YELLOW);
+                }
+            }
+
+            //坐标
+            JSONObject targetJson = structureFaceJson.getJSONObject("imageRect");
+            List<Integer> cArray = getGenesisCoordByTarget(targetJson, res);
+            sceneObject.setX(cArray.get(0));
+            sceneObject.setY(cArray.get(1));
+            sceneObject.setW(cArray.get(2));
             sceneObject.setH(cArray.get(3));
 
             //metadata
             TargetMetadata metadata = new TargetMetadata();
             metadata.setColors(metadataColorSet.toArray(new String[0]));
+            //face gender
+            Map<String,Object> faceInfoMap = new HashMap<>();
+            if (tagArray.contains(DataRouterConstant.TAG_FEMALE)){
+                faceInfoMap.put("gender",DataRouterConstant.TAG_FEMALE);
+            }else if(tagArray.contains(DataRouterConstant.TAG_MALE)){
+                faceInfoMap.put("gender",DataRouterConstant.TAG_MALE);
+            }else {
+                faceInfoMap.put("gender","Unknown");
+            }
+            metadata.setFace(faceInfoMap);
             sceneObject.setMetadata(metadata);
 
             //可信度
