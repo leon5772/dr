@@ -287,7 +287,7 @@ public class TransServiceImpl implements ITransService {
             }
 
             //坐标
-            JSONObject targetJson = structureBodyJson.getJSONObject("targetRect");
+            JSONObject targetJson = structureBodyJson.getJSONObject("imageRect");
             List<Integer> cArray = getGenesisCoordByTarget(targetJson, res);
             sceneObject.setX(cArray.get(0));
             sceneObject.setY(cArray.get(1));
