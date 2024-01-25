@@ -29,6 +29,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -92,6 +93,13 @@ public class TransServiceImpl implements ITransService {
                     JSONArray faceJsonArray = inputJson.getJSONObject("detail").getJSONArray("faces");
                     if (!bodyJsonArray.isEmpty()) {
                         genesisEntity = formatStructureBody(genesisCid, bodyJsonArray.getJSONObject(0), imgResWid + "x" + imgResHt);
+
+                        //按genesis要求的格式传递时间
+                        long inputMs = inputJson.getJSONObject("detail").getJSONObject("globalInfo").getLongValue("timeMs");
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+                        sdf.setTimeZone(TimeZone.getDefault());
+                        genesisEntity.setDatetime(sdf.format(inputMs));
+
                     } else if (!headJsonArray.isEmpty()) {
                         //genesisEntity = formatStructureHead(genesisCid, headJsonArray);
                     } else if (!faceJsonArray.isEmpty()) {
@@ -375,6 +383,10 @@ public class TransServiceImpl implements ITransService {
         //场景
         GenesisScene resultScene = new GenesisScene();
         resultScene.setCameraId(Integer.valueOf(genesisCid));
+        //时间，以幻方的时间戳为准
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        sdf.setTimeZone(TimeZone.getDefault());
+        resultScene.setDatetime(sdf.format(algoMsgJson.getJSONObject("globalInfo").getLongValue("timeMs")));
 
         //对象
         List<SceneObject> resultObjects = new ArrayList<>();

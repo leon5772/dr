@@ -6,6 +6,8 @@ public class GenesisScene {
 
     private Integer cameraId;
 
+    private String datetime;
+
     private List<SceneObject> sceneObjects;
 
     private List<String> hashtags;
@@ -17,6 +19,14 @@ public class GenesisScene {
 
     public void setCameraId(Integer cameraId) {
         this.cameraId = cameraId;
+    }
+
+    public String getDatetime() {
+        return datetime;
+    }
+
+    public void setDatetime(String datetime) {
+        this.datetime = datetime;
     }
 
     public List<SceneObject> getSceneObjects() {
