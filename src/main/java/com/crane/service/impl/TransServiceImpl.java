@@ -404,16 +404,16 @@ public class TransServiceImpl implements ITransService {
             //metadata
             TargetMetadata metadata = new TargetMetadata();
             metadata.setColors(metadataColorSet.toArray(new String[0]));
-//            //face gender
-//            Map<String,Object> faceInfoMap = new HashMap<>();
-//            if (tagArray.contains(DataRouterConstant.TAG_FEMALE)){
-//                faceInfoMap.put("gender",DataRouterConstant.TAG_FEMALE);
-//            }else if(tagArray.contains(DataRouterConstant.TAG_MALE)){
-//                faceInfoMap.put("gender",DataRouterConstant.TAG_MALE);
-//            }else {
-//                faceInfoMap.put("gender","Unknown");
-//            }
-//            metadata.setFace(faceInfoMap);
+            //face gender
+            Map<String,Object> faceInfoMap = new HashMap<>();
+            if (tagArray.contains(DataRouterConstant.TAG_FEMALE)){
+                faceInfoMap.put("gender",DataRouterConstant.TAG_FEMALE);
+            }else if(tagArray.contains(DataRouterConstant.TAG_MALE)){
+                faceInfoMap.put("gender",DataRouterConstant.TAG_MALE);
+            }else {
+                faceInfoMap.put("gender","Unknown");
+            }
+            metadata.setFace(faceInfoMap);
             sceneObject.setMetadata(metadata);
 
             //可信度
