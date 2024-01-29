@@ -80,9 +80,9 @@ public class TransServiceImpl implements ITransService {
                 if (recordType == 2) {
 
                     //图片是共用的，并携带分辨率
+                    String sourceImgUrl = "";
                     JSONObject imgInfoJson = inputJson.getJSONObject("detail").getJSONArray("fullImages").getJSONObject(0);
-                    String imgUid = imgInfoJson.getJSONObject("imageData").getString("value");
-                    String sourceImgUrl = "http://" + neuroAddress + DataRouterConstant.NEURO_API + "/v1/storage/download/" + imgUid;
+
                     //分辨率
                     int imgResWid = imgInfoJson.getJSONObject("savedResolution").getIntValue("widthPixels");
                     int imgResHt = imgInfoJson.getJSONObject("savedResolution").getIntValue("heightPixels");
@@ -96,10 +96,18 @@ public class TransServiceImpl implements ITransService {
                     if (!bodyJsonArray.isEmpty()) {
                         genesisEntity = formatStructureBody(genesisCid, bodyJsonArray.getJSONObject(0), imgResWid + "x" + imgResHt);
 
+                        //图片的地址
+                        String imgUid = bodyJsonArray.getJSONObject(0).getJSONObject("imageData").getString("value");
+                        sourceImgUrl = "http://" + neuroAddress + DataRouterConstant.NEURO_API + "/v1/storage/download/" + imgUid;
+
                     } else if (!headJsonArray.isEmpty()) {
                         //genesisEntity = formatStructureHead(genesisCid, headJsonArray);
                     } else if (!faceJsonArray.isEmpty()) {
                         genesisEntity = formatStructureFace(genesisCid, faceJsonArray.getJSONObject(0),imgResWid+"x"+imgResHt);
+
+                        //图片的地址
+                        String imgUid = bodyJsonArray.getJSONObject(0).getJSONObject("imageData").getString("value");
+                        sourceImgUrl = "http://" + neuroAddress + DataRouterConstant.NEURO_API + "/v1/storage/download/" + imgUid;
                     }
 
                     //按genesis要求的格式传递时间
