@@ -19,8 +19,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.File;
-import java.io.InputStream;
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URL;
@@ -99,7 +98,7 @@ public class TransServiceImpl implements ITransService {
                     } else if (!headJsonArray.isEmpty()) {
                         //genesisEntity = formatStructureHead(genesisCid, headJsonArray);
                     } else if (!faceJsonArray.isEmpty()) {
-                        genesisEntity = formatStructureFace(genesisCid, faceJsonArray.getJSONObject(0),imgResWid+"x"+imgResHt);
+                        genesisEntity = formatStructureFace(genesisCid, faceJsonArray.getJSONObject(0), imgResWid + "x" + imgResHt);
                     }
 
                     //按genesis要求的格式传递时间
@@ -108,7 +107,7 @@ public class TransServiceImpl implements ITransService {
                     sdf.setTimeZone(TimeZone.getDefault());
                     genesisEntity.setDatetime(sdf.format(inputMs));
 
-                    String imgSavePath = downloadPic(channelName, sourceImgUrl);
+                    String imgSavePath = downloadAndConvertImage(sourceImgUrl, "jpg");
 
                     if (!imgSavePath.equals("failed")) {
                         boolean sendStatus = forwardToGenesis(genesisEntity, imgSavePath);
@@ -135,7 +134,7 @@ public class TransServiceImpl implements ITransService {
                     JSONObject imgInfoJson = inputJson.getJSONObject("detail").getJSONArray("fullImages").getJSONObject(0);
                     String imgUid = imgInfoJson.getJSONObject("imageData").getString("value");
                     String sourceImgUrl = "http://" + neuroAddress + DataRouterConstant.NEURO_API + "/v1/storage/download/" + imgUid;
-                    String imgSavePath = downloadPic(channelName, sourceImgUrl);
+                    String imgSavePath = downloadAndConvertImage(sourceImgUrl, "jpg");
 
                     if (!imgSavePath.equals("failed")) {
                         boolean sendStatus = forwardToGenesis(genesisEntity, imgSavePath);
@@ -374,13 +373,13 @@ public class TransServiceImpl implements ITransService {
             }
 
             //skin color
-            if (structureFaceJson.containsKey("skinColor")){
+            if (structureFaceJson.containsKey("skinColor")) {
                 int skinColorCode = structureFaceJson.getIntValue("skinColor");
-                if (skinColorCode==2){
+                if (skinColorCode == 2) {
                     metadataColorSet.add(DataRouterConstant.MD_COLOR_BLACK);
-                }else if(skinColorCode==3){
+                } else if (skinColorCode == 3) {
                     metadataColorSet.add(DataRouterConstant.MD_COLOR_WHITE);
-                }else if(skinColorCode==4 || skinColorCode==5){
+                } else if (skinColorCode == 4 || skinColorCode == 5) {
                     metadataColorSet.add(DataRouterConstant.MD_COLOR_YELLOW);
                 }
             }
@@ -434,6 +433,46 @@ public class TransServiceImpl implements ITransService {
         genesisCoordArray.add(targetJson.getIntValue("width"));
         genesisCoordArray.add(targetJson.getIntValue("height"));
         return genesisCoordArray;
+    }
+
+    String downloadAndConvertImage(String sourceUrl, String targetFormat) {
+
+        String tempPath = "./metadata/data/img/" + UUID.randomUUID().toString().replace("-", "");
+        String targetPath = tempPath + "." + targetFormat;
+
+        try {
+
+            InputStream input = new URL(sourceUrl).openStream();
+            OutputStream output = new FileOutputStream(tempPath);
+
+            // 流转换逻辑
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = input.read(buf)) > 0) {
+                output.write(buf, 0, len);
+            }
+            output.close();
+
+            // 打开目标文件输出流
+            //String targetPath = "./image." + targetFormat;
+            OutputStream target = new FileOutputStream(targetPath);
+
+            // 再次读取临时文件写入目标输出流
+            InputStream is = new FileInputStream(tempPath);
+            while ((len = is.read(buf)) > 0) {
+                target.write(buf, 0, len);
+            }
+
+            // 关闭流
+            is.close();
+            target.close();
+
+        } catch (Exception e) {
+            logger.error("pic process: ", e);
+        }
+
+        new File(tempPath).delete();
+        return targetPath;
     }
 
     /**
