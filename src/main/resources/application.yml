@@ -12,6 +12,12 @@ logging:
       com.crane: error
 
 
+spring:
+  mvc:
+  servlet:
+    multipart:
+      max-file-size: 100MB
+
 #spring:
 #  prefix: classpath:/templates/
 #  datasource:
