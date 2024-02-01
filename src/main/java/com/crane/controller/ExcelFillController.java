@@ -6,6 +6,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -89,25 +90,31 @@ public class ExcelFillController {
         //拿第一个sheet单
         XSSFSheet sheet = workbook.getSheetAt(0);
 
+        //删除指定的标题
+        Row r4 = sheet.getRow(4);
+        r4.removeCell(r4.getCell(4));
+        r4.removeCell(r4.getCell(5));
+        r4.removeCell(r4.getCell(6));
+
         //插入标题列，并赋予样式
-        CellStyle titleCellStyle = sheet.getRow(4).getCell(0).getCellStyle();
-        //7列
-        Cell c7 = sheet.getRow(4).createCell(7);
-        c7.setCellValue("c7");
-        c7.setCellStyle(titleCellStyle);
-        //8列
-        Cell c8 = sheet.getRow(4).createCell(8);
-        c8.setCellValue("c8");
-        c8.setCellStyle(titleCellStyle);
-        //9列
-        Cell c9 = sheet.getRow(4).createCell(9);
-        c9.setCellValue("c9");
-        c9.setCellStyle(titleCellStyle);
+        CellStyle titleCellStyle = r4.getCell(0).getCellStyle();
+        //4列
+        Cell titleC4 = r4.createCell(4);
+        titleC4.setCellValue("c4");
+        titleC4.setCellStyle(titleCellStyle);
+        //5列
+        Cell titleC5 = r4.createCell(5);
+        titleC5.setCellValue("c5");
+        titleC5.setCellStyle(titleCellStyle);
+        //6列
+        Cell titleC6 = r4.createCell(6);
+        titleC6.setCellValue("c6");
+        titleC6.setCellStyle(titleCellStyle);
 
         //列宽
-        sheet.setColumnWidth(7,256*50);
-        sheet.setColumnWidth(8,256*50);
-        sheet.setColumnWidth(9,256*50);
+        sheet.setColumnWidth(4, 256 * 20);
+        sheet.setColumnWidth(5, 256 * 20);
+        sheet.setColumnWidth(6, 256 * 20 * 5);
 
         //从第五行开始读取数据
         CellStyle contentCellStyle = sheet.getRow(5).getCell(0).getCellStyle();
@@ -118,24 +125,29 @@ public class ExcelFillController {
                 continue;
             }
 
+            //删除旧的列
+            row.removeCell(row.getCell(4));
+            row.removeCell(row.getCell(5));
+            row.removeCell(row.getCell(6));
+
             //拿到场景id
             XSSFCell sceneIdCell = row.getCell(0);
             long sceneId = Long.parseLong(sceneIdCell.getStringCellValue().trim());
 
             //插入列
-            Cell contentC7 = row.createCell(7);
-            contentC7.setCellStyle(contentCellStyle);
-            contentC7.setCellValue(sceneId + "_7");
+            Cell contentC4 = row.createCell(4);
+            contentC4.setCellStyle(contentCellStyle);
+            contentC4.setCellValue(sceneId + "_4");
 
-            Cell contentC8 = row.createCell(8);
-            contentC8.setCellStyle(contentCellStyle);
-            contentC8.setCellValue(sceneId + "_8");
+            Cell contentC5 = row.createCell(5);
+            contentC5.setCellStyle(contentCellStyle);
+            contentC5.setCellValue(sceneId + "_5");
 
-            Cell contentC9 = row.createCell(9);
-            contentC9.setCellStyle(contentCellStyle);
-            contentC9.setCellValue(sceneId + "_9");
-
+            Cell contentC6 = row.createCell(6);
+            contentC6.setCellStyle(contentCellStyle);
+            contentC6.setCellValue(sceneId + "_6");
         }
+
 
         //输出最终的excel
         try {
