@@ -134,6 +134,23 @@ public class ExcelFillController {
             XSSFCell sceneIdCell = row.getCell(0);
             long sceneId = Long.parseLong(sceneIdCell.getStringCellValue().trim());
 
+            for (int i = 0; i < 3; i++) {
+
+                //插入一行新数据
+                int insertRowNum = rowIndex + i;
+
+                // 调用shiftRows插入新行并下移其他数据
+                sheet.shiftRows(insertRowNum, sheet.getLastRowNum(), 1);
+
+                // 在插入的新行创建行对象
+                Row newRow = sheet.createRow(insertRowNum);
+
+                // 设置新行单元格数据
+                Cell cell1 = newRow.createCell(0);
+                cell1.setCellValue("新插入的数据");
+            }
+            rowIndex = rowIndex + 3;
+
             //插入列
             Cell contentC4 = row.createCell(4);
             contentC4.setCellStyle(contentCellStyle);
