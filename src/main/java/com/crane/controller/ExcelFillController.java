@@ -207,13 +207,18 @@ public class ExcelFillController {
         // 遍历形状获取图片和对象
         XSSFDrawing drawing = sheet.createDrawingPatriarch();
         List<XSSFShape> shapes = drawing.getShapes();
+
+        int i=5;
         for (XSSFShape shape : shapes) {
             // 获取图片
             if (shape instanceof XSSFPicture) {
                 XSSFPicture picture = (XSSFPicture) shape;
-                // 位置信息
-                XSSFClientAnchor anchor = picture.getClientAnchor();
-                System.out.println(picture.getShapeName());
+
+                if (picture.getShapeName().contains("_thumbnail")){
+                    // 位置信息
+                    XSSFClientAnchor anchor = picture.getClientAnchor();
+                    anchor.setRow1(i+3);
+                }
             }
         }
 
@@ -221,7 +226,7 @@ public class ExcelFillController {
 
         //输出最终的excel
         try {
-            FileOutputStream fos = new FileOutputStream(filePath + fileName);
+            FileOutputStream fos = new FileOutputStream(filePath +System.currentTimeMillis()+"_"+fileName);
             workbook.write(fos);
             fos.close();
             workbook.close();
