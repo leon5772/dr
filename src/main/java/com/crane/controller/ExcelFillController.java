@@ -46,8 +46,6 @@ public class ExcelFillController {
 
         MultipartFile inputExcelFile = excelFile.getExcelFile();
 
-        System.out.println(inputExcelFile.getSize() / 1024);
-
         // 创建文件
         String savedPath = "./metadata/data/excel/";
 
@@ -92,6 +90,8 @@ public class ExcelFillController {
         //拿第一个sheet单
         XSSFSheet sheet = workbook.getSheetAt(0);
 
+        //----------------------------------------------------------------------------------------------------|
+
         //更改sheet标题
         Row row1 = sheet.getRow(0);
         row1.getCell(0).setCellValue("");
@@ -128,20 +128,24 @@ public class ExcelFillController {
         //每行scene都有多个object，我们先存储，后插入指定行
         List<GenesisExcelRow> extraRowList = new ArrayList<>();
 
+
+        //----------------------------------------------------------------------------------------------------|
+
+        //文本cell的样式
+        CellStyle contentCellStyle = sheet.getRow(5).getCell(1).getCellStyle();
+
         //最初的总行数
         int oldSheetNum = sheet.getLastRowNum();
-
-        //从第五行开始读取数据
-        CellStyle contentCellStyle = sheet.getRow(5).getCell(1).getCellStyle();
-        for (int rowIndex = 5; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+        //从第五行开始处理数据
+        for (int rowIndex = 5; rowIndex <= oldSheetNum; rowIndex++) {
 
             XSSFRow oldRow = sheet.getRow(rowIndex);
             if (oldRow == null) {
                 continue;
             }
 
-            //删除旧的列
-            if (rowIndex >= oldSheetNum) {
+            //如果是我们自己加的行，跳过
+            if (oldRow.getCell(0) == null) {
                 continue;
             }
 
@@ -155,8 +159,9 @@ public class ExcelFillController {
             oldRow.removeCell(oldRow.getCell(0));
 
             //多个object
-            int innerIndex = sheet.getLastRowNum();
             for (int i = 0; i < 3; i++) {
+
+                sheet.shiftRows(rowIndex, oldSheetNum, 1);
 
                 GenesisExcelRow extraRow = new GenesisExcelRow();
                 extraRow.setSceneId(String.valueOf(sceneId));
@@ -165,7 +170,7 @@ public class ExcelFillController {
                 extraRow.setType("Person_" + sceneId);
                 extraRow.setAttr("Hat:No_hat;");
 
-                Row newRow = sheet.createRow(innerIndex + i + 1);
+                Row newRow = sheet.createRow(rowIndex + i);
                 newRow.setHeight(oldRow.getHeight());
                 extraRow.setNewIndex(newRow.getRowNum());
 
@@ -182,7 +187,9 @@ public class ExcelFillController {
                 newCameraCell.setCellValue(oldRow.getCell(3).getStringCellValue());
 
                 extraRowList.add(extraRow);
+                oldSheetNum = oldSheetNum + i;
             }
+
 
             //插入列
             Cell contentC4 = oldRow.createCell(4);
@@ -194,6 +201,10 @@ public class ExcelFillController {
             contentC5.setCellValue(sceneId + "_5");
         }
 
+        //将增加的行，切换到上面取
+//        for (GenesisExcelRow extraRow : extraRowList) {
+//            sheet.shiftRows(extraRow.getNewIndex(), extraRow.getOldIndex(), 1);
+//        }
 
         //输出最终的excel
         try {
