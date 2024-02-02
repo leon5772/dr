@@ -2,15 +2,14 @@ package com.crane.controller;
 
 import com.crane.domain.GenesisExcelFile;
 import com.crane.domain.GenesisExcelRow;
+import org.apache.commons.compress.compressors.zstandard.ZstdCompressorOutputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.ClientAnchor;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -71,6 +70,11 @@ public class ExcelFillController {
         return "success: " + newFile.getAbsolutePath();
     }
 
+    public static void main(String[] args) {
+        ExcelFillController e = new ExcelFillController();
+        e.excelDataFill("E:\\work_temp2\\", "sceneList (3).xlsx");
+    }
+
     public String excelDataFill(String filePath, String fileName) {
 
         //File
@@ -128,7 +132,6 @@ public class ExcelFillController {
         //每行scene都有多个object，我们先存储，后插入指定行
         List<GenesisExcelRow> extraRowList = new ArrayList<>();
 
-
         //----------------------------------------------------------------------------------------------------|
 
         //文本cell的样式
@@ -159,20 +162,15 @@ public class ExcelFillController {
             oldRow.removeCell(oldRow.getCell(0));
 
             //多个object
-            for (int i = 0; i < 3; i++) {
+            int objectNum = 3;
+            //从当前行向下整体移动，空出n个空行
+            sheet.shiftRows(rowIndex, oldSheetNum, objectNum);
 
-                sheet.shiftRows(rowIndex, oldSheetNum, 1);
-
-                GenesisExcelRow extraRow = new GenesisExcelRow();
-                extraRow.setSceneId(String.valueOf(sceneId));
-                extraRow.setOldIndex(rowIndex);
-                extraRow.setObjectId(i + 1);
-                extraRow.setType("Person_" + sceneId);
-                extraRow.setAttr("Hat:No_hat;");
+            //往空行里写数据
+            for (int i = 0; i < objectNum; i++) {
 
                 Row newRow = sheet.createRow(rowIndex + i);
                 newRow.setHeight(oldRow.getHeight());
-                extraRow.setNewIndex(newRow.getRowNum());
 
                 Cell newPicCell = newRow.createCell(1);
                 newPicCell.setCellStyle(contentCellStyle);
@@ -186,25 +184,40 @@ public class ExcelFillController {
                 newCameraCell.setCellStyle(contentCellStyle);
                 newCameraCell.setCellValue(oldRow.getCell(3).getStringCellValue());
 
-                extraRowList.add(extraRow);
                 oldSheetNum = oldSheetNum + i;
             }
 
-
             //插入列
-            Cell contentC4 = oldRow.createCell(4);
-            contentC4.setCellStyle(contentCellStyle);
-            contentC4.setCellValue(sceneId + "_4");
-
-            Cell contentC5 = oldRow.createCell(5);
-            contentC5.setCellStyle(contentCellStyle);
-            contentC5.setCellValue(sceneId + "_5");
+//            Cell contentC4 = oldRow.createCell(4);
+//            contentC4.setCellStyle(contentCellStyle);
+//            contentC4.setCellValue(sceneId + "_4");
+//
+//            Cell contentC5 = oldRow.createCell(5);
+//            contentC5.setCellStyle(contentCellStyle);
+//            contentC5.setCellValue(sceneId + "_5");
         }
 
         //将增加的行，切换到上面取
 //        for (GenesisExcelRow extraRow : extraRowList) {
 //            sheet.shiftRows(extraRow.getNewIndex(), extraRow.getOldIndex(), 1);
 //        }
+
+        //----------------------------------------------------------------------------------------------------|
+
+        // 遍历形状获取图片和对象
+        XSSFDrawing drawing = sheet.createDrawingPatriarch();
+        List<XSSFShape> shapes = drawing.getShapes();
+        for (XSSFShape shape : shapes) {
+            // 获取图片
+            if (shape instanceof XSSFPicture) {
+                XSSFPicture picture = (XSSFPicture) shape;
+                // 位置信息
+                XSSFClientAnchor anchor = picture.getClientAnchor();
+                System.out.println(picture.getShapeName());
+            }
+        }
+
+        //----------------------------------------------------------------------------------------------------|
 
         //输出最终的excel
         try {
