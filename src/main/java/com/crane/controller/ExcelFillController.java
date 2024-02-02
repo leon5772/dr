@@ -128,6 +128,9 @@ public class ExcelFillController {
         //每行scene都有多个object，我们先存储，后插入指定行
         List<GenesisExcelRow> extraRowList = new ArrayList<>();
 
+        //最初的总行数
+        int oldSheetNum = sheet.getLastRowNum();
+
         //从第五行开始读取数据
         CellStyle contentCellStyle = sheet.getRow(5).getCell(1).getCellStyle();
         for (int rowIndex = 5; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
@@ -138,6 +141,10 @@ public class ExcelFillController {
             }
 
             //删除旧的列
+            if (rowIndex >= oldSheetNum) {
+                continue;
+            }
+
             row.removeCell(row.getCell(4));
             row.removeCell(row.getCell(5));
             row.removeCell(row.getCell(6));
@@ -148,11 +155,18 @@ public class ExcelFillController {
             row.removeCell(row.getCell(0));
 
             //多个object
-            for (int i = 0; i < 3; i++) {
+            for (int i = 1; i < 3; i++) {
+
                 GenesisExcelRow extraRow = new GenesisExcelRow();
-                extraRow.setSceneId(sceneId + "_" + i + "_" + rowIndex);
-                extraRow.setType("Person");
+                extraRow.setSceneId(String.valueOf(sceneId));
+                extraRow.setOldIndex(rowIndex);
+                extraRow.setObjectId(i + 1);
+                extraRow.setType("Person_" + sceneId);
                 extraRow.setAttr("Hat:No_hat;");
+
+                Row newRow = sheet.createRow(sheet.getLastRowNum() + i);
+                newRow.createCell(2).setCellValue(extraRow.getSceneId());
+
                 extraRowList.add(extraRow);
             }
 

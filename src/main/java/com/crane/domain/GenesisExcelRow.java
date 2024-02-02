@@ -3,6 +3,8 @@ package com.crane.domain;
 public class GenesisExcelRow {
 
     private String sceneId;
+    private Integer oldIndex;
+    private Integer objectId;
     private String Type;
     private String attr;
 
@@ -13,6 +15,22 @@ public class GenesisExcelRow {
 
     public void setSceneId(String sceneId) {
         this.sceneId = sceneId;
+    }
+
+    public Integer getOldIndex() {
+        return oldIndex;
+    }
+
+    public void setOldIndex(Integer oldIndex) {
+        this.oldIndex = oldIndex;
+    }
+
+    public Integer getObjectId() {
+        return objectId;
+    }
+
+    public void setObjectId(Integer objectId) {
+        this.objectId = objectId;
     }
 
     public String getType() {
