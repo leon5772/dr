@@ -135,8 +135,8 @@ public class ExcelFillController {
         CellStyle contentCellStyle = sheet.getRow(5).getCell(1).getCellStyle();
         for (int rowIndex = 5; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
 
-            XSSFRow row = sheet.getRow(rowIndex);
-            if (row == null) {
+            XSSFRow oldRow = sheet.getRow(rowIndex);
+            if (oldRow == null) {
                 continue;
             }
 
@@ -145,14 +145,14 @@ public class ExcelFillController {
                 continue;
             }
 
-            row.removeCell(row.getCell(4));
-            row.removeCell(row.getCell(5));
-            row.removeCell(row.getCell(6));
+            oldRow.removeCell(oldRow.getCell(4));
+            oldRow.removeCell(oldRow.getCell(5));
+            oldRow.removeCell(oldRow.getCell(6));
 
             //拿到场景id，并移除单元格值
-            XSSFCell sceneIdCell = row.getCell(0);
+            XSSFCell sceneIdCell = oldRow.getCell(0);
             long sceneId = Long.parseLong(sceneIdCell.getStringCellValue().trim());
-            row.removeCell(row.getCell(0));
+            oldRow.removeCell(oldRow.getCell(0));
 
             //多个object
             for (int i = 1; i < 3; i++) {
@@ -165,17 +165,25 @@ public class ExcelFillController {
                 extraRow.setAttr("Hat:No_hat;");
 
                 Row newRow = sheet.createRow(sheet.getLastRowNum() + i);
-                newRow.createCell(2).setCellValue(extraRow.getSceneId());
+                extraRow.setNewIndex(newRow.getRowNum());
+
+                Cell newTimeCell = newRow.createCell(2);
+                newTimeCell.setCellStyle(contentCellStyle);
+                newTimeCell.setCellValue(oldRow.getCell(2).getStringCellValue());
+
+                Cell newCameraCell = newRow.createCell(3);
+                newCameraCell.setCellStyle(contentCellStyle);
+                newCameraCell.setCellValue(oldRow.getCell(3).getStringCellValue());
 
                 extraRowList.add(extraRow);
             }
 
             //插入列
-            Cell contentC4 = row.createCell(4);
+            Cell contentC4 = oldRow.createCell(4);
             contentC4.setCellStyle(contentCellStyle);
             contentC4.setCellValue(sceneId + "_4");
 
-            Cell contentC5 = row.createCell(5);
+            Cell contentC5 = oldRow.createCell(5);
             contentC5.setCellStyle(contentCellStyle);
             contentC5.setCellValue(sceneId + "_5");
         }

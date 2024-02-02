@@ -11,12 +11,11 @@ logging:
     level:
       com.crane: error
 
-
 spring:
   mvc:
   servlet:
     multipart:
-      max-file-size: 100MB
+      max-file-size: 300MB
 
 #spring:
 #  prefix: classpath:/templates/

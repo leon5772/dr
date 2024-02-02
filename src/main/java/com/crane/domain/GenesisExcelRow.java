@@ -4,10 +4,11 @@ public class GenesisExcelRow {
 
     private String sceneId;
     private Integer oldIndex;
+
+    private Integer newIndex;
     private Integer objectId;
     private String Type;
     private String attr;
-
 
     public String getSceneId() {
         return sceneId;
@@ -47,5 +48,13 @@ public class GenesisExcelRow {
 
     public void setAttr(String attr) {
         this.attr = attr;
+    }
+
+    public Integer getNewIndex() {
+        return newIndex;
+    }
+
+    public void setNewIndex(Integer newIndex) {
+        this.newIndex = newIndex;
     }
 }
