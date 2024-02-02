@@ -155,7 +155,8 @@ public class ExcelFillController {
             oldRow.removeCell(oldRow.getCell(0));
 
             //多个object
-            for (int i = 1; i < 3; i++) {
+            int innerIndex = sheet.getLastRowNum();
+            for (int i = 0; i < 3; i++) {
 
                 GenesisExcelRow extraRow = new GenesisExcelRow();
                 extraRow.setSceneId(String.valueOf(sceneId));
@@ -164,8 +165,13 @@ public class ExcelFillController {
                 extraRow.setType("Person_" + sceneId);
                 extraRow.setAttr("Hat:No_hat;");
 
-                Row newRow = sheet.createRow(sheet.getLastRowNum() + i);
+                Row newRow = sheet.createRow(innerIndex + i + 1);
+                newRow.setHeight(oldRow.getHeight());
                 extraRow.setNewIndex(newRow.getRowNum());
+
+                Cell newPicCell = newRow.createCell(1);
+                newPicCell.setCellStyle(contentCellStyle);
+                newPicCell.setCellValue("");
 
                 Cell newTimeCell = newRow.createCell(2);
                 newTimeCell.setCellStyle(contentCellStyle);
