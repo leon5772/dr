@@ -1,6 +1,5 @@
 package com.crane.controller;
 
-
 import com.crane.domain.GenesisExcelFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -90,34 +89,41 @@ public class ExcelFillController {
         //拿第一个sheet单
         XSSFSheet sheet = workbook.getSheetAt(0);
 
+        //更改sheet标题
+        Row row1 = sheet.getRow(0);
+        row1.getCell(0).setCellValue("");
+        row1.getCell(1).setCellValue("Metadata");
+
+        //删除r3文本
+        Row row3 = sheet.getRow(2);
+        String searchTime = row3.getCell(0).getStringCellValue();
+        row3.getCell(1).setCellValue(searchTime);
+        row3.getCell(0).setCellValue("");
+
         //删除指定的标题
         Row r4 = sheet.getRow(4);
+        r4.removeCell(r4.getCell(0));
         r4.removeCell(r4.getCell(4));
         r4.removeCell(r4.getCell(5));
         r4.removeCell(r4.getCell(6));
 
         //插入标题列，并赋予样式
-        CellStyle titleCellStyle = r4.getCell(0).getCellStyle();
+        CellStyle titleCellStyle = r4.getCell(1).getCellStyle();
         //4列
         Cell titleC4 = r4.createCell(4);
-        titleC4.setCellValue("c4");
+        titleC4.setCellValue("Type");
         titleC4.setCellStyle(titleCellStyle);
         //5列
         Cell titleC5 = r4.createCell(5);
-        titleC5.setCellValue("c5");
+        titleC5.setCellValue("attribute text");
         titleC5.setCellStyle(titleCellStyle);
-        //6列
-        Cell titleC6 = r4.createCell(6);
-        titleC6.setCellValue("c6");
-        titleC6.setCellStyle(titleCellStyle);
 
         //列宽
         sheet.setColumnWidth(4, 256 * 20);
-        sheet.setColumnWidth(5, 256 * 20);
-        sheet.setColumnWidth(6, 256 * 20 * 5);
+        sheet.setColumnWidth(5, 256 * 20 * 5);
 
         //从第五行开始读取数据
-        CellStyle contentCellStyle = sheet.getRow(5).getCell(0).getCellStyle();
+        CellStyle contentCellStyle = sheet.getRow(5).getCell(1).getCellStyle();
         for (int rowIndex = 5; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
 
             XSSFRow row = sheet.getRow(rowIndex);
@@ -130,26 +136,10 @@ public class ExcelFillController {
             row.removeCell(row.getCell(5));
             row.removeCell(row.getCell(6));
 
-            //拿到场景id
+            //拿到场景id，并移除
             XSSFCell sceneIdCell = row.getCell(0);
             long sceneId = Long.parseLong(sceneIdCell.getStringCellValue().trim());
-
-            for (int i = 0; i < 3; i++) {
-
-                //插入一行新数据
-                int insertRowNum = rowIndex + i;
-
-                // 调用shiftRows插入新行并下移其他数据
-                sheet.shiftRows(insertRowNum, sheet.getLastRowNum(), 1);
-
-                // 在插入的新行创建行对象
-                Row newRow = sheet.createRow(insertRowNum);
-
-                // 设置新行单元格数据
-                Cell cell1 = newRow.createCell(0);
-                cell1.setCellValue("新插入的数据");
-            }
-            rowIndex = rowIndex + 3;
+            row.removeCell(row.getCell(0));
 
             //插入列
             Cell contentC4 = row.createCell(4);
@@ -159,10 +149,6 @@ public class ExcelFillController {
             Cell contentC5 = row.createCell(5);
             contentC5.setCellStyle(contentCellStyle);
             contentC5.setCellValue(sceneId + "_5");
-
-            Cell contentC6 = row.createCell(6);
-            contentC6.setCellStyle(contentCellStyle);
-            contentC6.setCellValue(sceneId + "_6");
         }
 
 
