@@ -2,12 +2,10 @@ package com.crane.controller;
 
 import com.crane.domain.GenesisExcelFile;
 import com.crane.domain.GenesisExcelRow;
-import org.apache.commons.compress.compressors.zstandard.ZstdCompressorOutputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.ClientAnchor;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.*;
 import org.slf4j.Logger;
@@ -208,17 +206,24 @@ public class ExcelFillController {
         XSSFDrawing drawing = sheet.createDrawingPatriarch();
         List<XSSFShape> shapes = drawing.getShapes();
 
-        int i=5;
+        int i = 5;
         for (XSSFShape shape : shapes) {
             // 获取图片
             if (shape instanceof XSSFPicture) {
                 XSSFPicture picture = (XSSFPicture) shape;
 
-                if (picture.getShapeName().contains("_thumbnail")){
-                    // 位置信息
-                    XSSFClientAnchor anchor = picture.getClientAnchor();
-                    anchor.setRow1(i+3);
-                }
+
+                // 位置信息
+                XSSFClientAnchor anchor = picture.getClientAnchor();
+
+//                System.out.println(anchor.getRow1());
+//                System.out.println(anchor.getCol1());
+//                System.out.println(anchor.getRow2());
+//                System.out.println(anchor.getCol2());
+
+                anchor.setRow1(i+1);
+                i++;
+
             }
         }
 
@@ -226,7 +231,7 @@ public class ExcelFillController {
 
         //输出最终的excel
         try {
-            FileOutputStream fos = new FileOutputStream(filePath +System.currentTimeMillis()+"_"+fileName);
+            FileOutputStream fos = new FileOutputStream(filePath + System.currentTimeMillis() + "_" + fileName);
             workbook.write(fos);
             fos.close();
             workbook.close();
