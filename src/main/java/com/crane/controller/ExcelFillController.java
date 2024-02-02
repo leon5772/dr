@@ -1,6 +1,7 @@
 package com.crane.controller;
 
 import com.crane.domain.GenesisExcelFile;
+import com.crane.domain.GenesisExcelRow;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -24,6 +25,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequestMapping("/excel_fill")
@@ -122,6 +125,9 @@ public class ExcelFillController {
         sheet.setColumnWidth(4, 256 * 20);
         sheet.setColumnWidth(5, 256 * 20 * 5);
 
+        //每行scene都有多个object，我们先存储，后插入指定行
+        List<GenesisExcelRow> extraRowList = new ArrayList<>();
+
         //从第五行开始读取数据
         CellStyle contentCellStyle = sheet.getRow(5).getCell(1).getCellStyle();
         for (int rowIndex = 5; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
@@ -136,10 +142,19 @@ public class ExcelFillController {
             row.removeCell(row.getCell(5));
             row.removeCell(row.getCell(6));
 
-            //拿到场景id，并移除
+            //拿到场景id，并移除单元格值
             XSSFCell sceneIdCell = row.getCell(0);
             long sceneId = Long.parseLong(sceneIdCell.getStringCellValue().trim());
             row.removeCell(row.getCell(0));
+
+            //多个object
+            for (int i = 0; i < 3; i++) {
+                GenesisExcelRow extraRow = new GenesisExcelRow();
+                extraRow.setSceneId(sceneId + "_" + i + "_" + rowIndex);
+                extraRow.setType("Person");
+                extraRow.setAttr("Hat:No_hat;");
+                extraRowList.add(extraRow);
+            }
 
             //插入列
             Cell contentC4 = row.createCell(4);
