@@ -45,7 +45,7 @@ public class ExcelFillController {
         Map<String, String> timeMap = new HashMap<>();
 
         //带时区的时间
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         //开始最小时间
         Calendar threeDayBefore = Calendar.getInstance(TimeZone.getDefault());
@@ -53,7 +53,7 @@ public class ExcelFillController {
         timeMap.put("b_min", sdf.format(threeDayBefore.getTime()));
         //开始最大时间
         Calendar sixHourBefore = Calendar.getInstance(TimeZone.getDefault());
-        threeDayBefore.add(Calendar.HOUR, -6);
+        sixHourBefore.add(Calendar.HOUR, -6);
         timeMap.put("b_max", sdf.format(sixHourBefore.getTime()));
         //开始默认时间
         timeMap.put("b_default", sdf.format(sixHourBefore.getTime()));
