@@ -48,7 +48,7 @@ public class ExcelFillController {
 
         // 获取文件名
         String fileName = inputExcelFile.getOriginalFilename();
-        fileName = "extra_" + System.currentTimeMillis() + "_" + fileName;
+        fileName = "Extra_" + System.currentTimeMillis() + "_" + fileName;
 
         // 创建文件
         File newFile = new File(savedPath + fileName);
