@@ -1,20 +1,18 @@
 package com.crane.domain;
 
-import org.apache.poi.ss.usermodel.Picture;
-
 public class OutputData {
 
-    private Picture result;
+    private String result;
     private String time;
     private String camera;
     private String type;
     private String attribute;
 
-    public Picture getResult() {
+    public String getResult() {
         return result;
     }
 
-    public void setResult(Picture result) {
+    public void setResult(String result) {
         this.result = result;
     }
 
