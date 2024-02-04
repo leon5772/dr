@@ -158,14 +158,23 @@ public class ExcelFillController {
                 XSSFPicture picture = (XSSFPicture) shape;
 
                 //删除第一列的数据
-                Row rowN = sheet.getRow(i);
-                rowN.getCell(0).setCellValue("");
-
-                // 移动图片位置
+                Row dataRowN = sheet.getRow(i);
+                String sceneId = dataRowN.getCell(0).getStringCellValue();
+                dataRowN.getCell(0).setCellValue("");
+                // 移动图片到第一列
                 XSSFClientAnchor anchor = picture.getClientAnchor();
                 anchor.setCol1(0);
                 i++;
 
+                //第3列数据前移
+                dataRowN.getCell(1).setCellValue(dataRowN.getCell(2).getStringCellValue());
+
+                //第4列数据前移
+                dataRowN.getCell(2).setCellValue(dataRowN.getCell(3).getStringCellValue());
+
+                //删除5，6行
+                dataRowN.removeCell(dataRowN.getCell(5));
+                dataRowN.removeCell(dataRowN.getCell(6));
             }
         }
 
