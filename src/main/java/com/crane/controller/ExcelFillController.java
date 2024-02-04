@@ -1,6 +1,7 @@
 package com.crane.controller;
 
 import com.crane.domain.GenesisExcelFile;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletOutputStream;
@@ -21,10 +23,11 @@ import java.io.*;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Controller
-@RequestMapping("/excel_fill")
+@RequestMapping("/excel_download")
 public class ExcelFillController {
 
     private static Logger logger = LoggerFactory.getLogger(ExcelFillController.class);
@@ -33,6 +36,43 @@ public class ExcelFillController {
     public String forwardRequest(HttpServletRequest request) {
 
         return "excelFill/index";
+    }
+
+    @GetMapping("/time_map")
+    @ResponseBody
+    public String getTimeJson() throws Exception {
+
+        Map<String, String> timeMap = new HashMap<>();
+
+        //带时区的时间
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
+
+        //开始最小时间
+        Calendar threeDayBefore = Calendar.getInstance(TimeZone.getDefault());
+        threeDayBefore.add(Calendar.HOUR, -72);
+        timeMap.put("b_min", sdf.format(threeDayBefore.getTime()));
+        //开始最大时间
+        Calendar sixHourBefore = Calendar.getInstance(TimeZone.getDefault());
+        threeDayBefore.add(Calendar.HOUR, -6);
+        timeMap.put("b_max", sdf.format(sixHourBefore.getTime()));
+        //开始默认时间
+        timeMap.put("b_default", sdf.format(sixHourBefore.getTime()));
+
+        //结束最小时间
+        Calendar threeDayLittle = Calendar.getInstance(TimeZone.getDefault());
+        threeDayLittle.add(Calendar.HOUR, -67);
+        timeMap.put("e_min", sdf.format(threeDayLittle.getTime()));
+        //结束最大时间
+        Calendar todayEndTime = Calendar.getInstance(TimeZone.getDefault());
+        todayEndTime.set(Calendar.HOUR_OF_DAY, 23);
+        todayEndTime.set(Calendar.MINUTE, 59);
+        todayEndTime.set(Calendar.SECOND, 59);
+        timeMap.put("e_max", sdf.format(todayEndTime.getTime()));
+        //结束默认时间
+        timeMap.put("e_default", sdf.format(todayEndTime.getTime()));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.writeValueAsString(timeMap);
     }
 
     @PostMapping("/upload")
