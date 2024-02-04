@@ -57,8 +57,6 @@
         dataType: 'json',
         success: function (res) {
 
-          console.log(res);
-
           $("#s_time").attr("min", res.b_min);
           $("#s_time").attr("max", res.b_max);
           $("#s_time").val(res.b_default);
