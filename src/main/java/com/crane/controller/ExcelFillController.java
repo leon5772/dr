@@ -14,14 +14,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.net.URLEncoder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,8 +39,7 @@ public class ExcelFillController {
     }
 
     @PostMapping("/upload")
-    @ResponseBody
-    public String upload(GenesisExcelFile excelFile) throws IOException {
+    public void upload(GenesisExcelFile excelFile, HttpServletResponse response) throws IOException {
 
         MultipartFile inputExcelFile = excelFile.getExcelFile();
 
@@ -56,32 +56,44 @@ public class ExcelFillController {
             FileUtils.copyInputStreamToFile(inputExcelFile.getInputStream(), newFile);
         } catch (Exception e) {
             logger.error("save excel: ", e);
-            return "error:".concat(e.getMessage());
+            return;
         }
 
         //给apache poi处理
-        String finalExcel = excelDataFill(savedPath, fileName);
-        if (StringUtils.isBlank(finalExcel)) {
-            return "error";
+        String downloadExcel = excelDataFill(newFile);
+        if (StringUtils.isBlank(downloadExcel)) {
+            return;
         }
 
-        return "success: " + newFile.getAbsolutePath();
+        // 读到流中
+        InputStream inputStream = Files.newInputStream(Paths.get(downloadExcel));// 文件的存放路径
+        response.reset();
+        response.setContentType("application/octet-stream");
+        String filename = new File(downloadExcel).getName();
+        response.addHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(filename, "UTF-8"));
+        ServletOutputStream outputStream = response.getOutputStream();
+        byte[] b = new byte[3072];
+        int len;
+        //从输入流中读取一定数量的字节，并将其存储在缓冲区字节数组中，读到末尾返回-1
+        while ((len = inputStream.read(b)) > 0) {
+            outputStream.write(b, 0, len);
+        }
+        inputStream.close();
+
+        //删除临时文件
+        newFile.delete();
     }
 
     public static void main(String[] args) {
         ExcelFillController e = new ExcelFillController();
-        e.excelDataFill("E:\\work_temp2\\", "sceneList (3).xlsx");
     }
 
-    public String excelDataFill(String filePath, String fileName) {
-
-        //File
-        String inputFile = filePath + fileName;
+    public String excelDataFill(File excelfile) {
 
         //读取这个文件
         XSSFWorkbook workbook;
         try {
-            FileInputStream excelFileInputStream = new FileInputStream(inputFile);
+            FileInputStream excelFileInputStream = new FileInputStream(excelfile);
             workbook = new XSSFWorkbook(excelFileInputStream);
             excelFileInputStream.close();
         } catch (Exception e) {
@@ -221,7 +233,7 @@ public class ExcelFillController {
 //                System.out.println(anchor.getRow2());
 //                System.out.println(anchor.getCol2());
 
-                anchor.setRow1(i+1);
+                anchor.setRow1(i + 1);
                 i++;
 
             }
@@ -231,7 +243,7 @@ public class ExcelFillController {
 
         //输出最终的excel
         try {
-            FileOutputStream fos = new FileOutputStream(filePath + System.currentTimeMillis() + "_" + fileName);
+            FileOutputStream fos = new FileOutputStream(excelfile);
             workbook.write(fos);
             fos.close();
             workbook.close();
@@ -240,7 +252,7 @@ public class ExcelFillController {
             return null;
         }
 
-        return "1";
+        return excelfile.getPath();
     }
 
 }
