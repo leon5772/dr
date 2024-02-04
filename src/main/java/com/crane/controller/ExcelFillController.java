@@ -1,8 +1,7 @@
 package com.crane.controller;
 
+import com.crane.domain.OutputData;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -10,21 +9,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLEncoder;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 
 @Controller
 @RequestMapping("/excel_download")
@@ -88,14 +77,35 @@ public class ExcelFillController {
         String askType = request.getParameter("ask_type");
 
         //根据选中的类型，决定获取哪些数据
-        if(){
+        if (askType.equals("object")) {
 
-        }else if(){
+            List<OutputData> objectList = getObjectDataFromGenesis(startTime, endTime);
 
-        }else {
+        } else if (askType.equals("event")) {
 
+            List<OutputData> eventList = getEventDataFromGenesis(startTime, endTime);
+
+        } else {
+
+            //查询两个接口的数据
+            List<OutputData> uniList = new ArrayList<>();
+            List<OutputData> objectList = getObjectDataFromGenesis(startTime, endTime);
+            List<OutputData> eventList = getObjectDataFromGenesis(startTime, endTime);
+            //合并数据到一个集合
+            uniList.addAll(objectList);
+            uniList.addAll(eventList);
+            //排序
+            Comparator<OutputData> timeComparator = Comparator.comparing(OutputData::getTime);
+            uniList.sort(timeComparator);
         }
+    }
 
+    private List<OutputData> getEventDataFromGenesis(String startTime, String endTime) {
+        return null;
+    }
+
+    private List<OutputData> getObjectDataFromGenesis(String startTime, String endTime) {
+        return null;
     }
 
 //    @PostMapping("/upload")
