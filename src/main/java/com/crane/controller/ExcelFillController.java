@@ -1,12 +1,10 @@
 package com.crane.controller;
 
 import com.crane.domain.GenesisExcelFile;
-import com.crane.domain.GenesisExcelRow;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +21,6 @@ import java.io.*;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -43,7 +40,7 @@ public class ExcelFillController {
 
         MultipartFile inputExcelFile = excelFile.getExcelFile();
 
-        // 创建文件
+        // 创建临时文件
         String savedPath = "./metadata/data/excel/";
 
         // 获取文件名
@@ -84,8 +81,15 @@ public class ExcelFillController {
         newFile.delete();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
+
         ExcelFillController e = new ExcelFillController();
+        File oldF = new File("E:\\work_temp2\\sceneList.xlsx");
+        File newF = new File("E:\\work_temp2\\" + System.currentTimeMillis() + "_sceneList.xlsx");
+
+        FileUtils.copyFile(oldF, newF);
+
+        e.excelDataFill(newF);
     }
 
     public String excelDataFill(File excelfile) {
@@ -106,111 +110,40 @@ public class ExcelFillController {
 
         //----------------------------------------------------------------------------------------------------|
 
-        //更改sheet标题
+        //更改第1行的标题
         Row row1 = sheet.getRow(0);
-        row1.getCell(0).setCellValue("");
-        row1.getCell(1).setCellValue("Metadata");
+        row1.getCell(0).setCellValue("Metadata");
+        //减少单元格合并范围
+        sheet.removeMergedRegion(0);
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 4));
 
-        //删除r3文本
-        Row row3 = sheet.getRow(2);
-        String searchTime = row3.getCell(0).getStringCellValue();
-        row3.getCell(1).setCellValue(searchTime);
-        row3.getCell(0).setCellValue("");
+        //减少第3行的单元格合并范围
+        sheet.removeMergedRegion(0);
+        sheet.addMergedRegion(new CellRangeAddress(2, 2, 0, 4));
 
-        //删除指定的标题
-        Row r4 = sheet.getRow(4);
-        r4.removeCell(r4.getCell(0));
-        r4.removeCell(r4.getCell(4));
-        r4.removeCell(r4.getCell(5));
-        r4.removeCell(r4.getCell(6));
+        //删除第4行的数据，并移除它的合并单元格
+        Row row4 = sheet.getRow(3);
+        row4.getCell(0).setCellValue("");
+        sheet.removeMergedRegion(0);
 
-        //插入标题列，并赋予样式
-        CellStyle titleCellStyle = r4.getCell(1).getCellStyle();
-        //4列
-        Cell titleC4 = r4.createCell(4);
-        titleC4.setCellValue("Type");
-        titleC4.setCellStyle(titleCellStyle);
-        //5列
-        Cell titleC5 = r4.createCell(5);
-        titleC5.setCellValue("attribute text");
-        titleC5.setCellStyle(titleCellStyle);
+        //修改第5行标题的名称
+        Row row5 = sheet.getRow(4);
+        row5.getCell(0).setCellValue("Result");
+        row5.getCell(1).setCellValue("Time");
+        row5.getCell(2).setCellValue("Camera");
+        row5.getCell(3).setCellValue("Type");
+        row5.getCell(4).setCellValue("Attribute Text");
+        //删除第5行的第6,7个标题
+        row5.removeCell(row5.getCell(5));
+        row5.removeCell(row5.getCell(6));
 
-        //列宽
-        sheet.setColumnWidth(4, 256 * 20);
-        sheet.setColumnWidth(5, 256 * 20 * 5);
-
-        //每行scene都有多个object，我们先存储，后插入指定行
-        List<GenesisExcelRow> extraRowList = new ArrayList<>();
-
-        //----------------------------------------------------------------------------------------------------|
-
-        //文本cell的样式
-        CellStyle contentCellStyle = sheet.getRow(5).getCell(1).getCellStyle();
-
-        //最初的总行数
-        int oldSheetNum = sheet.getLastRowNum();
-        //从第五行开始处理数据
-        for (int rowIndex = 5; rowIndex <= oldSheetNum; rowIndex++) {
-
-            XSSFRow oldRow = sheet.getRow(rowIndex);
-            if (oldRow == null) {
-                continue;
-            }
-
-            //如果是我们自己加的行，跳过
-            if (oldRow.getCell(0) == null) {
-                continue;
-            }
-
-            oldRow.removeCell(oldRow.getCell(4));
-            oldRow.removeCell(oldRow.getCell(5));
-            oldRow.removeCell(oldRow.getCell(6));
-
-            //拿到场景id，并移除单元格值
-            XSSFCell sceneIdCell = oldRow.getCell(0);
-            long sceneId = Long.parseLong(sceneIdCell.getStringCellValue().trim());
-            oldRow.removeCell(oldRow.getCell(0));
-
-            //多个object
-            int objectNum = 3;
-            //从当前行向下整体移动，空出n个空行
-            sheet.shiftRows(rowIndex, oldSheetNum, objectNum);
-
-            //往空行里写数据
-            for (int i = 0; i < objectNum; i++) {
-
-                Row newRow = sheet.createRow(rowIndex + i);
-                newRow.setHeight(oldRow.getHeight());
-
-                Cell newPicCell = newRow.createCell(1);
-                newPicCell.setCellStyle(contentCellStyle);
-                newPicCell.setCellValue("");
-
-                Cell newTimeCell = newRow.createCell(2);
-                newTimeCell.setCellStyle(contentCellStyle);
-                newTimeCell.setCellValue(oldRow.getCell(2).getStringCellValue());
-
-                Cell newCameraCell = newRow.createCell(3);
-                newCameraCell.setCellStyle(contentCellStyle);
-                newCameraCell.setCellValue(oldRow.getCell(3).getStringCellValue());
-
-                oldSheetNum = oldSheetNum + i;
-            }
-
-            //插入列
-//            Cell contentC4 = oldRow.createCell(4);
-//            contentC4.setCellStyle(contentCellStyle);
-//            contentC4.setCellValue(sceneId + "_4");
-//
-//            Cell contentC5 = oldRow.createCell(5);
-//            contentC5.setCellStyle(contentCellStyle);
-//            contentC5.setCellValue(sceneId + "_5");
-        }
-
-        //将增加的行，切换到上面取
-//        for (GenesisExcelRow extraRow : extraRowList) {
-//            sheet.shiftRows(extraRow.getNewIndex(), extraRow.getOldIndex(), 1);
-//        }
+        //调整列宽数据
+        int col2Wid = sheet.getColumnWidth(1);
+        sheet.setColumnWidth(0, col2Wid);
+        int col9Wid = sheet.getColumnWidth(8);
+        sheet.setColumnWidth(4, col9Wid * 8);
+        sheet.setColumnWidth(5, col9Wid);
+        sheet.setColumnWidth(6, col9Wid);
 
         //----------------------------------------------------------------------------------------------------|
 
@@ -224,20 +157,95 @@ public class ExcelFillController {
             if (shape instanceof XSSFPicture) {
                 XSSFPicture picture = (XSSFPicture) shape;
 
+                //删除第一列的数据
+                Row rowN = sheet.getRow(i);
+                rowN.getCell(0).setCellValue("");
 
-                // 位置信息
+                // 移动图片位置
                 XSSFClientAnchor anchor = picture.getClientAnchor();
-
-//                System.out.println(anchor.getRow1());
-//                System.out.println(anchor.getCol1());
-//                System.out.println(anchor.getRow2());
-//                System.out.println(anchor.getCol2());
-
-                anchor.setRow1(i + 1);
+                anchor.setCol1(0);
                 i++;
 
             }
         }
+
+        //----------------------------------------------------------------------------------------------------|
+
+//        //文本cell的样式
+//        CellStyle contentCellStyle = sheet.getRow(5).getCell(1).getCellStyle();
+//
+//        //最初的总行数
+//        int oldSheetNum = sheet.getLastRowNum();
+//        //从第五行开始处理数据
+//        for (int rowIndex = 5; rowIndex <= oldSheetNum; rowIndex++) {
+//
+//            XSSFRow oldRow = sheet.getRow(rowIndex);
+//            if (oldRow == null) {
+//                continue;
+//            }
+//
+//            //如果是我们自己加的行，跳过
+//            if (oldRow.getCell(0) == null) {
+//                continue;
+//            }
+//
+//            oldRow.removeCell(oldRow.getCell(4));
+//            oldRow.removeCell(oldRow.getCell(5));
+//            oldRow.removeCell(oldRow.getCell(6));
+//
+//            //拿到场景id，并移除单元格值
+//            XSSFCell sceneIdCell = oldRow.getCell(0);
+//            long sceneId = Long.parseLong(sceneIdCell.getStringCellValue().trim());
+//            oldRow.removeCell(oldRow.getCell(0));
+//
+//            //多个object
+//            int objectNum = 3;
+//            //从当前行向下整体移动，空出n个空行
+//            sheet.shiftRows(rowIndex, oldSheetNum, objectNum);
+//
+//            //往空行里写数据
+//            for (int i = 0; i < objectNum; i++) {
+//
+//                Row newRow = sheet.createRow(rowIndex + i);
+//                newRow.setHeight(oldRow.getHeight());
+//
+//                Cell newPicCell = newRow.createCell(1);
+//                newPicCell.setCellStyle(contentCellStyle);
+//                newPicCell.setCellValue("");
+//
+//                Cell newTimeCell = newRow.createCell(2);
+//                newTimeCell.setCellStyle(contentCellStyle);
+//                newTimeCell.setCellValue(oldRow.getCell(2).getStringCellValue());
+//
+//                Cell newCameraCell = newRow.createCell(3);
+//                newCameraCell.setCellStyle(contentCellStyle);
+//                newCameraCell.setCellValue(oldRow.getCell(3).getStringCellValue());
+//
+//                oldSheetNum = oldSheetNum + i;
+//            }
+//
+//            //插入列
+////            Cell contentC4 = oldRow.createCell(4);
+////            contentC4.setCellStyle(contentCellStyle);
+////            contentC4.setCellValue(sceneId + "_4");
+////
+////            Cell contentC5 = oldRow.createCell(5);
+////            contentC5.setCellStyle(contentCellStyle);
+////            contentC5.setCellValue(sceneId + "_5");
+//        }
+
+        //将增加的行，切换到上面取
+//        for (GenesisExcelRow extraRow : extraRowList) {
+//            sheet.shiftRows(extraRow.getNewIndex(), extraRow.getOldIndex(), 1);
+//        }
+
+        //----------------------------------------------------------------------------------------------------|
+
+
+        //----------------------------------------------------------------------------------------------------|
+
+        //修剪合并的单元格
+
 
         //----------------------------------------------------------------------------------------------------|
 
