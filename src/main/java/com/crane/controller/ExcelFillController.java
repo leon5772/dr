@@ -180,69 +180,6 @@ public class ExcelFillController {
 
         //----------------------------------------------------------------------------------------------------|
 
-//        //文本cell的样式
-//        CellStyle contentCellStyle = sheet.getRow(5).getCell(1).getCellStyle();
-//
-//        //最初的总行数
-//        int oldSheetNum = sheet.getLastRowNum();
-//        //从第五行开始处理数据
-//        for (int rowIndex = 5; rowIndex <= oldSheetNum; rowIndex++) {
-//
-//            XSSFRow oldRow = sheet.getRow(rowIndex);
-//            if (oldRow == null) {
-//                continue;
-//            }
-//
-//            //如果是我们自己加的行，跳过
-//            if (oldRow.getCell(0) == null) {
-//                continue;
-//            }
-//
-//            oldRow.removeCell(oldRow.getCell(4));
-//            oldRow.removeCell(oldRow.getCell(5));
-//            oldRow.removeCell(oldRow.getCell(6));
-//
-//            //拿到场景id，并移除单元格值
-//            XSSFCell sceneIdCell = oldRow.getCell(0);
-//            long sceneId = Long.parseLong(sceneIdCell.getStringCellValue().trim());
-//            oldRow.removeCell(oldRow.getCell(0));
-//
-//            //多个object
-//            int objectNum = 3;
-//            //从当前行向下整体移动，空出n个空行
-//            sheet.shiftRows(rowIndex, oldSheetNum, objectNum);
-//
-//            //往空行里写数据
-//            for (int i = 0; i < objectNum; i++) {
-//
-//                Row newRow = sheet.createRow(rowIndex + i);
-//                newRow.setHeight(oldRow.getHeight());
-//
-//                Cell newPicCell = newRow.createCell(1);
-//                newPicCell.setCellStyle(contentCellStyle);
-//                newPicCell.setCellValue("");
-//
-//                Cell newTimeCell = newRow.createCell(2);
-//                newTimeCell.setCellStyle(contentCellStyle);
-//                newTimeCell.setCellValue(oldRow.getCell(2).getStringCellValue());
-//
-//                Cell newCameraCell = newRow.createCell(3);
-//                newCameraCell.setCellStyle(contentCellStyle);
-//                newCameraCell.setCellValue(oldRow.getCell(3).getStringCellValue());
-//
-//                oldSheetNum = oldSheetNum + i;
-//            }
-//
-//            //插入列
-////            Cell contentC4 = oldRow.createCell(4);
-////            contentC4.setCellStyle(contentCellStyle);
-////            contentC4.setCellValue(sceneId + "_4");
-////
-////            Cell contentC5 = oldRow.createCell(5);
-////            contentC5.setCellStyle(contentCellStyle);
-////            contentC5.setCellValue(sceneId + "_5");
-//        }
-
         //将增加的行，切换到上面取
 //        for (GenesisExcelRow extraRow : extraRowList) {
 //            sheet.shiftRows(extraRow.getNewIndex(), extraRow.getOldIndex(), 1);
@@ -250,13 +187,6 @@ public class ExcelFillController {
 
         //----------------------------------------------------------------------------------------------------|
 
-
-        //----------------------------------------------------------------------------------------------------|
-
-        //修剪合并的单元格
-
-
-        //----------------------------------------------------------------------------------------------------|
 
         //输出最终的excel
         try {
