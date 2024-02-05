@@ -61,8 +61,6 @@ public class TransServiceImpl implements ITransService {
     @Async("asyncServiceExecutor")
     public void transJson(JSONObject inputJson) {
 
-        String a = inputJson.toJSONString();
-
         //获取幻方给的通道名字
         String channelName = inputJson.getString("channelName");
         //根据通道名字，从配置拿到对应的genesis相机id
@@ -467,12 +465,13 @@ public class TransServiceImpl implements ITransService {
             is.close();
             target.close();
 
+            new File(tempPath).delete();
+            return targetPath;
+
         } catch (Exception e) {
             logger.error("pic process: ", e);
+            return "failed";
         }
-
-        new File(tempPath).delete();
-        return targetPath;
     }
 
     /**
