@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
 import java.util.*;
 
 @Controller
@@ -66,8 +67,8 @@ public class ExcelFillController {
     }
 
     public static void main(String[] args) throws Exception {
-
-
+        ZoneId zoneId = ZoneId.systemDefault();
+        System.out.println(zoneId);
     }
 
     @GetMapping("/go")
@@ -87,6 +88,7 @@ public class ExcelFillController {
 
             List<OutputData> eventList = getEventDataFromGenesis(startTime, endTime);
 
+
         } else {
 
             //查询两个接口的数据
@@ -103,6 +105,8 @@ public class ExcelFillController {
     }
 
     private List<OutputData> getEventDataFromGenesis(String startTime, String endTime) {
+
+
         return null;
     }
 
