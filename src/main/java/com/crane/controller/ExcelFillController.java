@@ -58,13 +58,15 @@ public class ExcelFillController {
         todayEndTime.set(Calendar.SECOND, 59);
         timeMap.put("e_max", sdf.format(todayEndTime.getTime()));
         //结束默认时间
-        timeMap.put("e_default", sdf.format(todayEndTime.getTime()));
+        Calendar nowCal = Calendar.getInstance(TimeZone.getDefault());
+        timeMap.put("e_default", sdf.format(nowCal.getTime()));
 
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.writeValueAsString(timeMap);
     }
 
     public static void main(String[] args) throws Exception {
+
 
     }
 
