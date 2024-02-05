@@ -2,8 +2,14 @@ package com.crane.controller;
 
 import com.crane.domain.OutputData;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +27,9 @@ import java.util.*;
 public class ExcelFillController {
 
     private static Logger logger = LoggerFactory.getLogger(ExcelFillController.class);
+
+    @Value("${tag_agent_config.genesis.address}")
+    private String genesisAddress;
 
     @GetMapping("")
     public String forwardRequest(HttpServletRequest request) {
@@ -74,10 +83,17 @@ public class ExcelFillController {
     @GetMapping("/go")
     public void goDownload(HttpServletResponse response, HttpServletRequest request) throws IOException {
 
+        //genesis需要时区
+        SimpleDateFormat sdf = new SimpleDateFormat("Z");
+        String utc = sdf.format(new Date());
+        StringBuilder buffer = new StringBuilder(utc);
+        buffer.insert(3, ':');
+        utc = buffer.toString();
+
         //获取请求的参数
-        String startTime = request.getParameter("s_time");
-        String endTime = request.getParameter("e_time");
-        String askType = request.getParameter("ask_type");
+        String startTime = request.getParameter("s_time").concat(utc);
+        String endTime = request.getParameter("e_time").concat(utc);
+        String askType = request.getParameter("ask_type").concat(utc);
 
         //根据选中的类型，决定获取哪些数据
         if (askType.equals("object")) {
@@ -106,6 +122,32 @@ public class ExcelFillController {
 
     private List<OutputData> getEventDataFromGenesis(String startTime, String endTime) {
 
+        HttpClient httpClient = HttpClients.createDefault();
+        CloseableHttpResponse response = null;
+        HttpGet httpGet = new HttpGet("http://" + genesisAddress.concat("/ainvr/api/commonEvents"));
+
+        try {
+
+            response = (CloseableHttpResponse) httpClient.execute(httpGet);
+
+            int code = response.getStatusLine().getStatusCode();
+            String result = EntityUtils.toString(response.getEntity());
+            if (code > 199 && code < 300) {
+                return null;
+            } else {
+                return null;
+            }
+        } catch (IOException e) {
+            logger.error("ask genesis event http error: ", e);
+        } finally {
+            try {
+                if (response != null) {
+                    response.close();
+                }
+            } catch (IOException ignored) {
+
+            }
+        }
 
         return null;
     }
