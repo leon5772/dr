@@ -525,7 +525,8 @@ public class TransServiceImpl implements ITransService {
         //时间，以幻方的时间戳为准
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         sdf.setTimeZone(TimeZone.getDefault());
-        resultScene.setDatetime(sdf.format(algoMsgJson.getJSONObject("globalInfo").getLongValue("timeMs")));
+        //resultScene.setDatetime(sdf.format(algoMsgJson.getJSONObject("globalInfo").getLongValue("timeMs")));
+        resultScene.setDatetime(sdf.format(algoMsgJson.getLongValue("recvTs")));
 
         //对象
         List<SceneObject> resultObjects = new ArrayList<>();
