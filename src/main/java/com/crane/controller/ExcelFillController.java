@@ -2,6 +2,7 @@ package com.crane.controller;
 
 import com.crane.domain.OutputData;
 import com.crane.service.impl.TransServiceImpl;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -160,6 +161,16 @@ public class ExcelFillController {
     }
 
     private List<OutputData> formatGenesisEvt(String result) throws Exception{
+
+        ObjectMapper objectMapper  = new ObjectMapper();
+        JsonNode jsonNodes = objectMapper.readTree(result);
+
+        for (JsonNode oneSceneNode:jsonNodes){
+            if (oneSceneNode.has("eventType")){
+                String eventName = oneSceneNode.get("eventType").toString().toLowerCase();
+            }
+        }
+
         List<OutputData> reList = new ArrayList<>();
         return reList;
     }
