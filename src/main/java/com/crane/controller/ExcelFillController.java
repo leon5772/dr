@@ -1,11 +1,15 @@
 package com.crane.controller;
 
 import com.crane.domain.OutputData;
+import com.crane.service.impl.TransServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,7 +97,7 @@ public class ExcelFillController {
         //获取请求的参数
         String startTime = request.getParameter("s_time").concat(utc);
         String endTime = request.getParameter("e_time").concat(utc);
-        String askType = request.getParameter("ask_type").concat(utc);
+        String askType = request.getParameter("ask_type");
 
         //根据选中的类型，决定获取哪些数据
         if (askType.equals("object")) {
@@ -123,33 +127,41 @@ public class ExcelFillController {
     private List<OutputData> getEventDataFromGenesis(String startTime, String endTime) {
 
         HttpClient httpClient = HttpClients.createDefault();
-        CloseableHttpResponse response = null;
-        HttpGet httpGet = new HttpGet("http://" + genesisAddress.concat("/ainvr/api/commonEvents"));
-
+        //ask
+        URIBuilder uriBuilder = null;
         try {
 
-            response = (CloseableHttpResponse) httpClient.execute(httpGet);
+            uriBuilder = new URIBuilder("http://" + genesisAddress.concat("/ainvr/api/commonEvents"));
 
+            //params
+            List<NameValuePair> parList = new ArrayList<>();
+            parList.add(new BasicNameValuePair("start",startTime));
+            parList.add(new BasicNameValuePair("end",endTime));
+            parList.add(new BasicNameValuePair("types","LOITERING,CROWD_DETECTION"));
+            parList.add(new BasicNameValuePair("size","10000"));
+            uriBuilder.addParameters(parList);
+
+            HttpGet httpGet = new HttpGet(uriBuilder.build());
+            //header
+            httpGet.addHeader("X-Auth-Token", TransServiceImpl.genesisToken);
+
+            CloseableHttpResponse response = (CloseableHttpResponse) httpClient.execute(httpGet);
             int code = response.getStatusLine().getStatusCode();
             String result = EntityUtils.toString(response.getEntity());
             if (code > 199 && code < 300) {
-                return null;
+                return formatGenesisEvt(result);
             } else {
                 return null;
             }
-        } catch (IOException e) {
+        }catch (Exception e){
             logger.error("ask genesis event http error: ", e);
-        } finally {
-            try {
-                if (response != null) {
-                    response.close();
-                }
-            } catch (IOException ignored) {
-
-            }
+            return null;
         }
+    }
 
-        return null;
+    private List<OutputData> formatGenesisEvt(String result) throws Exception{
+        List<OutputData> reList = new ArrayList<>();
+        return reList;
     }
 
     private List<OutputData> getObjectDataFromGenesis(String startTime, String endTime) {
