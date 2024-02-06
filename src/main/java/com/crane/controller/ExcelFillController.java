@@ -12,7 +12,6 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
@@ -136,7 +135,7 @@ public class ExcelFillController {
         a.setAttribute("5");
         a.setAttribute("2");
         eventList.add(a);
-        e.makeExcel(eventList,"2025-12-12 05:08:30","2025-12-12 05:08:56");
+        e.makeExcel(eventList, "2025-12-12 05:08:30", "2025-12-12 05:08:56");
     }
 
     private String makeExcel(List<OutputData> eventList, String sTime, String eTime) {
@@ -162,7 +161,7 @@ public class ExcelFillController {
         CellStyle r1c1CellStyle = workbook.createCellStyle();
         XSSFFont font = workbook.createFont();
         font.setFontHeightInPoints((short) 12);
-        font.setFontName("Calibri_cu1");
+        font.setFontName("Calibri_c1");
         font.setBold(true);
         r1c1CellStyle.setFont(font);
         //赋值
@@ -180,6 +179,7 @@ public class ExcelFillController {
 
         //标题行
         XSSFRow row4 = sheet.createRow(3);
+        row4.setHeightInPoints(16);
         //黑边框样式
         CellStyle titleCellStyle = workbook.createCellStyle();
         titleCellStyle.setBorderLeft(BorderStyle.THIN);
@@ -241,20 +241,39 @@ public class ExcelFillController {
 
             //创建行
             XSSFRow rowN = sheet.createRow(i);
-            i = i+1;
+            i = i + 1;
 
             //行高
             rowN.setHeightInPoints(100);
 
-            //每行第一列为图片
+            //每行第1列为图片
             XSSFCell rnc1 = rowN.createCell(0);
             rnc1.setCellValue(oneEv.getResult());
             rnc1.setCellStyle(contentCellStyle);
 
+            //每行第2列为时间
+            XSSFCell rnc2 = rowN.createCell(1);
+            rnc2.setCellValue(oneEv.getTime());
+            rnc2.setCellStyle(contentCellStyle);
+
+            //每行第3列为相机
+            XSSFCell rnc3 = rowN.createCell(2);
+            rnc3.setCellValue(oneEv.getCamera());
+            rnc3.setCellStyle(contentCellStyle);
+
+            //每行第4列为类型
+            XSSFCell rnc4 = rowN.createCell(3);
+            rnc4.setCellValue(oneEv.getType());
+            rnc4.setCellStyle(contentCellStyle);
+
+            //每行第5列为时间
+            XSSFCell rnc5 = rowN.createCell(4);
+            rnc5.setCellValue(oneEv.getAttribute());
+            rnc5.setCellStyle(contentCellStyle);
         }
 
         // 设置Excel文件路径
-        File file = new File("E:\\temp9\\"+System.currentTimeMillis()+".xlsx");
+        File file = new File("E:\\temp9\\" + System.currentTimeMillis() + ".xlsx");
 
         try {
             // 创建指向该路径的输出流
