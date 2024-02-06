@@ -282,6 +282,9 @@ public class ExcelFillController {
                     anchor.setRow1(i);
                     anchor.setCol2(1);
                     anchor.setRow2(i + 1);
+
+                    int picIdx = workbook.addPicture(picBts, Workbook.PICTURE_TYPE_PNG);
+                    drawing.createPicture(anchor, picIdx);
                 }
 
             }
