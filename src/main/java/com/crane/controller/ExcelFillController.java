@@ -108,7 +108,7 @@ public class ExcelFillController {
         } else if (askType.equals("event")) {
 
             List<OutputData> eventList = getEventDataFromGenesis(startTime, endTime);
-
+            String excelPath = makeExcel(eventList);
 
         } else {
 
@@ -125,6 +125,12 @@ public class ExcelFillController {
         }
     }
 
+    private String makeExcel(List<OutputData> eventList) {
+
+
+        return null;
+    }
+
     private List<OutputData> getEventDataFromGenesis(String startTime, String endTime) {
 
         HttpClient httpClient = HttpClients.createDefault();
@@ -136,10 +142,10 @@ public class ExcelFillController {
 
             //params
             List<NameValuePair> parList = new ArrayList<>();
-            parList.add(new BasicNameValuePair("start",startTime));
-            parList.add(new BasicNameValuePair("end",endTime));
-            parList.add(new BasicNameValuePair("types","LOITERING,CROWD_DETECTION"));
-            parList.add(new BasicNameValuePair("size","10000"));
+            parList.add(new BasicNameValuePair("start", startTime));
+            parList.add(new BasicNameValuePair("end", endTime));
+            parList.add(new BasicNameValuePair("types", "LOITERING,CROWD_DETECTION"));
+            parList.add(new BasicNameValuePair("size", "10000"));
             uriBuilder.addParameters(parList);
 
             HttpGet httpGet = new HttpGet(uriBuilder.build());
@@ -154,24 +160,40 @@ public class ExcelFillController {
             } else {
                 return null;
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("ask genesis event http error: ", e);
             return null;
         }
     }
 
-    private List<OutputData> formatGenesisEvt(String result) throws Exception{
+    private List<OutputData> formatGenesisEvt(String result) throws Exception {
 
-        ObjectMapper objectMapper  = new ObjectMapper();
+        //读取响应结果
+        List<OutputData> reList = new ArrayList<>();
+        ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNodes = objectMapper.readTree(result);
 
-        for (JsonNode oneSceneNode:jsonNodes){
-            if (oneSceneNode.has("eventType")){
-                String eventName = oneSceneNode.get("eventType").toString().toLowerCase();
+        //转为excel实体类格式
+        for (JsonNode oneSceneNode : jsonNodes) {
+
+            OutputData newEv = new OutputData();
+            newEv.setResult(oneSceneNode.get("snapshot").asText());
+            newEv.setTime(oneSceneNode.get("datetime").asText());
+            newEv.setCamera(oneSceneNode.get("camera").get("name").asText());
+            newEv.setType("Event");
+
+            //事件的属性
+            String eventType = oneSceneNode.get("eventType").asText();
+            if (eventType.equals("LOITERING")) {
+                newEv.setAttribute("loiter");
+            } else if (eventType.equals("CROWD_DETECTION")) {
+                String crowdNum = oneSceneNode.get("metadata").get("crowdNumber").asText();
+                newEv.setAttribute("Crowd detection:".concat(crowdNum));
             }
+
+            reList.add(newEv);
         }
 
-        List<OutputData> reList = new ArrayList<>();
         return reList;
     }
 
