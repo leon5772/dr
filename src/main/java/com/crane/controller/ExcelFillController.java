@@ -264,9 +264,11 @@ public class ExcelFillController {
 
             //每行第1列为图片，动态的行高
             XSSFCell rnc1 = rowN.createCell(0);
+            rnc1.setCellValue("");
+            rnc1.setCellStyle(contentCellStyle);
+            //填充图片到位置
             if (StringUtils.isBlank(oneEv.getResult())) {
                 rowN.setHeightInPoints(30);
-                rnc1.setCellValue("");
             } else {
                 rowN.setHeightInPoints(100);
                 //开始下载图片
@@ -274,10 +276,12 @@ public class ExcelFillController {
                 if (picBts == null) {
                     continue;
                 } else {
-                    int idx = workbook.addPicture(picBts, Workbook.PICTURE_TYPE_PNG);
-                    // 在单元格中插入图片
-                    ClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, 5 + i, 0, 6 + i, 30);
-                    drawing.createPicture(anchor, idx);
+                    XSSFCreationHelper helper = workbook.getCreationHelper();
+                    ClientAnchor anchor = helper.createClientAnchor();
+                    anchor.setCol1(0);
+                    anchor.setRow1(i);
+                    anchor.setCol2(1);
+                    anchor.setRow2(i + 1);
                 }
 
             }
