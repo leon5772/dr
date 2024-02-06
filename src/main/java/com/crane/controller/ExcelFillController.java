@@ -279,12 +279,16 @@ public class ExcelFillController {
                     XSSFCreationHelper helper = workbook.getCreationHelper();
                     ClientAnchor anchor = helper.createClientAnchor();
                     anchor.setCol1(0);
-                    anchor.setRow1(i);
+                    anchor.setRow1(i-1);
                     anchor.setCol2(1);
                     anchor.setRow2(i);
 
                     int picIdx = workbook.addPicture(picBts, Workbook.PICTURE_TYPE_PNG);
-                    drawing.createPicture(anchor, picIdx);
+                    Picture excelPic = drawing.createPicture(anchor, picIdx);
+
+                    double scaleX = 1; // 宽度比例
+                    double scaleY = 0.5; // 高度比例
+                    excelPic.resize(scaleX, scaleY);
                 }
 
             }
