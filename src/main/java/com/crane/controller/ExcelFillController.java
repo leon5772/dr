@@ -4,6 +4,7 @@ import com.crane.domain.OutputData;
 import com.crane.service.impl.TransServiceImpl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -14,6 +15,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URL;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -128,7 +131,7 @@ public class ExcelFillController {
         List<OutputData> eventList = new ArrayList<>();
         OutputData a = new OutputData();
 
-        a.setResult("1");
+        a.setResult("https://upload-images.jianshu.io/upload_images/14578761-eb0d6c405f5271d8.png");
         a.setTime("2");
         a.setCamera("3");
         a.setType("4");
@@ -249,19 +252,35 @@ public class ExcelFillController {
 
         //数据从5行开始
         int i = 4;
+        Drawing<XSSFShape> drawing = sheet.createDrawingPatriarch();
         for (OutputData oneEv : eventList) {
 
             //创建行
             XSSFRow rowN = sheet.createRow(i);
             i = i + 1;
+            if (i % 100 == 0) {
+                (workbook).getSheet("History");
+            }
 
-            //行高
-            rowN.setHeightInPoints(100);
-
-            //每行第1列为图片
+            //每行第1列为图片，动态的行高
             XSSFCell rnc1 = rowN.createCell(0);
-            rnc1.setCellValue(oneEv.getResult());
-            rnc1.setCellStyle(contentCellStyle);
+            if (StringUtils.isBlank(oneEv.getResult())) {
+                rowN.setHeightInPoints(30);
+                rnc1.setCellValue("");
+            } else {
+                rowN.setHeightInPoints(100);
+                //开始下载图片
+                byte[] picBts = downloadSnapshot(oneEv.getResult());
+                if (picBts == null) {
+                    continue;
+                } else {
+                    int idx = workbook.addPicture(picBts, Workbook.PICTURE_TYPE_PNG);
+                    // 在单元格中插入图片
+                    ClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, 5 + i, 0, 6 + i, 30);
+                    drawing.createPicture(anchor, idx);
+                }
+
+            }
 
             //每行第2列为时间
             XSSFCell rnc2 = rowN.createCell(1);
@@ -306,45 +325,22 @@ public class ExcelFillController {
         return "";
     }
 
-    String downloadSnapshot(String sourceUrl) {
-
-        String tempPath = "./metadata/data/img/snapshot/" + UUID.randomUUID().toString().replace("-", "");
-        String targetPath = tempPath + "." + "jpg";
+    public byte[] downloadSnapshot(String sourceUrl) {
 
         try {
-
-            InputStream input = new URL(sourceUrl).openStream();
-            OutputStream output = new FileOutputStream(tempPath);
-
-            // 流转换逻辑
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = input.read(buf)) > 0) {
-                output.write(buf, 0, len);
-            }
-            output.close();
-
-            // 打开目标文件输出流
-            //String targetPath = "./image." + targetFormat;
-            OutputStream target = new FileOutputStream(targetPath);
-
-            // 再次读取临时文件写入目标输出流
-            InputStream is = new FileInputStream(tempPath);
-            while ((len = is.read(buf)) > 0) {
-                target.write(buf, 0, len);
-            }
-
-            // 关闭流
-            is.close();
-            target.close();
-
-            new File(tempPath).delete();
-            return targetPath;
-
+            URL url = new URL(sourceUrl);
+            // 打开连接
+            URLConnection con = url.openConnection();
+            //设置请求超时为5s
+            con.setConnectTimeout(3 * 1000);
+            // 输入流
+            InputStream is = con.getInputStream();
+            return IOUtils.toByteArray(is);
         } catch (Exception e) {
-            logger.error("pic process: ", e);
-            return "failed";
+            logger.error("download snapshot :", e);
+            return null;
         }
+
     }
 
     private List<OutputData> getEventDataFromGenesis(String startTime, String endTime) {
