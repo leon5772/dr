@@ -172,7 +172,7 @@ public class ExcelFillController {
         r1c1.setCellValue("Metadata");
         r1c1.setCellStyle(r1c1CellStyle);
 
-        //时间行
+        //行2
         XSSFRow row2 = sheet.createRow(1);
         XSSFCell r2c1 = row2.createCell(0);
         XSSFCell r2c2 = row2.createCell(1);
@@ -180,6 +180,10 @@ public class ExcelFillController {
         //长度需要跨列
         sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, 2));
         r2c1.setCellValue("Time: " + sTime + " - " + eTime);
+        //字体
+        CellStyle r2c1CellStyle = workbook.createCellStyle();
+        r2c1CellStyle.setFont(normalFont);
+        r2c1.setCellStyle(r2c1CellStyle);
 
         //标题行
         XSSFRow row4 = sheet.createRow(3);
