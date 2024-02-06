@@ -22,7 +22,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.util.*;
@@ -127,8 +128,52 @@ public class ExcelFillController {
 
     private String makeExcel(List<OutputData> eventList) {
 
+        for (OutputData event : eventList) {
+            downloadSnapshot(event.getResult());
+        }
 
         return null;
+    }
+
+    String downloadSnapshot(String sourceUrl) {
+
+        String tempPath = "./metadata/data/img/snapshot/" + UUID.randomUUID().toString().replace("-", "");
+        String targetPath = tempPath + "." + "jpg";
+
+        try {
+
+            InputStream input = new URL(sourceUrl).openStream();
+            OutputStream output = new FileOutputStream(tempPath);
+
+            // 流转换逻辑
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = input.read(buf)) > 0) {
+                output.write(buf, 0, len);
+            }
+            output.close();
+
+            // 打开目标文件输出流
+            //String targetPath = "./image." + targetFormat;
+            OutputStream target = new FileOutputStream(targetPath);
+
+            // 再次读取临时文件写入目标输出流
+            InputStream is = new FileInputStream(tempPath);
+            while ((len = is.read(buf)) > 0) {
+                target.write(buf, 0, len);
+            }
+
+            // 关闭流
+            is.close();
+            target.close();
+
+            new File(tempPath).delete();
+            return targetPath;
+
+        } catch (Exception e) {
+            logger.error("pic process: ", e);
+            return "failed";
+        }
     }
 
     private List<OutputData> getEventDataFromGenesis(String startTime, String endTime) {
