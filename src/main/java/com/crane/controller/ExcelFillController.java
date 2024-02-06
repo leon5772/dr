@@ -155,11 +155,11 @@ public class ExcelFillController {
 
         //大点的字体
         XSSFFont biggerFont = workbook.createFont();
-        biggerFont.setFontHeightInPoints((short) 12);
+        biggerFont.setFontHeightInPoints((short) 15);
 
         //正常的字体
         XSSFFont normalFont = workbook.createFont();
-        biggerFont.setFontHeightInPoints((short) 11);
+        normalFont.setFontHeightInPoints((short) 11);
 
         //行1
         XSSFRow row1 = sheet.createRow(0);
