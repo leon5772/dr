@@ -132,8 +132,7 @@ public class ExcelFillController {
         a.setTime("2");
         a.setCamera("3");
         a.setType("4");
-        a.setAttribute("5");
-        a.setAttribute("2");
+        a.setAttribute("Gender:Male.Hair :Long Hair.Bag:No Bag.Hat:No Hat.Sleeve:long Sleeve.Sleeve Colors: Red.Pants:Short Pants.Pants Colors:Red.");
         eventList.add(a);
         e.makeExcel(eventList, "2025-12-12 05:08:30", "2025-12-12 05:08:56");
     }
@@ -178,7 +177,7 @@ public class ExcelFillController {
         XSSFCell r2c2 = row2.createCell(1);
         XSSFCell r2c3 = row2.createCell(2);
         //长度需要跨列
-        sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, 2));
+        sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, 1));
         r2c1.setCellValue("Time: " + sTime + " - " + eTime);
         //字体
         CellStyle r2c1CellStyle = workbook.createCellStyle();
@@ -241,8 +240,9 @@ public class ExcelFillController {
         contentCellStyle.setRightBorderColor(IndexedColors.BLACK.getIndex());
         contentCellStyle.setBorderBottom(BorderStyle.THIN);
         contentCellStyle.setBottomBorderColor(IndexedColors.BLACK.getIndex());
-        //字体
+        //字体，以及自动折行
         contentCellStyle.setFont(normalFont);
+        contentCellStyle.setWrapText(true);
         //内容行的居中策略
         contentCellStyle.setAlignment(HorizontalAlignment.LEFT);
         contentCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -293,8 +293,8 @@ public class ExcelFillController {
 
             // 将数据导出到Excel表格
             workbook.write(stream);
-
             workbook.close();
+
             // 关闭输出流
             stream.close();
         } catch (FileNotFoundException e) {
