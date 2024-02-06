@@ -157,17 +157,6 @@ public class ExcelFillController {
         sheet.setColumnWidth(3, 20 * 256);
         sheet.setColumnWidth(4, 20 * 256 * 3);
 
-        //内容行的边框
-        CellStyle contentCellStyle = workbook.createCellStyle();
-        contentCellStyle.setBorderLeft(BorderStyle.THIN);
-        contentCellStyle.setLeftBorderColor(IndexedColors.BLACK.getIndex());
-        contentCellStyle.setBorderTop(BorderStyle.THIN);
-        contentCellStyle.setTopBorderColor(IndexedColors.BLACK.getIndex());
-        contentCellStyle.setBorderRight(BorderStyle.THIN);
-        contentCellStyle.setRightBorderColor(IndexedColors.BLACK.getIndex());
-        contentCellStyle.setBorderBottom(BorderStyle.THIN);
-        contentCellStyle.setBottomBorderColor(IndexedColors.BLACK.getIndex());
-
         //标题行
         XSSFRow row1 = sheet.createRow(0);
         XSSFCell r1c1 = row1.createCell(0);
@@ -180,10 +169,11 @@ public class ExcelFillController {
         XSSFCell r2c3 = row2.createCell(2);
         //长度需要跨列
         sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, 2));
-        r2c1.setCellValue("Time: " + sTime + " - " + eTime);
+        r2c1.setCellValue("Time: " + sTime + "-" + eTime);
 
         //标题行
         XSSFRow row4 = sheet.createRow(3);
+        //黑边框样式
         CellStyle titleCellStyle = workbook.createCellStyle();
         titleCellStyle.setBorderLeft(BorderStyle.THIN);
         titleCellStyle.setLeftBorderColor(IndexedColors.BLACK.getIndex());
@@ -193,6 +183,12 @@ public class ExcelFillController {
         titleCellStyle.setRightBorderColor(IndexedColors.BLACK.getIndex());
         titleCellStyle.setBorderBottom(BorderStyle.THIN);
         titleCellStyle.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+        //左右上下居中
+        titleCellStyle.setAlignment(HorizontalAlignment.CENTER);
+        titleCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        //背景
+        titleCellStyle.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        titleCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
         XSSFCell r4c1 = row4.createCell(0);
         r4c1.setCellValue("Result");
@@ -215,6 +211,17 @@ public class ExcelFillController {
         r4c5.setCellStyle(titleCellStyle);
 
         //-----------------------------------------------------------------------------------------|
+
+        //内容行的边框
+        CellStyle contentCellStyle = workbook.createCellStyle();
+        contentCellStyle.setBorderLeft(BorderStyle.THIN);
+        contentCellStyle.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+        contentCellStyle.setBorderTop(BorderStyle.THIN);
+        contentCellStyle.setTopBorderColor(IndexedColors.BLACK.getIndex());
+        contentCellStyle.setBorderRight(BorderStyle.THIN);
+        contentCellStyle.setRightBorderColor(IndexedColors.BLACK.getIndex());
+        contentCellStyle.setBorderBottom(BorderStyle.THIN);
+        contentCellStyle.setBottomBorderColor(IndexedColors.BLACK.getIndex());
 
         //数据从5行开始
         int i = 5;
