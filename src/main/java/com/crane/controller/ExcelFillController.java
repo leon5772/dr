@@ -1,5 +1,6 @@
 package com.crane.controller;
 
+import com.alibaba.excel.EasyExcel;
 import com.crane.domain.OutputData;
 import com.crane.service.impl.TransServiceImpl;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -128,9 +129,13 @@ public class ExcelFillController {
 
     private String makeExcel(List<OutputData> eventList) {
 
-        for (OutputData event : eventList) {
-            downloadSnapshot(event.getResult());
-        }
+        //两步骤，第一步添加数据
+        String fileName =  System.currentTimeMillis() + "abc.xlsx";
+        // 这里 需要指定写用哪个class去写，然后写到第一个sheet，名字为模板 然后文件流会自动关闭
+        // 如果这里想使用03 则 传入excelType参数即可
+        EasyExcel.write(fileName, OutputData.class).sheet("写入方法一").doWrite(eventList);
+
+        //第二步对应row贴图片
 
         return null;
     }
