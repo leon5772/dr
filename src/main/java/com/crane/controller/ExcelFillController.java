@@ -187,8 +187,8 @@ public class ExcelFillController {
         titleCellStyle.setAlignment(HorizontalAlignment.CENTER);
         titleCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
         //背景
-        titleCellStyle.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
         titleCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        titleCellStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
 
         XSSFCell r4c1 = row4.createCell(0);
         r4c1.setCellValue("Result");
