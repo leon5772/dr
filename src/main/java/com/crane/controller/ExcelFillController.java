@@ -190,6 +190,8 @@ public class ExcelFillController {
         titleCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         titleCellStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
 
+        //标题列需先填文本后赋值
+        //声明标题并赋予样式
         XSSFCell r4c1 = row4.createCell(0);
         r4c1.setCellValue("Result");
         r4c1.setCellStyle(titleCellStyle);
@@ -222,10 +224,21 @@ public class ExcelFillController {
         contentCellStyle.setRightBorderColor(IndexedColors.BLACK.getIndex());
         contentCellStyle.setBorderBottom(BorderStyle.THIN);
         contentCellStyle.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+        //内容行的居中策略
+        contentCellStyle.setAlignment(HorizontalAlignment.LEFT);
+        contentCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
         //数据从5行开始
         int i = 5;
         for (OutputData oneEv : eventList) {
+            i++;
+
+            //创建行
+            XSSFRow rowN = sheet.createRow(i);
+            rowN.setHeightInPoints(100);
+            //第一列为图片
+            XSSFCell rnc1 = rowN.createCell(0);
+            rnc1.setCellValue(oneEv.getResult());
 
         }
 
