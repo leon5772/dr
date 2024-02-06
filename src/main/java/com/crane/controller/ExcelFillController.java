@@ -15,10 +15,7 @@ import org.apache.http.util.EntityUtils;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -157,10 +154,20 @@ public class ExcelFillController {
         sheet.setColumnWidth(3, 20 * 256);
         sheet.setColumnWidth(4, 20 * 256 * 3);
 
-        //标题行
+        //行1
         XSSFRow row1 = sheet.createRow(0);
+        row1.setHeightInPoints(20);
         XSSFCell r1c1 = row1.createCell(0);
+        //字体
+        CellStyle r1c1CellStyle = workbook.createCellStyle();
+        XSSFFont font = workbook.createFont();
+        font.setFontHeightInPoints((short) 12);
+        font.setFontName("Calibri_dl");
+        font.setBold(true);
+        r1c1CellStyle.setFont(font);
+        //赋值
         r1c1.setCellValue("Metadata");
+        r1c1.setCellStyle(r1c1CellStyle);
 
         //时间行
         XSSFRow row2 = sheet.createRow(1);
