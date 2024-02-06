@@ -130,7 +130,7 @@ public class ExcelFillController {
     private String makeExcel(List<OutputData> eventList) {
 
         //两步骤，第一步添加数据
-        String fileName =  System.currentTimeMillis() + "abc.xlsx";
+        String fileName = "./metadata/data/img/abc.xlsx";
         // 这里 需要指定写用哪个class去写，然后写到第一个sheet，名字为模板 然后文件流会自动关闭
         // 如果这里想使用03 则 传入excelType参数即可
         EasyExcel.write(fileName, OutputData.class).sheet("写入方法一").doWrite(eventList);
@@ -221,10 +221,11 @@ public class ExcelFillController {
         //读取响应结果
         List<OutputData> reList = new ArrayList<>();
         ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNodes = objectMapper.readTree(result);
+        JsonNode mainNode = objectMapper.readTree(result);
 
         //转为excel实体类格式
-        for (JsonNode oneSceneNode : jsonNodes) {
+        JsonNode contentNodes =mainNode.get("content");
+        for (JsonNode oneSceneNode : contentNodes) {
 
             OutputData newEv = new OutputData();
             newEv.setResult(oneSceneNode.get("snapshot").asText());

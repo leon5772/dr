@@ -7,16 +7,16 @@ public class OutputData {
     @ExcelProperty(value = "Result",index = 0)
     private String result;
 
-    @ExcelProperty(value = "Time",index = 0)
+    @ExcelProperty(value = "Time",index = 1)
     private String time;
 
-    @ExcelProperty(value = "Camera",index = 0)
+    @ExcelProperty(value = "Camera",index = 2)
     private String camera;
 
-    @ExcelProperty(value = "Type",index = 0)
+    @ExcelProperty(value = "Type",index = 3)
     private String type;
 
-    @ExcelProperty(value = "Attribute Text",index = 0)
+    @ExcelProperty(value = "Attribute Text",index = 4)
     private String attribute;
 
     public String getResult() {
