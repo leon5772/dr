@@ -229,16 +229,20 @@ public class ExcelFillController {
         contentCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
         //数据从5行开始
-        int i = 5;
+        int i = 4;
         for (OutputData oneEv : eventList) {
-            i++;
 
             //创建行
             XSSFRow rowN = sheet.createRow(i);
+            i = i+1;
+
+            //行高
             rowN.setHeightInPoints(100);
-            //第一列为图片
+
+            //每行第一列为图片
             XSSFCell rnc1 = rowN.createCell(0);
             rnc1.setCellValue(oneEv.getResult());
+            rnc1.setCellStyle(contentCellStyle);
 
         }
 
