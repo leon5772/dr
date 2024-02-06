@@ -162,7 +162,7 @@ public class ExcelFillController {
         CellStyle r1c1CellStyle = workbook.createCellStyle();
         XSSFFont font = workbook.createFont();
         font.setFontHeightInPoints((short) 12);
-        font.setFontName("Calibri_dl");
+        font.setFontName("Calibri_cu1");
         font.setBold(true);
         r1c1CellStyle.setFont(font);
         //赋值
