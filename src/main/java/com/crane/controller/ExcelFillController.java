@@ -289,7 +289,14 @@ public class ExcelFillController {
                     Picture excelPic = drawing.createPicture(anchor, picIdx);
 
                     double scaleX = 1; // 宽度比例
-                    double scaleY = 0.5; // 高度比例
+                    double scaleY = 1;
+                    if (oneEv.getSceneType() == 1) {
+                        scaleY = (double)720/1280;
+                    }else{
+                        String[] resArr = oneEv.getResolution().split("x");
+                        scaleY = Double.valueOf(resArr[1])/Double.valueOf(resArr[0]);
+                    }
+
                     excelPic.resize(scaleX, scaleY);
                 }
 
