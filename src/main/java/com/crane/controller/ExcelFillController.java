@@ -1,6 +1,5 @@
 package com.crane.controller;
 
-import com.alibaba.excel.EasyExcel;
 import com.crane.domain.OutputData;
 import com.crane.service.impl.TransServiceImpl;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -13,6 +12,13 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +32,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.time.ZoneId;
 import java.util.*;
 
 @Controller
@@ -82,11 +87,6 @@ public class ExcelFillController {
         return objectMapper.writeValueAsString(timeMap);
     }
 
-    public static void main(String[] args) throws Exception {
-        ZoneId zoneId = ZoneId.systemDefault();
-        System.out.println(zoneId);
-    }
-
     @GetMapping("/go")
     public void goDownload(HttpServletResponse response, HttpServletRequest request) throws IOException {
 
@@ -110,7 +110,7 @@ public class ExcelFillController {
         } else if (askType.equals("event")) {
 
             List<OutputData> eventList = getEventDataFromGenesis(startTime, endTime);
-            String excelPath = makeExcel(eventList);
+            String excelPath = makeExcel(eventList, startTime, endTime);
 
         } else {
 
@@ -127,17 +127,101 @@ public class ExcelFillController {
         }
     }
 
-    private String makeExcel(List<OutputData> eventList) {
+    public static void main(String[] args) {
+        ExcelFillController e = new ExcelFillController();
+        List<OutputData> eventList = new ArrayList<>();
+        OutputData a = new OutputData();
 
-        //两步骤，第一步添加数据
-        String fileName = "./metadata/data/img/abc.xlsx";
-        // 这里 需要指定写用哪个class去写，然后写到第一个sheet，名字为模板 然后文件流会自动关闭
-        // 如果这里想使用03 则 传入excelType参数即可
-        EasyExcel.write(fileName, OutputData.class).sheet("写入方法一").doWrite(eventList);
+        a.setResult("1");
+        a.setTime("2");
+        a.setCamera("3");
+        a.setType("4");
+        a.setAttribute("5");
+        a.setAttribute("2");
+        eventList.add(a);
+        e.makeExcel(eventList,"2025-12-12 05:08:30","2025-12-12 05:08:56");
+    }
 
-        //第二步对应row贴图片
+    private String makeExcel(List<OutputData> eventList, String sTime, String eTime) {
 
-        return null;
+        //用新型的excel
+        XSSFWorkbook workbook = new XSSFWorkbook();
+
+        //sheet单
+        XSSFSheet sheet = workbook.createSheet("History");
+
+        //列的宽度设置
+        sheet.setColumnWidth(0, 20 * 256);
+        sheet.setColumnWidth(1, 20 * 256);
+        sheet.setColumnWidth(2, 20 * 256);
+        sheet.setColumnWidth(3, 20 * 256);
+        sheet.setColumnWidth(4, 20 * 256 * 6);
+
+        //标题行
+        XSSFRow row1 = sheet.createRow(0);
+        XSSFCell r1c1 = row1.createCell(0);
+        r1c1.setCellValue("Metadata");
+
+        //时间行
+        XSSFRow row2 = sheet.createRow(1);
+        XSSFCell r2c1 = row2.createCell(0);
+        XSSFCell r2c2 = row2.createCell(1);
+        XSSFCell r2c3 = row2.createCell(2);
+        sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, 2));
+        r2c1.setCellValue("Time: " + sTime + " - " + eTime);
+
+        //标题行
+        XSSFRow row4 = sheet.createRow(3);
+        CellStyle titleStyle = workbook.createCellStyle();
+        titleStyle.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+
+        XSSFCell r4c1 = row4.createCell(0);
+        r4c1.setCellValue("Result");
+        r4c1.setCellStyle(titleStyle);
+
+        XSSFCell r4c2 = row4.createCell(1);
+        r4c2.setCellValue("Time");
+        r4c2.setCellStyle(titleStyle);
+
+        XSSFCell r4c3 = row4.createCell(2);
+        r4c3.setCellValue("Camera");
+        r4c3.setCellStyle(titleStyle);
+
+        XSSFCell r4c4 = row4.createCell(3);
+        r4c4.setCellValue("Type");
+        r4c4.setCellStyle(titleStyle);
+
+        XSSFCell r4c5 = row4.createCell(4);
+        r4c5.setCellValue("attribute text");
+        r4c5.setCellStyle(titleStyle);
+
+        //-----------------------------------------------------------------------------------------|
+
+        //数据从5行开始
+        int i = 5;
+        for (OutputData oneEv : eventList) {
+
+        }
+
+        // 设置Excel文件路径
+        File file = new File("E:\\temp9\\"+System.currentTimeMillis()+".xlsx");
+
+        try {
+            // 创建指向该路径的输出流
+            FileOutputStream stream = new FileOutputStream(file);
+
+            // 将数据导出到Excel表格
+            workbook.write(stream);
+
+            // 关闭输出流
+            stream.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return "";
     }
 
     String downloadSnapshot(String sourceUrl) {
@@ -224,7 +308,7 @@ public class ExcelFillController {
         JsonNode mainNode = objectMapper.readTree(result);
 
         //转为excel实体类格式
-        JsonNode contentNodes =mainNode.get("content");
+        JsonNode contentNodes = mainNode.get("content");
         for (JsonNode oneSceneNode : contentNodes) {
 
             OutputData newEv = new OutputData();
