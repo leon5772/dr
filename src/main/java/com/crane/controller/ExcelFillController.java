@@ -1,6 +1,5 @@
 package com.crane.controller;
 
-import com.alibaba.excel.EasyExcel;
 import com.crane.domain.OutputData;
 import com.crane.service.impl.TransServiceImpl;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -13,6 +12,10 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -129,15 +132,34 @@ public class ExcelFillController {
 
     private String makeExcel(List<OutputData> eventList) {
 
-        //两步骤，第一步添加数据
-        String fileName =  System.currentTimeMillis() + "abc.xlsx";
-        // 这里 需要指定写用哪个class去写，然后写到第一个sheet，名字为模板 然后文件流会自动关闭
-        // 如果这里想使用03 则 传入excelType参数即可
-        EasyExcel.write(fileName, OutputData.class).sheet("写入方法一").doWrite(eventList);
+        //用新型的excel
+        XSSFWorkbook workbook = new XSSFWorkbook();
 
-        //第二步对应row贴图片
+        //sheet单
+        XSSFSheet sheet = workbook.createSheet("History");
 
-        return null;
+        //列的宽度设置
+        sheet.setColumnWidth(0, 20 * 256);
+        sheet.setColumnWidth(1, 20 * 256);
+        sheet.setColumnWidth(2, 20 * 256);
+        sheet.setColumnWidth(3, 20 * 256);
+        sheet.setColumnWidth(4, 20 * 256 * 6);
+
+        //头部
+        //header1
+        XSSFRow row1 = sheet.createRow(0);
+        row1.getCell(0).setCellValue("Metadata");
+        //header2
+        XSSFRow row2 = sheet.createRow(1);
+        sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, 1));
+
+
+        for (OutputData oneEv : eventList) {
+
+        }
+
+
+        return "";
     }
 
     String downloadSnapshot(String sourceUrl) {
@@ -221,10 +243,11 @@ public class ExcelFillController {
         //读取响应结果
         List<OutputData> reList = new ArrayList<>();
         ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNodes = objectMapper.readTree(result);
+        JsonNode mainNode = objectMapper.readTree(result);
 
         //转为excel实体类格式
-        for (JsonNode oneSceneNode : jsonNodes) {
+        JsonNode contentNodes = mainNode.get("content");
+        for (JsonNode oneSceneNode : contentNodes) {
 
             OutputData newEv = new OutputData();
             newEv.setResult(oneSceneNode.get("snapshot").asText());
