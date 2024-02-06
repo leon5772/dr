@@ -135,6 +135,7 @@ public class ExcelFillController {
         a.setTime("2");
         a.setCamera("3");
         a.setType("4");
+        a.setResolution("1920x1080");
         a.setAttribute("Gender:Male.Hair :Long Hair.Bag:No Bag.Hat:No Hat.Sleeve:long Sleeve.Sleeve Colors: Red.Pants:Short Pants.Pants Colors:Red.");
         eventList.add(a);
         e.makeExcel(eventList, "2025-12-12 05:08:30", "2025-12-12 05:08:56");
@@ -279,7 +280,7 @@ public class ExcelFillController {
                     XSSFCreationHelper helper = workbook.getCreationHelper();
                     ClientAnchor anchor = helper.createClientAnchor();
                     anchor.setCol1(0);
-                    anchor.setRow1(i-1);
+                    anchor.setRow1(i - 1);
                     anchor.setCol2(1);
                     anchor.setRow2(i);
 

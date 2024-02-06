@@ -2,6 +2,7 @@ package com.crane.domain;
 
 public class OutputData {
 
+    private int sceneType;
 
     private String result;
 
@@ -9,9 +10,19 @@ public class OutputData {
 
     private String camera;
 
+    private String resolution;
+
     private String type;
 
     private String attribute;
+
+    public int getSceneType() {
+        return sceneType;
+    }
+
+    public void setSceneType(int sceneType) {
+        this.sceneType = sceneType;
+    }
 
     public String getResult() {
         return result;
@@ -35,6 +46,14 @@ public class OutputData {
 
     public void setCamera(String camera) {
         this.camera = camera;
+    }
+
+    public String getResolution() {
+        return resolution;
+    }
+
+    public void setResolution(String resolution) {
+        this.resolution = resolution;
     }
 
     public String getType() {
