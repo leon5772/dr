@@ -153,17 +153,21 @@ public class ExcelFillController {
         sheet.setColumnWidth(3, 20 * 256);
         sheet.setColumnWidth(4, 20 * 256 * 3);
 
+        //大点的字体
+        XSSFFont biggerFont = workbook.createFont();
+        biggerFont.setFontHeightInPoints((short) 12);
+
+        //正常的字体
+        XSSFFont normalFont = workbook.createFont();
+        biggerFont.setFontHeightInPoints((short) 11);
+
         //行1
         XSSFRow row1 = sheet.createRow(0);
         row1.setHeightInPoints(20);
         XSSFCell r1c1 = row1.createCell(0);
         //字体
         CellStyle r1c1CellStyle = workbook.createCellStyle();
-        XSSFFont font = workbook.createFont();
-        font.setFontHeightInPoints((short) 12);
-        font.setFontName("Calibri_c1");
-        font.setBold(true);
-        r1c1CellStyle.setFont(font);
+        r1c1CellStyle.setFont(biggerFont);
         //赋值
         r1c1.setCellValue("Metadata");
         r1c1.setCellStyle(r1c1CellStyle);
