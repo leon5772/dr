@@ -179,7 +179,7 @@ public class ExcelFillController {
         XSSFCell r2c3 = row2.createCell(2);
         //长度需要跨列
         sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, 2));
-        r2c1.setCellValue("Time: " + sTime + "-" + eTime);
+        r2c1.setCellValue("Time: " + sTime + " - " + eTime);
 
         //标题行
         XSSFRow row4 = sheet.createRow(3);
@@ -197,6 +197,8 @@ public class ExcelFillController {
         //左右上下居中
         titleCellStyle.setAlignment(HorizontalAlignment.CENTER);
         titleCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        //字体
+        titleCellStyle.setFont(normalFont);
         //背景
         titleCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         titleCellStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
@@ -235,6 +237,8 @@ public class ExcelFillController {
         contentCellStyle.setRightBorderColor(IndexedColors.BLACK.getIndex());
         contentCellStyle.setBorderBottom(BorderStyle.THIN);
         contentCellStyle.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+        //字体
+        contentCellStyle.setFont(normalFont);
         //内容行的居中策略
         contentCellStyle.setAlignment(HorizontalAlignment.LEFT);
         contentCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
