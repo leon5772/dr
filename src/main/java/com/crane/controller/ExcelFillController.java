@@ -27,11 +27,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.*;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.List;
 
 @Controller
 @RequestMapping("/excel_download")
@@ -272,7 +274,6 @@ public class ExcelFillController {
             if (StringUtils.isBlank(oneEv.getResult())) {
                 rowN.setHeightInPoints(30);
             } else {
-                rowN.setHeightInPoints(100);
                 //开始下载图片
                 byte[] picBts = downloadSnapshot(oneEv.getResult());
                 if (picBts == null) {
@@ -287,17 +288,14 @@ public class ExcelFillController {
 
                     int picIdx = workbook.addPicture(picBts, Workbook.PICTURE_TYPE_PNG);
                     Picture excelPic = drawing.createPicture(anchor, picIdx);
+                    excelPic.setNoFill(true);
 
-                    double scaleX = 1; // 宽度比例
-                    double scaleY = 1;
-                    if (oneEv.getSceneType() == 1) {
-                        scaleY = (double)720/1280;
-                    }else{
-                        String[] resArr = oneEv.getResolution().split("x");
-                        scaleY = Double.parseDouble(resArr[1])/Double.parseDouble(resArr[0]);
-                    }
+                    Dimension dim = excelPic.getImageDimension();
+                    double imageHeight = dim.height;
 
-                    excelPic.resize(scaleX, scaleY);
+                    int rowHeight = (int)Math.round(imageHeight * ((double) 72/96));
+
+                    rowN.setHeightInPoints(rowHeight);
                 }
 
             }
@@ -324,7 +322,7 @@ public class ExcelFillController {
         }
 
         // 设置Excel文件路径
-        File file = new File("E:\\temp9\\" + System.currentTimeMillis() + ".xlsx");
+        File file = new File("./metadata/data/excel/" + System.currentTimeMillis() + ".xlsx");
 
         try {
             // 创建指向该路径的输出流
@@ -414,6 +412,8 @@ public class ExcelFillController {
             newEv.setTime(oneSceneNode.get("datetime").asText());
             newEv.setCamera(oneSceneNode.get("camera").get("name").asText());
             newEv.setType("Event");
+            newEv.setSceneType(1);
+            newEv.setResolution(oneSceneNode.get("camera").get("resolution").asText());
 
             //事件的属性
             String eventType = oneSceneNode.get("eventType").asText();
