@@ -294,7 +294,7 @@ public class ExcelFillController {
                         scaleY = (double)720/1280;
                     }else{
                         String[] resArr = oneEv.getResolution().split("x");
-                        scaleY = Double.valueOf(resArr[1])/Double.valueOf(resArr[0]);
+                        scaleY = Double.parseDouble(resArr[1])/Double.parseDouble(resArr[0]);
                     }
 
                     excelPic.resize(scaleX, scaleY);
