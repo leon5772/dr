@@ -288,10 +288,10 @@ public class ExcelFillController {
 
                     int picIdx = workbook.addPicture(picBts, Workbook.PICTURE_TYPE_PNG);
                     Picture excelPic = drawing.createPicture(anchor, picIdx);
-                    excelPic.setNoFill(true);
 
                     Dimension dim = excelPic.getImageDimension();
                     double imageHeight = dim.height;
+                    System.out.println(imageHeight);
 
                     int rowHeight = (int)Math.round(imageHeight * ((double) 72/96));
 
