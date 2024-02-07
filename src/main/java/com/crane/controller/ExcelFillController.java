@@ -30,7 +30,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.*;
 import java.io.*;
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -40,7 +39,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.*;
 
-import static com.crane.utils.DataRouterConstant.*;
+import static com.crane.utils.DataRouterConstant.TAG_LIST;
 
 @Controller
 @RequestMapping("/excel_download")
@@ -511,43 +510,65 @@ public class ExcelFillController {
             String sceneTime = oneSceneNode.get("datetime").asText();
 
             //如果是幻方的，就判断它的hashtag
-            if (oneSceneNode.has("hashtags")){
+            if (oneSceneNode.has("hashtags")) {
+
                 JsonNode tagsNode = oneSceneNode.get("hashtags");
-                for (JsonNode oneTagNode:tagsNode){
+                for (JsonNode oneTagNode : tagsNode) {
                     String oneTag = oneTagNode.asText();
-                    if (TAG_LIST.contains(oneTag)){
-                        OutputData magOd = new OutputData();
-                        magOd.setResult(sceneImgUrl);
-                        magOd.setTime(sceneTime);
-                        magOd.setCamera(cameraName);
-                        magOd.setType("person");
+                    if (TAG_LIST.contains(oneTag)) {
+
+                        //是幻方的行为
+                        if (oneTag.equals("fighting")) {
+                            OutputData magFight = new OutputData();
+                            magFight.setResult(sceneImgUrl);
+                            magFight.setTime(sceneTime);
+                            magFight.setCamera(cameraName);
+                            magFight.setType("Person");
+                            magFight.setAttribute("fight");
+                            reList.add(magFight);
+                        } else if (oneTag.equals("running")) {
+                            OutputData magRun = new OutputData();
+                            magRun.setResult(sceneImgUrl);
+                            magRun.setTime(sceneTime);
+                            magRun.setCamera(cameraName);
+                            magRun.setType("Person");
+                            magRun.setAttribute("Running");
+                            reList.add(magRun);
+                        } else {
+                            OutputData magStruct = new OutputData();
+                            magStruct.setResult(sceneImgUrl);
+                            magStruct.setTime(sceneTime);
+                            magStruct.setCamera(cameraName);
+                            magStruct.setType("Person");
+                            magStruct.setAttribute("");
+                            reList.add(magStruct);
+                        }
                     }
                 }
-            }
+            } else {
+                //查询这个scene下的识别对象
+                String resJson = getSceneObject(sceneID);
+                JsonNode sceneObjectsNode = objectMapper.readTree(resJson);
 
-            //查询这个scene下的识别对象
-            String resJson = getSceneObject(sceneID);
-            JsonNode sceneObjectsNode = objectMapper.readTree(resJson);
+                int i = 0;
+                for (JsonNode oneObjectNode : sceneObjectsNode) {
+                    OutputData oneOD = new OutputData();
 
-            int i = 0;
-            for (JsonNode oneObjectNode : sceneObjectsNode) {
-                OutputData oneOD = new OutputData();
+                    //第一个赋予图片
+                    if (i == 0) {
+                        oneOD.setResult(sceneImgUrl);
+                    }
 
-                //第一个赋予图片
-                if (i == 0) {
-                    oneOD.setResult(sceneImgUrl);
+                    //时间
+                    oneOD.setTime(sceneTime);
+                    //相机名称
+                    oneOD.setCamera(cameraName);
+                    //model 类型
+                    oneOD.setSceneType(oneObjectNode.get("objectType").asInt());
+                    //属性
+                    i++;
                 }
 
-                //时间
-                oneOD.setTime(sceneTime);
-                //相机名称
-                oneOD.setCamera(cameraName);
-                //model 类型
-                oneOD.setSceneType(oneObjectNode.get("objectType").asInt());
-                //属性
-
-
-                i++;
             }
         }
 
