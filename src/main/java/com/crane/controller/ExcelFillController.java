@@ -536,10 +536,27 @@ public class ExcelFillController {
                     magStruct.setTime(sceneTime);
                     magStruct.setCamera(cameraName);
                     magStruct.setType("Person");
-                    magStruct.setAttribute("");
+
+                    //幻方的结构化
+                    StringBuilder tagInfoBuilder = new StringBuilder();
+                    for (JsonNode oneTag : tagsNode) {
+                        tagInfoBuilder.append(oneTag).append(",");
+                    }
+
+                    //颜色
+                    String resJson = getSceneObject(sceneID);
+                    JsonNode cNode = objectMapper.readTree(resJson);
+                    JsonNode firstNode = cNode.get(0);
+                    JsonNode colorsNode = firstNode.get("colors");
+                    StringBuilder colorInfoBuilder = new StringBuilder();
+                    for (JsonNode oneColor : colorsNode) {
+                        colorInfoBuilder.append(oneColor).append(",");
+                    }
+
+                    magStruct.setAttribute(tagInfoBuilder.toString().concat("Color:").concat(colorInfoBuilder.toString()));
                     reList.add(magStruct);
                 }
-                
+
             } else {
                 //查询这个scene下的识别对象
                 String resJson = getSceneObject(sceneID);
@@ -547,20 +564,35 @@ public class ExcelFillController {
 
                 int i = 0;
                 for (JsonNode oneObjectNode : sceneObjectsNode) {
-                    OutputData oneOD = new OutputData();
+                    OutputData oneGenesisOD = new OutputData();
 
                     //第一个赋予图片
                     if (i == 0) {
-                        oneOD.setResult(sceneImgUrl);
+                        oneGenesisOD.setResult(sceneImgUrl);
                     }
 
                     //时间
-                    oneOD.setTime(sceneTime);
+                    oneGenesisOD.setTime(sceneTime);
                     //相机名称
-                    oneOD.setCamera(cameraName);
+                    oneGenesisOD.setCamera(cameraName);
                     //model 类型
-                    oneOD.setSceneType(oneObjectNode.get("objectType").asInt());
+                    String sceneObjType = oneObjectNode.get("objectType").asText();
+                    oneGenesisOD.setType(sceneObjType);
                     //属性
+                    JsonNode metaDataNode = oneObjectNode.get("metadata");
+                    if (metaDataNode.has("licensePlate")){
+                        JsonNode lpNode = metaDataNode.get("licensePlate");
+                    }
+                    if (metaDataNode.has("makeModel")){
+
+                    }
+                    if (metaDataNode.has("makeModel")){
+
+                    }
+
+
+                    oneGenesisOD.setAttribute("1");
+
                     i++;
                 }
 
