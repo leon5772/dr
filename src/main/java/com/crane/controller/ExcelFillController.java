@@ -25,15 +25,22 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.*;
 import java.io.*;
+import java.lang.reflect.Array;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.*;
 import java.util.List;
+import java.util.*;
+
+import static com.crane.utils.DataRouterConstant.*;
 
 @Controller
 @RequestMapping("/excel_download")
@@ -99,19 +106,22 @@ public class ExcelFillController {
         utc = buffer.toString();
 
         //获取请求的参数
-        String startTime = request.getParameter("s_time").concat(utc);
-        String endTime = request.getParameter("e_time").concat(utc);
+        String inputSTime = request.getParameter("s_time");
+        String startTime = inputSTime.concat(utc);
+        String inputETime = request.getParameter("e_time");
+        String endTime = inputETime.concat(utc);
         String askType = request.getParameter("ask_type");
 
         //根据选中的类型，决定获取哪些数据
+        String excelPath = "";
         if (askType.equals("object")) {
 
-            List<OutputData> objectList = getObjectDataFromGenesis(startTime, endTime);
+            List<OutputData> objectList = getObjectDataFromGenesis(inputSTime, inputETime);
 
         } else if (askType.equals("event")) {
 
             List<OutputData> eventList = getEventDataFromGenesis(startTime, endTime);
-            String excelPath = makeExcel(eventList, startTime, endTime);
+            excelPath = makeExcel(eventList, startTime, endTime);
 
         } else {
 
@@ -126,6 +136,26 @@ public class ExcelFillController {
             Comparator<OutputData> timeComparator = Comparator.comparing(OutputData::getTime);
             uniList.sort(timeComparator);
         }
+
+        // 读到流中
+        InputStream inputStream = Files.newInputStream(Paths.get(excelPath));// 文件的存放路径
+        response.reset();
+        response.setContentType("application/octet-stream");
+
+        File finishedExcel = new File(excelPath);
+        String filename = finishedExcel.getName();
+        response.addHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(filename, "UTF-8"));
+        ServletOutputStream outputStream = response.getOutputStream();
+        byte[] b = new byte[3072];
+        int len;
+        //从输入流中读取一定数量的字节，并将其存储在缓冲区字节数组中，读到末尾返回-1
+        while ((len = inputStream.read(b)) > 0) {
+            outputStream.write(b, 0, len);
+        }
+        inputStream.close();
+
+        //删除临时文件
+        finishedExcel.delete();
     }
 
     public static void main(String[] args) {
@@ -427,7 +457,127 @@ public class ExcelFillController {
     }
 
     private List<OutputData> getObjectDataFromGenesis(String startTime, String endTime) {
-        return null;
+
+        HttpClient httpClient = HttpClients.createDefault();
+        //ask
+        URIBuilder uriBuilder = null;
+        try {
+
+            uriBuilder = new URIBuilder("http://" + genesisAddress.concat("/ainvr/api/scenes"));
+
+            //params
+            List<NameValuePair> parList = new ArrayList<>();
+            parList.add(new BasicNameValuePair("start", startTime));
+            parList.add(new BasicNameValuePair("end", endTime));
+            parList.add(new BasicNameValuePair("size", "10000"));
+            uriBuilder.addParameters(parList);
+
+            HttpGet httpGet = new HttpGet(uriBuilder.build());
+            //header
+            httpGet.addHeader("X-Auth-Token", TransServiceImpl.genesisToken);
+
+            CloseableHttpResponse response = (CloseableHttpResponse) httpClient.execute(httpGet);
+            int code = response.getStatusLine().getStatusCode();
+            String result = EntityUtils.toString(response.getEntity());
+            if (code > 199 && code < 300) {
+                return formatGenesisScene(result);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            logger.error("ask genesis event http error: ", e);
+            return null;
+        }
+    }
+
+    private List<OutputData> formatGenesisScene(String result) throws Exception {
+
+        //读取响应结果
+        List<OutputData> reList = new ArrayList<>();
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode mainNode = objectMapper.readTree(result);
+
+        //转为excel实体类格式
+        JsonNode contentNodes = mainNode.get("content");
+        for (JsonNode oneSceneNode : contentNodes) {
+
+            //拿到事件的id
+            String sceneID = oneSceneNode.get("sceneId").asText();
+            //拿到事件的图片链接
+            String sceneImgUrl = oneSceneNode.get("thumbnail").asText();
+            //拿到相机的名称
+            String cameraName = oneSceneNode.get("cameraName").asText();
+            //拿到事件时间
+            String sceneTime = oneSceneNode.get("datetime").asText();
+
+            //如果是幻方的，就判断它的hashtag
+            if (oneSceneNode.has("hashtags")){
+                JsonNode tagsNode = oneSceneNode.get("hashtags");
+                for (JsonNode oneTagNode:tagsNode){
+                    String oneTag = oneTagNode.asText();
+                    if (TAG_LIST.contains(oneTag)){
+                        OutputData magOd = new OutputData();
+                        magOd.setResult(sceneImgUrl);
+                        magOd.setTime(sceneTime);
+                        magOd.setCamera(cameraName);
+                        magOd.setType("person");
+                    }
+                }
+            }
+
+            //查询这个scene下的识别对象
+            String resJson = getSceneObject(sceneID);
+            JsonNode sceneObjectsNode = objectMapper.readTree(resJson);
+
+            int i = 0;
+            for (JsonNode oneObjectNode : sceneObjectsNode) {
+                OutputData oneOD = new OutputData();
+
+                //第一个赋予图片
+                if (i == 0) {
+                    oneOD.setResult(sceneImgUrl);
+                }
+
+                //时间
+                oneOD.setTime(sceneTime);
+                //相机名称
+                oneOD.setCamera(cameraName);
+                //model 类型
+                oneOD.setSceneType(oneObjectNode.get("objectType").asInt());
+                //属性
+
+
+                i++;
+            }
+        }
+
+        return reList;
+    }
+
+    private String getSceneObject(String sceneID) {
+
+        HttpClient httpClient = HttpClients.createDefault();
+        //ask
+        URIBuilder uriBuilder = null;
+        try {
+            uriBuilder = new URIBuilder("http://" + genesisAddress.concat("/ainvr/api/scenes/").concat(sceneID).concat("/objects"));
+
+            HttpGet httpGet = new HttpGet(uriBuilder.build());
+            //header
+            httpGet.addHeader("X-Auth-Token", TransServiceImpl.genesisToken);
+
+            CloseableHttpResponse response = (CloseableHttpResponse) httpClient.execute(httpGet);
+            int code = response.getStatusLine().getStatusCode();
+            String result = EntityUtils.toString(response.getEntity());
+            if (code > 199 && code < 300) {
+                return result;
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            logger.error("ask genesis event http error: ", e);
+            return null;
+        }
     }
 
 //    @PostMapping("/upload")
