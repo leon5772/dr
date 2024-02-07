@@ -39,8 +39,6 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.*;
 
-import static com.crane.utils.DataRouterConstant.TAG_LIST;
-
 @Controller
 @RequestMapping("/excel_download")
 public class ExcelFillController {
@@ -513,38 +511,35 @@ public class ExcelFillController {
             if (oneSceneNode.has("hashtags")) {
 
                 JsonNode tagsNode = oneSceneNode.get("hashtags");
-                for (JsonNode oneTagNode : tagsNode) {
-                    String oneTag = oneTagNode.asText();
-                    if (TAG_LIST.contains(oneTag)) {
+                String firstTag = tagsNode.get(0).asText();
 
-                        //是幻方的行为
-                        if (oneTag.equals("fighting")) {
-                            OutputData magFight = new OutputData();
-                            magFight.setResult(sceneImgUrl);
-                            magFight.setTime(sceneTime);
-                            magFight.setCamera(cameraName);
-                            magFight.setType("Person");
-                            magFight.setAttribute("fight");
-                            reList.add(magFight);
-                        } else if (oneTag.equals("running")) {
-                            OutputData magRun = new OutputData();
-                            magRun.setResult(sceneImgUrl);
-                            magRun.setTime(sceneTime);
-                            magRun.setCamera(cameraName);
-                            magRun.setType("Person");
-                            magRun.setAttribute("Running");
-                            reList.add(magRun);
-                        } else {
-                            OutputData magStruct = new OutputData();
-                            magStruct.setResult(sceneImgUrl);
-                            magStruct.setTime(sceneTime);
-                            magStruct.setCamera(cameraName);
-                            magStruct.setType("Person");
-                            magStruct.setAttribute("");
-                            reList.add(magStruct);
-                        }
-                    }
+                //是幻方的行为
+                if (firstTag.equals("fighting")) {
+                    OutputData magFight = new OutputData();
+                    magFight.setResult(sceneImgUrl);
+                    magFight.setTime(sceneTime);
+                    magFight.setCamera(cameraName);
+                    magFight.setType("Person");
+                    magFight.setAttribute("fight");
+                    reList.add(magFight);
+                } else if (firstTag.equals("running")) {
+                    OutputData magRun = new OutputData();
+                    magRun.setResult(sceneImgUrl);
+                    magRun.setTime(sceneTime);
+                    magRun.setCamera(cameraName);
+                    magRun.setType("Person");
+                    magRun.setAttribute("Running");
+                    reList.add(magRun);
+                } else {
+                    OutputData magStruct = new OutputData();
+                    magStruct.setResult(sceneImgUrl);
+                    magStruct.setTime(sceneTime);
+                    magStruct.setCamera(cameraName);
+                    magStruct.setType("Person");
+                    magStruct.setAttribute("");
+                    reList.add(magStruct);
                 }
+                
             } else {
                 //查询这个scene下的识别对象
                 String resJson = getSceneObject(sceneID);
