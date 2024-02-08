@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.awt.*;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
@@ -36,7 +35,6 @@ import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.List;
 import java.util.*;
 
 @Controller
@@ -123,6 +121,8 @@ public class ExcelFillController {
         } else if (askType.equals("event")) {
 
             List<OutputData> eventList = getEventDataFromGenesis(startTime, endTime);
+            List<OutputData> tagEventList = getEventByTag(startTime, endTime);
+            eventList.addAll(tagEventList);
             excelPath = makeExcel(eventList, inputSTime, inputETime);
 
         } else {
@@ -158,6 +158,90 @@ public class ExcelFillController {
 
         //删除临时文件
         finishedExcel.delete();
+    }
+
+    private List<OutputData> getEventByTag(String startTime, String endTime) {
+
+        HttpClient httpClient = HttpClients.createDefault();
+        //ask
+        URIBuilder uriBuilder = null;
+        try {
+
+            uriBuilder = new URIBuilder("http://" + genesisAddress.concat("/ainvr/api/scenes"));
+
+            //params
+            List<NameValuePair> parList = new ArrayList<>();
+            parList.add(new BasicNameValuePair("start", startTime));
+            parList.add(new BasicNameValuePair("end", endTime));
+            parList.add(new BasicNameValuePair("size", "10000"));
+            uriBuilder.addParameters(parList);
+
+            HttpGet httpGet = new HttpGet(uriBuilder.build());
+            //header
+            httpGet.addHeader("X-Auth-Token", TransServiceImpl.genesisToken);
+
+            CloseableHttpResponse response = (CloseableHttpResponse) httpClient.execute(httpGet);
+            int code = response.getStatusLine().getStatusCode();
+            String result = EntityUtils.toString(response.getEntity());
+            if (code > 199 && code < 300) {
+                return formatGenesisTag(result);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            logger.error("ask genesis event http error: ", e);
+            return null;
+        }
+
+    }
+
+    private List<OutputData> formatGenesisTag(String result) throws Exception {
+
+        //读取响应结果
+        List<OutputData> reList = new ArrayList<>();
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode mainNode = objectMapper.readTree(result);
+
+        //转为excel实体类格式
+        JsonNode contentNodes = mainNode.get("content");
+        for (JsonNode oneSceneNode : contentNodes) {
+
+            //拿到事件的id
+            String sceneID = oneSceneNode.get("sceneId").asText();
+            //拿到事件的图片链接
+            String sceneImgUrl = oneSceneNode.get("thumbnail").asText();
+            //拿到相机的名称
+            String cameraName = oneSceneNode.get("cameraName").asText();
+            //拿到事件时间
+            String sceneTime = oneSceneNode.get("datetime").asText();
+
+            //如果是幻方的，就判断它的hashtag
+            if (oneSceneNode.has("hashtags")) {
+
+                JsonNode tagsNode = oneSceneNode.get("hashtags");
+                String firstTag = tagsNode.get(0).asText();
+
+                //是幻方的行为
+                if (firstTag.equals("fighting")) {
+                    OutputData magFight = new OutputData();
+                    magFight.setResult(sceneImgUrl);
+                    magFight.setTime(sceneTime);
+                    magFight.setCamera(cameraName);
+                    magFight.setType("Person");
+                    magFight.setAttribute("fight");
+                    reList.add(magFight);
+                } else if (firstTag.equals("running")) {
+                    OutputData magRun = new OutputData();
+                    magRun.setResult(sceneImgUrl);
+                    magRun.setTime(sceneTime);
+                    magRun.setCamera(cameraName);
+                    magRun.setType("Person");
+                    magRun.setAttribute("Running");
+                    reList.add(magRun);
+                }
+            }
+        }
+        return reList;
     }
 
     public static void main(String[] args) {
@@ -326,7 +410,7 @@ public class ExcelFillController {
                     //绘制图片数据
                     int picIdx = workbook.addPicture(picBts, Workbook.PICTURE_TYPE_PNG);
                     Picture excelPic = drawing.createPicture(anchor, picIdx);
-                    excelPic.resize(1,0.75);
+                    excelPic.resize(1, 0.75);
                 }
 
             }
@@ -569,6 +653,7 @@ public class ExcelFillController {
                 }
 
             } else {
+
                 //查询这个scene下的识别对象
                 String resJson = getSceneObject(sceneID);
                 JsonNode sceneObjectsNode = objectMapper.readTree(resJson);
