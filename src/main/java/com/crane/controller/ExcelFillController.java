@@ -314,15 +314,15 @@ public class ExcelFillController {
                     continue;
                 } else {
 
-                    //rowN.setHeightInPoints(90);
+
 
                     //定位图片位置
                     XSSFCreationHelper helper = workbook.getCreationHelper();
                     ClientAnchor anchor = helper.createClientAnchor();
                     anchor.setCol1(0);
                     anchor.setRow1(i - 1);
-//                    anchor.setCol2(1);
-//                    anchor.setRow2(i);
+                    anchor.setCol2(1);
+                    anchor.setRow2(i);
 
                     //绘制图片数据
                     int picIdx = workbook.addPicture(picBts, Workbook.PICTURE_TYPE_PNG);
@@ -332,15 +332,8 @@ public class ExcelFillController {
                     double resHt = d.getHeight();
                     double ratio = resWd / resHt;
 
-                    float dynamicRowHt = (colWidPix / 96 * 72);
-                    rowN.setHeightInPoints(dynamicRowHt);
-                    //(row.getHeightInPoints() / 72) * 96
-                    //colWidPix
-//
-//                    rowN.setHeightInPoints();
-//
-//                    excelPic.resize(1, resHt / resWd);
-                    excelPic.resize(1, 1);
+                    rowN.setHeightInPoints((float) (resHt/72));
+//                    excelPic.resize(1, 1);
                 }
 
             }
