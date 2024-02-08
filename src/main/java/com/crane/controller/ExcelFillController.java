@@ -314,7 +314,7 @@ public class ExcelFillController {
                     continue;
                 } else {
 
-                    rowN.setHeightInPoints(30);
+                    rowN.setHeightInPoints(90);
 
                     //定位图片位置
                     XSSFCreationHelper helper = workbook.getCreationHelper();
