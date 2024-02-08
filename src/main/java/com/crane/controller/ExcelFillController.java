@@ -327,17 +327,7 @@ public class ExcelFillController {
                     //绘制图片数据
                     int picIdx = workbook.addPicture(picBts, Workbook.PICTURE_TYPE_PNG);
                     Picture excelPic = drawing.createPicture(anchor, picIdx);
-                    Dimension d = excelPic.getImageDimension();
-                    double resWd = d.getWidth();
-                    double resHt = d.getHeight();
-                    //保持图片比例
-                    double ratio;
-                    if (resWd > colWidPix) {
-                        ratio = colWidPix / resWd;
-                    } else {
-                        ratio = resWd / colWidPix;
-                    }
-                    excelPic.resize(ratio, ratio);
+                    excelPic.resize();
 
                 }
 
