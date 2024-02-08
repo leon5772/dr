@@ -320,7 +320,7 @@ public class ExcelFillController {
 
                     int picIdx = workbook.addPicture(picBts, Workbook.PICTURE_TYPE_PNG);
                     Picture excelPic = drawing.createPicture(anchor, picIdx);
-                    rowN.setHeightInPoints(excelPic.getImageDimension().height);
+                    rowN.setHeightInPoints((float) (excelPic.getImageDimension().height * 72) /96);
                 }
 
             }
