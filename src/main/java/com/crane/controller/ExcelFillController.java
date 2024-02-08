@@ -327,8 +327,9 @@ public class ExcelFillController {
                     double imageWidth = excelPic.getImageDimension().width;
                     double imageHeight = excelPic.getImageDimension().height;
                     double aspectRatio = imageHeight / imageWidth; // 原始宽高比
-                    double scaledImageHeight = colWid * aspectRatio;
-                    rowN.setHeightInPoints((float) scaledImageHeight);
+                    double scaledImageHeight = (double) colWid * aspectRatio;
+                    short finalHeight = (short)(Math.floor(scaledImageHeight) + 1);
+                    rowN.setHeightInPoints(finalHeight);
                 }
 
             }
