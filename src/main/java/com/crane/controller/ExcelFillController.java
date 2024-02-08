@@ -314,7 +314,9 @@ public class ExcelFillController {
                     continue;
                 } else {
 
-
+                    rowN.setHeightInPoints(90);
+                    float nowRowPix = (rowN.getHeightInPoints() / 72) * 96;
+                    System.out.println(colWidPix+"_"+nowRowPix);
 
                     //定位图片位置
                     XSSFCreationHelper helper = workbook.getCreationHelper();
@@ -332,8 +334,7 @@ public class ExcelFillController {
                     double resHt = d.getHeight();
                     double ratio = resWd / resHt;
 
-                    rowN.setHeightInPoints((float) (resHt/72));
-//                    excelPic.resize(1, 1);
+                    excelPic.resize(1, 1);
                 }
 
             }
