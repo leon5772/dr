@@ -350,7 +350,8 @@ public class ExcelFillController {
         }
 
         // 设置Excel文件路径
-        File file = new File("./metadata/data/excel/" + System.currentTimeMillis() + ".xlsx");
+        String outputPath = "./metadata/data/excel/" + System.currentTimeMillis() + "_Event.xlsx";
+        File file = new File(outputPath);
 
         try {
             // 创建指向该路径的输出流
@@ -368,7 +369,7 @@ public class ExcelFillController {
             e.printStackTrace();
         }
 
-        return "";
+        return outputPath;
     }
 
     public byte[] downloadSnapshot(String sourceUrl) {
