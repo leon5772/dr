@@ -337,7 +337,7 @@ public class ExcelFillController {
                     } else {
                         ratio = resWd / colWidPix;
                     }
-                    excelPic.resize(1, 1*ratio);
+                    excelPic.resize(ratio, ratio);
 
                 }
 
