@@ -324,7 +324,10 @@ public class ExcelFillController {
                     //绘制图片数据
                     int picIdx = workbook.addPicture(picBts, Workbook.PICTURE_TYPE_PNG);
                     Picture excelPic = drawing.createPicture(anchor, picIdx);
-                    excelPic.resize(1,1);
+                    String[] arr = oneEv.getResolution().split("x");
+                    int resWd = Integer.parseInt(arr[0]);
+                    int resHt = Integer.parseInt(arr[1]);
+                    excelPic.resize(1,(double) resWd/resHt);
                 }
 
             }
