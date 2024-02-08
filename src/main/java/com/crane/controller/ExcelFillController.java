@@ -191,7 +191,6 @@ public class ExcelFillController {
         sheet.setColumnWidth(2, colWid);
         sheet.setColumnWidth(3, colWid);
         sheet.setColumnWidth(4, colWid * 3);
-        float colWidPix = sheet.getColumnWidthInPixels(0);
 
         //大点的字体
         XSSFFont biggerFont = workbook.createFont();
@@ -314,7 +313,7 @@ public class ExcelFillController {
                     continue;
                 } else {
 
-                    rowN.setHeightInPoints(colWidPix/96*72);
+                    rowN.setHeightInPoints(90);
 //                    float rowHtPix = (rowN.getHeightInPoints() / 72) * 96;
 //
 //                    //定位图片位置
