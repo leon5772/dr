@@ -311,6 +311,8 @@ public class ExcelFillController {
                     continue;
                 } else {
 
+                    rowN.setHeightInPoints(90);
+
                     //定位图片位置
                     XSSFCreationHelper helper = workbook.getCreationHelper();
                     ClientAnchor anchor = helper.createClientAnchor();
@@ -322,16 +324,7 @@ public class ExcelFillController {
                     //绘制图片数据
                     int picIdx = workbook.addPicture(picBts, Workbook.PICTURE_TYPE_PNG);
                     Picture excelPic = drawing.createPicture(anchor, picIdx);
-
-                    //根据图片比例动态设置高度
-                    double imageWidth = excelPic.getImageDimension().width;
-                    double imageHeight = excelPic.getImageDimension().height;
-                    // 原始宽高比
-                    double aspectRatio = imageHeight / imageWidth;
-                    double scaledImageHeight = (double) colWid * aspectRatio;
-                    short finalHeight = (short)(Math.floor(scaledImageHeight) + 1);
-                    //设置单元格高度
-                    rowN.setHeightInPoints(finalHeight);
+                    excelPic.resize(1,1);
                 }
 
             }
