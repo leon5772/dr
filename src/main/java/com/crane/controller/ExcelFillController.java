@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.awt.*;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
@@ -36,7 +35,6 @@ import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.List;
 import java.util.*;
 
 @Controller
@@ -108,9 +106,9 @@ public class ExcelFillController {
         String utc = genesisUtc;
 
         //获取请求的参数
-        String inputSTime = request.getParameter("s_time").replace("T"," ");
+        String inputSTime = request.getParameter("s_time").replace("T", " ");
         String startTime = inputSTime.concat(utc);
-        String inputETime = request.getParameter("e_time").replace("T"," ");
+        String inputETime = request.getParameter("e_time").replace("T", " ");
         String endTime = inputETime.concat(utc);
         String askType = request.getParameter("ask_type");
 
@@ -185,11 +183,12 @@ public class ExcelFillController {
         XSSFSheet sheet = workbook.createSheet("History");
 
         //列的宽度设置
-        sheet.setColumnWidth(0, 20 * 256);
-        sheet.setColumnWidth(1, 20 * 256);
-        sheet.setColumnWidth(2, 20 * 256);
-        sheet.setColumnWidth(3, 20 * 256);
-        sheet.setColumnWidth(4, 20 * 256 * 3);
+        int colWid = 20 * 256;
+        sheet.setColumnWidth(0, colWid);
+        sheet.setColumnWidth(1, colWid);
+        sheet.setColumnWidth(2, colWid);
+        sheet.setColumnWidth(3, colWid);
+        sheet.setColumnWidth(4, colWid * 3);
 
         //大点的字体
         XSSFFont biggerFont = workbook.createFont();
@@ -311,6 +310,8 @@ public class ExcelFillController {
                 if (picBts == null) {
                     continue;
                 } else {
+
+                    //定位图片位置
                     XSSFCreationHelper helper = workbook.getCreationHelper();
                     ClientAnchor anchor = helper.createClientAnchor();
                     anchor.setCol1(0);
@@ -318,9 +319,16 @@ public class ExcelFillController {
                     anchor.setCol2(1);
                     anchor.setRow2(i);
 
+                    //绘制图片数据
                     int picIdx = workbook.addPicture(picBts, Workbook.PICTURE_TYPE_PNG);
                     Picture excelPic = drawing.createPicture(anchor, picIdx);
-                    rowN.setHeightInPoints((float) (excelPic.getImageDimension().height * 72) /96);
+
+                    //根据图片比例动态设置高度
+                    double imageWidth = excelPic.getImageDimension().width;
+                    double imageHeight = excelPic.getImageDimension().height;
+                    double aspectRatio = imageHeight / imageWidth; // 原始宽高比
+                    double scaledImageHeight = colWid * aspectRatio;
+                    rowN.setHeightInPoints((float) scaledImageHeight);
                 }
 
             }
@@ -347,9 +355,9 @@ public class ExcelFillController {
         }
 
         // 设置Excel文件路径
-        SimpleDateFormat sdf =new SimpleDateFormat("yyyyMMdd_HHmmss_SSS_");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss_SSS_");
         String downloadTime = sdf.format(new Date());
-        String outputPath = "./metadata/data/excel/" + downloadTime+"Event.xlsx";
+        String outputPath = "./metadata/data/excel/" + downloadTime + "Event.xlsx";
         File file = new File(outputPath);
 
         try {
@@ -437,7 +445,7 @@ public class ExcelFillController {
 
             OutputData newEv = new OutputData();
             newEv.setResult(oneSceneNode.get("snapshot").asText());
-            newEv.setTime(oneSceneNode.get("datetime").asText().replace("T"," ").replace(genesisUtc,""));
+            newEv.setTime(oneSceneNode.get("datetime").asText().replace("T", " ").replace(genesisUtc, ""));
             newEv.setCamera(oneSceneNode.get("camera").get("name").asText());
             newEv.setType("Event");
             newEv.setSceneType(1);
@@ -585,13 +593,13 @@ public class ExcelFillController {
                     oneGenesisOD.setType(sceneObjType);
                     //属性
                     JsonNode metaDataNode = oneObjectNode.get("metadata");
-                    if (metaDataNode.has("licensePlate")){
+                    if (metaDataNode.has("licensePlate")) {
                         JsonNode lpNode = metaDataNode.get("licensePlate");
                     }
-                    if (metaDataNode.has("makeModel")){
+                    if (metaDataNode.has("makeModel")) {
 
                     }
-                    if (metaDataNode.has("makeModel")){
+                    if (metaDataNode.has("makeModel")) {
 
                     }
 
