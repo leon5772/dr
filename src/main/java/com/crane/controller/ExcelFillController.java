@@ -330,6 +330,7 @@ public class ExcelFillController {
                     double resWd = d.getWidth();
                     double resHt = d.getHeight();
                     excelPic.resize(1,resHt/resWd);
+                    rowN.setHeightInPoints((float) (resHt/79*72));
                 }
 
             }
