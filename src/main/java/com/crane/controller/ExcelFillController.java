@@ -120,10 +120,19 @@ public class ExcelFillController {
 
         } else if (askType.equals("event")) {
 
+            List<OutputData> uniList = new ArrayList<>();
+
             List<OutputData> eventList = getEventDataFromGenesis(startTime, endTime);
             List<OutputData> tagEventList = getEventByTag(startTime, endTime);
-            eventList.addAll(tagEventList);
-            excelPath = makeExcel(eventList, inputSTime, inputETime);
+
+            if (eventList != null && !eventList.isEmpty()) {
+                uniList.addAll(eventList);
+            }
+            if (tagEventList != null && !tagEventList.isEmpty()) {
+                uniList.addAll(tagEventList);
+            }
+
+            excelPath = makeExcel(uniList, inputSTime, inputETime);
 
         } else {
 
