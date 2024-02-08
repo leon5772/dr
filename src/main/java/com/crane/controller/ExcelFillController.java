@@ -326,9 +326,11 @@ public class ExcelFillController {
                     //根据图片比例动态设置高度
                     double imageWidth = excelPic.getImageDimension().width;
                     double imageHeight = excelPic.getImageDimension().height;
-                    double aspectRatio = imageHeight / imageWidth; // 原始宽高比
+                    // 原始宽高比
+                    double aspectRatio = imageHeight / imageWidth;
                     double scaledImageHeight = (double) colWid * aspectRatio;
                     short finalHeight = (short)(Math.floor(scaledImageHeight) + 1);
+                    //设置单元格高度
                     rowN.setHeightInPoints(finalHeight);
                 }
 
