@@ -327,7 +327,6 @@ public class ExcelFillController {
                     //绘制图片数据
                     int picIdx = workbook.addPicture(picBts, Workbook.PICTURE_TYPE_PNG);
                     Picture excelPic = drawing.createPicture(anchor, picIdx);
-                    excelPic.resize();
 
                 }
 
