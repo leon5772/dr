@@ -57,6 +57,7 @@
         dataType: 'json',
         success: function (res) {
 
+          //主力输入框时间的选择
           $("#s_time").attr("min", res.b_min);
           $("#s_time").attr("max", res.b_max);
           $("#s_time").val(res.b_default);
@@ -64,6 +65,9 @@
           $("#e_time").attr("min", res.e_min);
           $("#e_time").attr("max", res.e_max);
           $("#e_time").val(res.e_default);
+
+
+          //备用时间狂
 
         },
       });
