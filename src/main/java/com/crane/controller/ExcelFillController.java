@@ -54,6 +54,12 @@ public class ExcelFillController {
         return "excelFill/index";
     }
 
+    @GetMapping("/backup_page")
+    public String backup_page(HttpServletRequest request) {
+
+        return "excelFill/index2";
+    }
+
     @GetMapping("/time_map")
     @ResponseBody
     public String getTimeJson() throws Exception {
