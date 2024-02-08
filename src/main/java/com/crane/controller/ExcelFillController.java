@@ -48,6 +48,9 @@ public class ExcelFillController {
     @Value("${tag_agent_config.genesis.address}")
     private String genesisAddress;
 
+    @Value("${tag_agent_config.genesis.utc}")
+    private String genesisUtc;
+
     @GetMapping("")
     public String forwardRequest(HttpServletRequest request) {
 
@@ -102,11 +105,7 @@ public class ExcelFillController {
     public void goDownload(HttpServletResponse response, HttpServletRequest request) throws IOException {
 
         //genesis需要时区
-        SimpleDateFormat sdf = new SimpleDateFormat("Z");
-        String utc = sdf.format(new Date());
-        StringBuilder buffer = new StringBuilder(utc);
-        buffer.insert(3, ':');
-        utc = buffer.toString();
+        String utc = genesisUtc;
 
         //获取请求的参数
         String inputSTime = request.getParameter("s_time").replace("T","");
