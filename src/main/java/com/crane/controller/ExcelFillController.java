@@ -329,7 +329,7 @@ public class ExcelFillController {
                     Dimension d = excelPic.getImageDimension();
                     double resWd = d.getWidth();
                     double resHt = d.getHeight();
-                    excelPic.resize(1,(double) resWd/resHt);
+                    excelPic.resize(1,resHt/resWd);
                 }
 
             }
