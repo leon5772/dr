@@ -314,25 +314,27 @@ public class ExcelFillController {
                     continue;
                 } else {
 
-                    rowN.setHeightInPoints(90);
-                    float rowHtPix = (rowN.getHeightInPoints() / 72) * 96;
-
-                    //定位图片位置
-                    XSSFCreationHelper helper = workbook.getCreationHelper();
-                    ClientAnchor anchor = helper.createClientAnchor();
-                    anchor.setCol1(0);
-                    anchor.setRow1(i - 1);
-                    anchor.setCol2(1);
-                    anchor.setRow2(i);
-
-                    //绘制图片数据
-                    int picIdx = workbook.addPicture(picBts, Workbook.PICTURE_TYPE_PNG);
-                    Picture excelPic = drawing.createPicture(anchor, picIdx);
-                    Dimension d = excelPic.getImageDimension();
-                    double resWd = d.getWidth();
-                    double resHt = d.getHeight();
-
-                    excelPic.resize(colWidPix/resWd, rowHtPix/resHt);
+                    rowN.setHeightInPoints(colWidPix/96*72);
+//                    float rowHtPix = (rowN.getHeightInPoints() / 72) * 96;
+//
+//                    //定位图片位置
+//                    XSSFCreationHelper helper = workbook.getCreationHelper();
+//                    ClientAnchor anchor = helper.createClientAnchor();
+//                    anchor.setCol1(0);
+//                    anchor.setRow1(i - 1);
+//                    anchor.setCol2(1);
+//                    anchor.setRow2(i);
+//
+//                    //绘制图片数据
+//                    int picIdx = workbook.addPicture(picBts, Workbook.PICTURE_TYPE_PNG);
+//                    Picture excelPic = drawing.createPicture(anchor, picIdx);
+//                    Dimension d = excelPic.getImageDimension();
+//                    double resWd = d.getWidth();
+//                    double resHt = d.getHeight();
+//
+//                    rowN.setHeightInPoints(rowHtPix);
+//
+//                    excelPic.resize(colWidPix/resWd, rowHtPix/resHt);
                 }
 
             }
