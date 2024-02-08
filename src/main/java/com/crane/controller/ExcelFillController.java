@@ -350,9 +350,9 @@ public class ExcelFillController {
         }
 
         // 设置Excel文件路径
-        SimpleDateFormat sdf =new SimpleDateFormat("yyyyMMdd_HH.mm.ss.SSS");
+        SimpleDateFormat sdf =new SimpleDateFormat("yyyyMMdd_HHmmss_SSS_");
         String downloadTime = sdf.format(new Date());
-        String outputPath = "./metadata/data/excel/" + downloadTime+".xlsx";
+        String outputPath = "./metadata/data/excel/" + downloadTime+"Event.xlsx";
         File file = new File(outputPath);
 
         try {
