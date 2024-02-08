@@ -108,9 +108,9 @@ public class ExcelFillController {
         String utc = genesisUtc;
 
         //获取请求的参数
-        String inputSTime = request.getParameter("s_time").replace("T","");
+        String inputSTime = request.getParameter("s_time").replace("T"," ");
         String startTime = inputSTime.concat(utc);
-        String inputETime = request.getParameter("e_time").replace("T","");
+        String inputETime = request.getParameter("e_time").replace("T"," ");
         String endTime = inputETime.concat(utc);
         String askType = request.getParameter("ask_type");
 
