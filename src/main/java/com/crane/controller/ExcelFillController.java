@@ -36,8 +36,8 @@ import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 @Controller
 @RequestMapping("/excel_download")
@@ -191,6 +191,7 @@ public class ExcelFillController {
         sheet.setColumnWidth(2, colWid);
         sheet.setColumnWidth(3, colWid);
         sheet.setColumnWidth(4, colWid * 3);
+        float colWidPix = sheet.getColumnWidthInPixels(0);
 
         //大点的字体
         XSSFFont biggerFont = workbook.createFont();
@@ -329,7 +330,16 @@ public class ExcelFillController {
                     Dimension d = excelPic.getImageDimension();
                     double resWd = d.getWidth();
                     double resHt = d.getHeight();
-                    excelPic.resize(1,resHt/resWd);
+                    double ratio = resWd / resHt;
+
+                    float dynamicRowHt = (colWidPix / 96 * 72);
+                    rowN.setHeightInPoints(dynamicRowHt);
+                    //(row.getHeightInPoints() / 72) * 96
+                    //colWidPix
+//
+//                    rowN.setHeightInPoints();
+//
+//                    excelPic.resize(1, resHt / resWd);
                 }
 
             }
