@@ -191,6 +191,7 @@ public class ExcelFillController {
         sheet.setColumnWidth(2, colWid);
         sheet.setColumnWidth(3, colWid);
         sheet.setColumnWidth(4, colWid * 3);
+        float colWidPix = sheet.getColumnWidthInPixels(0);
 
         //大点的字体
         XSSFFont biggerFont = workbook.createFont();
@@ -314,26 +315,30 @@ public class ExcelFillController {
                 } else {
 
                     rowN.setHeightInPoints(90);
-//                    float rowHtPix = (rowN.getHeightInPoints() / 72) * 96;
-//
-//                    //定位图片位置
-//                    XSSFCreationHelper helper = workbook.getCreationHelper();
-//                    ClientAnchor anchor = helper.createClientAnchor();
-//                    anchor.setCol1(0);
-//                    anchor.setRow1(i - 1);
-//                    anchor.setCol2(1);
-//                    anchor.setRow2(i);
-//
-//                    //绘制图片数据
-//                    int picIdx = workbook.addPicture(picBts, Workbook.PICTURE_TYPE_PNG);
-//                    Picture excelPic = drawing.createPicture(anchor, picIdx);
-//                    Dimension d = excelPic.getImageDimension();
-//                    double resWd = d.getWidth();
-//                    double resHt = d.getHeight();
-//
-//                    rowN.setHeightInPoints(rowHtPix);
-//
-//                    excelPic.resize(colWidPix/resWd, rowHtPix/resHt);
+
+                    //定位图片位置
+                    XSSFCreationHelper helper = workbook.getCreationHelper();
+                    ClientAnchor anchor = helper.createClientAnchor();
+                    anchor.setCol1(0);
+                    anchor.setRow1(i - 1);
+                    anchor.setCol2(1);
+                    anchor.setRow2(i);
+
+                    //绘制图片数据
+                    int picIdx = workbook.addPicture(picBts, Workbook.PICTURE_TYPE_PNG);
+                    Picture excelPic = drawing.createPicture(anchor, picIdx);
+                    Dimension d = excelPic.getImageDimension();
+                    double resWd = d.getWidth();
+                    double resHt = d.getHeight();
+                    //保持图片比例
+                    double ratio;
+                    if (resWd > colWidPix) {
+                        ratio = colWidPix / resWd;
+                    } else {
+                        ratio = resWd / colWidPix;
+                    }
+                    excelPic.resize(1, 1*ratio);
+
                 }
 
             }
