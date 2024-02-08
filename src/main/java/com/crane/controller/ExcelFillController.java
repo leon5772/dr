@@ -340,6 +340,7 @@ public class ExcelFillController {
 //                    rowN.setHeightInPoints();
 //
 //                    excelPic.resize(1, resHt / resWd);
+                    excelPic.resize(1, 1);
                 }
 
             }
