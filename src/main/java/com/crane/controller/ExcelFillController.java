@@ -123,7 +123,7 @@ public class ExcelFillController {
         } else if (askType.equals("event")) {
 
             List<OutputData> eventList = getEventDataFromGenesis(startTime, endTime);
-            excelPath = makeExcel(eventList, startTime, endTime);
+            excelPath = makeExcel(eventList, inputSTime, inputETime);
 
         } else {
 
@@ -440,7 +440,7 @@ public class ExcelFillController {
 
             OutputData newEv = new OutputData();
             newEv.setResult(oneSceneNode.get("snapshot").asText());
-            newEv.setTime(oneSceneNode.get("datetime").asText());
+            newEv.setTime(oneSceneNode.get("datetime").asText().replace("T"," ").replace(genesisUtc,""));
             newEv.setCamera(oneSceneNode.get("camera").get("name").asText());
             newEv.setType("Event");
             newEv.setSceneType(1);
