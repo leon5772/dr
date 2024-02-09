@@ -16,7 +16,6 @@ public class OutputData {
 
     private String attribute;
 
-    private
 
     public int getSceneType() {
         return sceneType;
