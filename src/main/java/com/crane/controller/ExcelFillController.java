@@ -614,52 +614,6 @@ public class ExcelFillController {
             //如果是幻方的，就判断它的hashtag
             if (oneSceneNode.has("hashtags")) {
 
-                JsonNode tagsNode = oneSceneNode.get("hashtags");
-                String firstTag = tagsNode.get(0).asText();
-
-                //是幻方的行为
-                if (firstTag.equals("fighting")) {
-                    OutputData magFight = new OutputData();
-                    magFight.setResult(sceneImgUrl);
-                    magFight.setTime(sceneTime);
-                    magFight.setCamera(cameraName);
-                    magFight.setType("Person");
-                    magFight.setAttribute("fight");
-                    reList.add(magFight);
-                } else if (firstTag.equals("running")) {
-                    OutputData magRun = new OutputData();
-                    magRun.setResult(sceneImgUrl);
-                    magRun.setTime(sceneTime);
-                    magRun.setCamera(cameraName);
-                    magRun.setType("Person");
-                    magRun.setAttribute("Running");
-                    reList.add(magRun);
-                } else {
-                    OutputData magStruct = new OutputData();
-                    magStruct.setResult(sceneImgUrl);
-                    magStruct.setTime(sceneTime);
-                    magStruct.setCamera(cameraName);
-                    magStruct.setType("Person");
-
-                    //幻方的结构化
-                    StringBuilder tagInfoBuilder = new StringBuilder();
-                    for (JsonNode oneTag : tagsNode) {
-                        tagInfoBuilder.append(oneTag).append(",");
-                    }
-
-                    //颜色
-                    String resJson = getSceneObject(sceneID);
-                    JsonNode cNode = objectMapper.readTree(resJson);
-                    JsonNode firstNode = cNode.get(0);
-                    JsonNode colorsNode = firstNode.get("colors");
-                    StringBuilder colorInfoBuilder = new StringBuilder();
-                    for (JsonNode oneColor : colorsNode) {
-                        colorInfoBuilder.append(oneColor).append(",");
-                    }
-
-                    magStruct.setAttribute(tagInfoBuilder.toString().concat("Color:").concat(colorInfoBuilder.toString()));
-                    reList.add(magStruct);
-                }
 
             } else {
 
@@ -687,6 +641,7 @@ public class ExcelFillController {
                     JsonNode metaDataNode = oneObjectNode.get("metadata");
                     if (metaDataNode.has("licensePlate")) {
                         JsonNode lpNode = metaDataNode.get("licensePlate");
+
                     }
                     if (metaDataNode.has("makeModel")) {
 
