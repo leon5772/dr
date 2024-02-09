@@ -178,7 +178,7 @@ public class ExcelFillController2 {
             //查询两个接口的数据
             List<OutputData> uniList = new ArrayList<>();
 
-            List<OutputData> objectList = getObjectDataFromGenesis(startTime, endTime);
+            List<OutputData> objectList = getObjectDataFromGenesis(inputSTime, inputETime);
 
             List<OutputData> eventList = getEventDataFromGenesis(startTime, endTime);
             List<OutputData> tagEventList = getEventByTag(startTime, endTime);
