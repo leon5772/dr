@@ -20,7 +20,7 @@
 <body>
 
   <div id="download_zone">
-    <form action="/excel_download/go" method="GET" id="form_1">
+    <form action="/excel_download2/go" method="GET" id="form_1">
 
       <label for="s_time">Start: </label>
       <input type="text" id="s_time" name="s_time"/>
@@ -53,7 +53,7 @@
 
       $.ajax({
         type: "GET",
-        url: "/excel_download/time_map",
+        url: "/excel_download2/time_map",
         dataType: 'json',
         success: function (res) {
 
