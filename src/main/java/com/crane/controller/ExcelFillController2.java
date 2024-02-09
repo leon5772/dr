@@ -722,6 +722,8 @@ public class ExcelFillController2 {
 
                 } else {
 
+                    int putFlag = 1;
+
                     OutputData oneGenesisOD = new OutputData();
 
                     //第一个赋予图片
@@ -757,6 +759,7 @@ public class ExcelFillController2 {
                     }
                     //车牌
                     if (metaDataNode.has("licensePlate")) {
+                        putFlag = 2;
                         JsonNode lpNode = metaDataNode.get("licensePlate");
                         if (lpNode.has("number")) {
                             aText.append("LPR:").append(lpNode.get("number").asText()).append(". ");
@@ -773,6 +776,8 @@ public class ExcelFillController2 {
                         }
                     }
                     if (metaDataNode.has("face")) {
+
+                        putFlag = 2;
                         JsonNode faceNode = metaDataNode.get("face");
 
                         if (faceNode.has("targetName")) {
@@ -780,7 +785,11 @@ public class ExcelFillController2 {
                         }
                     }
                     oneGenesisOD.setAttribute(aText.toString());
-                    reList.add(oneGenesisOD);
+
+                    if (putFlag == 1) {
+                        reList.add(oneGenesisOD);
+                    }
+
                 }
             }
         }
