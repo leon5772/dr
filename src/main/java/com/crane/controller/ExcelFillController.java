@@ -739,13 +739,14 @@ public class ExcelFillController {
                     StringBuilder aText = new StringBuilder();
                     JsonNode metaDataNode = oneObjNode.get("metadata");
                     //颜色
-                    JsonNode colorNode = metaDataNode.get("colors");
-                    if (!colorNode.isEmpty()) {
-                        aText.append("Colors:");
-                        for (JsonNode oneColor : colorNode) {
-                            aText.append(oneColor.asText()).append(",");
-                        }
-                        aText.append(". ");
+                    if (metaDataNode.has("colors")) {
+                        JsonNode colorNode = metaDataNode.get("colors");
+                       if(!colorNode.isEmpty()){
+                           aText.append("Colors:");
+                           for (JsonNode oneColor : colorNode) {
+                               aText.append(oneColor.asText()).append(". ");
+                           }
+                       }
                     }
                     //车牌
                     if (metaDataNode.has("licensePlate")) {
