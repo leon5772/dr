@@ -2,6 +2,7 @@ package com.crane.controller;
 
 import com.crane.domain.OutputData;
 import com.crane.service.impl.TransServiceImpl;
+import com.crane.utils.DataRouterConstant;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +38,8 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static com.crane.utils.DataRouterConstant.TAG_LIST;
+
 @Controller
 @RequestMapping("/excel_download")
 public class ExcelFillController {
@@ -57,6 +60,12 @@ public class ExcelFillController {
 
     @Value("${tag_agent_config.excel.row_text_height}")
     private String excelTextHeight;
+
+    @Value("${tag_agent_config.genesis_api_event}")
+    private String apiEventLimit;
+
+    @Value("${tag_agent_config.genesis_api_scene}")
+    private String apiSceneLimit;
 
     @GetMapping("")
     public String forwardRequest(HttpServletRequest request) {
@@ -583,7 +592,7 @@ public class ExcelFillController {
             List<NameValuePair> parList = new ArrayList<>();
             parList.add(new BasicNameValuePair("start", startTime));
             parList.add(new BasicNameValuePair("end", endTime));
-            parList.add(new BasicNameValuePair("size", "10000"));
+            parList.add(new BasicNameValuePair("size", apiSceneLimit));
             uriBuilder.addParameters(parList);
 
             HttpGet httpGet = new HttpGet(uriBuilder.build());
@@ -599,7 +608,7 @@ public class ExcelFillController {
                 return null;
             }
         } catch (Exception e) {
-            logger.error("ask genesis event http error: ", e);
+            logger.error("ask genesis scene http error: ", e);
             return null;
         }
     }
@@ -627,6 +636,41 @@ public class ExcelFillController {
             //如果是幻方的，就判断它的hashtag
             if (oneSceneNode.has("hashtags")) {
 
+                StringBuilder aText = new StringBuilder();
+
+                JsonNode tagsNode = oneSceneNode.get("hashtags");
+                for (JsonNode oneTagNode : tagsNode) {
+                    String tagStr = oneTagNode.asText();
+                    if (TAG_LIST.contains(tagStr)) {
+
+                        //Gender:Male.Hair :Long Hair.Bag:No Bag.Hat:No Hat.Sleeve:long Sleeve.Sleeve Colors: Red.Pants:Short Pants.Pants Colors:Red.
+
+                        if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_MALE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_FEMALE)) {
+                            aText.append("Gender:").append(tagStr).append(". ");
+                        }
+                        if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_HAIR) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_HAIR)) {
+                            aText.append("Hair:").append(tagStr).append(". ");
+                        }
+                        if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_BAG) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_NO_BAG)) {
+                            aText.append("Bag:").append(tagStr).append(". ");
+                        }
+                        if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_HAT) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_NO_HAT)) {
+                            aText.append("Hat:").append(tagStr).append(". ");
+                        }
+                        if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SLEEVELESS)) {
+                            aText.append("Sleeve:").append(tagStr).append(". ");
+                        }
+                        if (tagStr.contains("_clothes")) {
+                            aText.append("Sleeve Color:").append(tagStr.split("_")[0]).append(". ");
+                        }
+                        if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_PANTS) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_PANTS)) {
+                            aText.append("Pants:").append(tagStr).append(". ");
+                        }
+                        if (tagStr.contains("_pants") && !tagStr.equalsIgnoreCase("Long_Pants") && !tagStr.equalsIgnoreCase("Short_Pants")) {
+                            aText.append("Pants Color:").append(tagStr.split("_")[0]).append(". ");
+                        }
+                    }
+                }
 
             } else {
 
