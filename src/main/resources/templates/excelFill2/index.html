@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+
+<head>
+  <style>
+    #download_zone {
+      width: 960px;
+      height: 640px;
+      border: 2.5px dashed #0062af;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: 50px;
+    }
+
+    #form_1 {
+      padding: 36px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="download_zone">
+    <form action="/excel_download/go" method="GET" id="form_1">
+
+      <label for="s_time">Start: </label>
+      <input type="datetime-local" min="" max="" value="" id="s_time" name="s_time"/>
+      &nbsp;&nbsp;&nbsp;
+      <label for="e_time">End: </label>
+      <input type="datetime-local" min="" max="" value="" id="e_time" name="e_time"/>
+      <br />
+      <br />
+
+      <label>Type:</label>
+      <input type="radio" id="both" name="ask_type" value="both" checked>
+      <label for="both">Both</label>
+      &nbsp;
+      <input type="radio" id="object" name="ask_type" value="object">
+      <label for="object">Object</label>
+      &nbsp;
+      <input type="radio" id="event" name="ask_type" value="event">
+      <label for="event">Event</label>
+      <br />
+      <br />
+
+      <input type="submit" value="Download">
+    </form>
+  </div>
+
+  <script src="js/1.12.4_dist_jquery.min.js"></script>
+  <script>
+
+    $(document).ready(function () {
+
+      $.ajax({
+        type: "GET",
+        url: "/excel_download/time_map",
+        dataType: 'json',
+        success: function (res) {
+
+          //主力输入框时间的选择
+          $("#s_time").attr("min", res.b_min);
+          $("#s_time").attr("max", res.b_max);
+          $("#s_time").val(res.b_default);
+
+          $("#e_time").attr("min", res.e_min);
+          $("#e_time").attr("max", res.e_max);
+          $("#e_time").val(res.e_default);
+
+
+          //备用时间狂
+
+        },
+      });
+
+    });
+  </script>
+</body>
+
+</html>
