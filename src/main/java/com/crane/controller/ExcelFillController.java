@@ -642,74 +642,70 @@ public class ExcelFillController {
             //拿到具体的信息
             String resJson = getSceneObject(sceneID);
 
-            JsonNode sceneObjNode = objectMapper.readTree(result);
+            JsonNode sceneObjectsNode = objectMapper.readTree(resJson);
 
-            //如果是幻方的，就判断它的hashtag
-            if (sceneObjNode.has("hashtags")) {
+            for (JsonNode oneObjNode : sceneObjectsNode) {
+                //如果是幻方的，就判断它的hashtag
+                if (oneObjNode.has("hashtags")) {
 
-                OutputData oneMagScene = new OutputData();
-                oneMagScene.setResult(sceneImgUrl);
-                oneMagScene.setTime(sceneTime);
-                oneMagScene.setCamera(cameraName);
-                oneMagScene.setType("Person");
+                    OutputData oneMagScene = new OutputData();
+                    oneMagScene.setResult(sceneImgUrl);
+                    oneMagScene.setTime(sceneTime);
+                    oneMagScene.setCamera(cameraName);
+                    oneMagScene.setType("Person");
 
-                int eventFlag = 1;
+                    int eventFlag = 1;
 
-                StringBuilder aText = new StringBuilder();
-                JsonNode tagsNode = oneSceneNode.get("hashtags");
-                for (JsonNode oneTagNode : tagsNode) {
-                    String tagStr = oneTagNode.asText();
-                    if (TAG_LIST.contains(tagStr)) {
+                    StringBuilder aText = new StringBuilder();
+                    JsonNode tagsNode = oneSceneNode.get("hashtags");
+                    for (JsonNode oneTagNode : tagsNode) {
+                        String tagStr = oneTagNode.asText();
+                        if (TAG_LIST.contains(tagStr)) {
 
-                        if (tagStr.equalsIgnoreCase("Fighting") || tagStr.equalsIgnoreCase("Running")) {
-                            eventFlag = 2;
-                        }
+                            if (tagStr.equalsIgnoreCase("Fighting") || tagStr.equalsIgnoreCase("Running")) {
+                                eventFlag = 2;
+                            }
 
-                        //Gender:Male.Hair :Long Hair.Bag:No Bag.Hat:No Hat.Sleeve:long Sleeve.Sleeve Colors: Red.Pants:Short Pants.Pants Colors:Red.
+                            //Gender:Male.Hair :Long Hair.Bag:No Bag.Hat:No Hat.Sleeve:long Sleeve.Sleeve Colors: Red.Pants:Short Pants.Pants Colors:Red.
 
-                        if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_MALE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_FEMALE)) {
-                            aText.append("Gender:").append(tagStr).append(". ");
-                        }
-                        if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_HAIR) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_HAIR)) {
-                            aText.append("Hair:").append(tagStr).append(". ");
-                        }
-                        if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_BAG) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_NO_BAG)) {
-                            aText.append("Bag:").append(tagStr).append(". ");
-                        }
-                        if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_HAT) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_NO_HAT)) {
-                            aText.append("Hat:").append(tagStr).append(". ");
-                        }
-                        if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SLEEVELESS)) {
-                            aText.append("Sleeve:").append(tagStr).append(". ");
-                        }
-                        if (tagStr.contains("_clothes")) {
-                            aText.append("Sleeve Color:").append(tagStr.split("_")[0]).append(". ");
-                        }
-                        if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_PANTS) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_PANTS)) {
-                            aText.append("Pants:").append(tagStr).append(". ");
-                        }
-                        if (tagStr.contains("_pants") && !tagStr.equalsIgnoreCase("Long_Pants") && !tagStr.equalsIgnoreCase("Short_Pants")) {
-                            aText.append("Pants Color:").append(tagStr.split("_")[0]).append(". ");
+                            if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_MALE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_FEMALE)) {
+                                aText.append("Gender:").append(tagStr).append(". ");
+                            }
+                            if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_HAIR) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_HAIR)) {
+                                aText.append("Hair:").append(tagStr).append(". ");
+                            }
+                            if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_BAG) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_NO_BAG)) {
+                                aText.append("Bag:").append(tagStr).append(". ");
+                            }
+                            if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_HAT) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_NO_HAT)) {
+                                aText.append("Hat:").append(tagStr).append(". ");
+                            }
+                            if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SLEEVELESS)) {
+                                aText.append("Sleeve:").append(tagStr).append(". ");
+                            }
+                            if (tagStr.contains("_clothes")) {
+                                aText.append("Sleeve Color:").append(tagStr.split("_")[0]).append(". ");
+                            }
+                            if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_PANTS) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_PANTS)) {
+                                aText.append("Pants:").append(tagStr).append(". ");
+                            }
+                            if (tagStr.contains("_pants") && !tagStr.equalsIgnoreCase("Long_Pants") && !tagStr.equalsIgnoreCase("Short_Pants")) {
+                                aText.append("Pants Color:").append(tagStr.split("_")[0]).append(". ");
+                            }
                         }
                     }
-                }
 
-                if (eventFlag == 1) {
-                    oneMagScene.setAttribute(aText.toString());
-                    reList.add(oneMagScene);
-                }
+                    if (eventFlag == 1) {
+                        oneMagScene.setAttribute(aText.toString());
+                        reList.add(oneMagScene);
+                    }
 
-            } else {
+                } else {
 
-
-                JsonNode sceneObjectsNode = objectMapper.readTree(resJson);
-
-                int i = 0;
-                for (JsonNode oneObjectNode : sceneObjectsNode) {
                     OutputData oneGenesisOD = new OutputData();
 
                     //第一个赋予图片
-                    if (i == 0) {
+                    if (reList.isEmpty()) {
                         oneGenesisOD.setResult(sceneImgUrl);
                     }
 
@@ -718,10 +714,10 @@ public class ExcelFillController {
                     //相机名称
                     oneGenesisOD.setCamera(cameraName);
                     //model 类型
-                    String sceneObjType = oneObjectNode.get("objectType").asText();
+                    String sceneObjType = oneObjNode.get("objectType").asText();
                     oneGenesisOD.setType(sceneObjType);
                     //属性
-                    JsonNode metaDataNode = oneObjectNode.get("metadata");
+                    JsonNode metaDataNode = oneObjNode.get("metadata");
                     if (metaDataNode.has("licensePlate")) {
                         JsonNode lpNode = metaDataNode.get("licensePlate");
 
@@ -735,10 +731,11 @@ public class ExcelFillController {
 
                     oneGenesisOD.setAttribute("1");
 
-                    i++;
-                }
 
+                }
             }
+
+
         }
 
         return reList;
