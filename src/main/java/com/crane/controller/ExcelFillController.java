@@ -235,7 +235,7 @@ public class ExcelFillController {
             parList.add(new BasicNameValuePair("start", startTime));
             parList.add(new BasicNameValuePair("end", endTime));
             parList.add(new BasicNameValuePair("size", apiEventLimit));
-            parList.add(new BasicNameValuePair("cameraIds",getAllCameras()));
+            parList.add(new BasicNameValuePair("cameraIds", getAllCameras()));
             uriBuilder.addParameters(parList);
 
             HttpGet httpGet = new HttpGet(uriBuilder.build());
@@ -550,7 +550,7 @@ public class ExcelFillController {
             parList.add(new BasicNameValuePair("end", endTime));
             parList.add(new BasicNameValuePair("types", "LOITERING,CROWD_DETECTION"));
             parList.add(new BasicNameValuePair("size", apiEventLimit));
-            parList.add(new BasicNameValuePair("cameraIds",getAllCameras()));
+            parList.add(new BasicNameValuePair("cameraIds", getAllCameras()));
             uriBuilder.addParameters(parList);
 
             HttpGet httpGet = new HttpGet(uriBuilder.build());
@@ -619,7 +619,7 @@ public class ExcelFillController {
             parList.add(new BasicNameValuePair("start", startTime));
             parList.add(new BasicNameValuePair("end", endTime));
             parList.add(new BasicNameValuePair("size", apiSceneLimit));
-            parList.add(new BasicNameValuePair("cameraIds",getAllCameras()));
+            parList.add(new BasicNameValuePair("cameraIds", getAllCameras()));
             uriBuilder.addParameters(parList);
 
             HttpGet httpGet = new HttpGet(uriBuilder.build());
@@ -725,9 +725,7 @@ public class ExcelFillController {
                     OutputData oneGenesisOD = new OutputData();
 
                     //第一个赋予图片
-                    if (reList.isEmpty()) {
-                        oneGenesisOD.setResult(sceneImgUrl);
-                    }
+                    oneGenesisOD.setResult(sceneImgUrl);
 
                     //时间
                     oneGenesisOD.setTime(sceneTime);
@@ -747,7 +745,7 @@ public class ExcelFillController {
                             for (JsonNode oneColor : colorNode) {
                                 aText.append(oneColor.asText()).append(",");
                             }
-                            aText.append(".");
+                            aText.append(". ");
                         }
                     }
                     //车牌
@@ -824,11 +822,11 @@ public class ExcelFillController {
         }
 
         StringBuilder resultCid = new StringBuilder();
-        for (String oneCam:cidSet){
+        for (String oneCam : cidSet) {
             resultCid.append(oneCam).append(",");
         }
 
-        if (resultCid.length()>1){
+        if (resultCid.length() > 1) {
             resultCid.deleteCharAt(resultCid.length() - 1);
         }
 
