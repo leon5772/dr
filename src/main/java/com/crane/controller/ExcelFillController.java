@@ -179,10 +179,10 @@ public class ExcelFillController {
             if (objectList != null && !objectList.isEmpty()) {
                 uniList.addAll(objectList);
             }
-            if (eventList!=null && !eventList.isEmpty()){
+            if (eventList != null && !eventList.isEmpty()) {
                 uniList.addAll(eventList);
             }
-            if (tagEventList!=null && !tagEventList.isEmpty()){
+            if (tagEventList != null && !tagEventList.isEmpty()) {
                 uniList.addAll(tagEventList);
             }
             //合并数据到一个集合
@@ -767,15 +767,13 @@ public class ExcelFillController {
                     if (metaDataNode.has("face")) {
                         JsonNode faceNode = metaDataNode.get("face");
 
+                        if (faceNode.has("targetName")) {
+                            aText.append("Name:").append(faceNode.get("targetName").asText()).append(". ");
+                        }
                     }
-
-                    oneGenesisOD.setAttribute("1");
-
-
+                    oneGenesisOD.setAttribute(aText.toString());
                 }
             }
-
-
         }
 
         return reList;
