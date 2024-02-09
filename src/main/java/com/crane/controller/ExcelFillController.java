@@ -725,7 +725,14 @@ public class ExcelFillController {
                     OutputData oneGenesisOD = new OutputData();
 
                     //第一个赋予图片
-                    oneGenesisOD.setResult(sceneImgUrl);
+                    if (!reList.isEmpty()) {
+                        OutputData lastOd = reList.get(reList.size() - 1);
+                        if (lastOd.getResult().equals(sceneImgUrl)) {
+
+                        } else {
+                            oneGenesisOD.setResult(sceneImgUrl);
+                        }
+                    }
 
                     //时间
                     oneGenesisOD.setTime(sceneTime);
