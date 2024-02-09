@@ -235,6 +235,7 @@ public class ExcelFillController {
             parList.add(new BasicNameValuePair("start", startTime));
             parList.add(new BasicNameValuePair("end", endTime));
             parList.add(new BasicNameValuePair("size", apiEventLimit));
+            parList.add(new BasicNameValuePair("cameraIds",getAllCameras()));
             uriBuilder.addParameters(parList);
 
             HttpGet httpGet = new HttpGet(uriBuilder.build());
@@ -549,6 +550,7 @@ public class ExcelFillController {
             parList.add(new BasicNameValuePair("end", endTime));
             parList.add(new BasicNameValuePair("types", "LOITERING,CROWD_DETECTION"));
             parList.add(new BasicNameValuePair("size", apiEventLimit));
+            parList.add(new BasicNameValuePair("cameraIds",getAllCameras()));
             uriBuilder.addParameters(parList);
 
             HttpGet httpGet = new HttpGet(uriBuilder.build());
@@ -617,6 +619,7 @@ public class ExcelFillController {
             parList.add(new BasicNameValuePair("start", startTime));
             parList.add(new BasicNameValuePair("end", endTime));
             parList.add(new BasicNameValuePair("size", apiSceneLimit));
+            parList.add(new BasicNameValuePair("cameraIds",getAllCameras()));
             uriBuilder.addParameters(parList);
 
             HttpGet httpGet = new HttpGet(uriBuilder.build());
