@@ -440,7 +440,7 @@ public class ExcelFillController {
 
             //每行第1列为图片，动态的行高
             XSSFCell rnc1 = rowN.createCell(0);
-            rnc1.setCellValue("");
+            rnc1.setCellValue(oneEv.getResult());
             rnc1.setCellStyle(contentCellStyle);
             //填充图片到位置
             if (StringUtils.isBlank(oneEv.getResult())) {
