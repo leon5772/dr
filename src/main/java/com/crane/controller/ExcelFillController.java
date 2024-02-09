@@ -141,6 +141,10 @@ public class ExcelFillController {
             if (objectList != null && !objectList.isEmpty()) {
                 sceneUniList.addAll(objectList);
             }
+
+            Comparator<OutputData> timeComparator = Comparator.comparing(OutputData::getTime);
+            sceneUniList.sort(timeComparator);
+
             excelPath = makeExcel(sceneUniList, inputSTime, inputETime);
 
         } else if (askType.equals("event")) {
@@ -157,21 +161,36 @@ public class ExcelFillController {
                 uniList.addAll(tagEventList);
             }
 
+            Comparator<OutputData> timeComparator = Comparator.comparing(OutputData::getTime);
+            uniList.sort(timeComparator);
+
             excelPath = makeExcel(uniList, inputSTime, inputETime);
 
         } else {
 
             //查询两个接口的数据
             List<OutputData> uniList = new ArrayList<>();
-            List<OutputData> objectList = getObjectDataFromGenesis(startTime, endTime);
-            List<OutputData> eventList = getObjectDataFromGenesis(startTime, endTime);
-            //合并数据到一个集合
 
-            uniList.addAll(objectList);
-            uniList.addAll(eventList);
+            List<OutputData> objectList = getObjectDataFromGenesis(startTime, endTime);
+
+            List<OutputData> eventList = getEventDataFromGenesis(startTime, endTime);
+            List<OutputData> tagEventList = getEventByTag(startTime, endTime);
+
+            if (objectList != null && !objectList.isEmpty()) {
+                uniList.addAll(objectList);
+            }
+            if (eventList!=null && !eventList.isEmpty()){
+                uniList.addAll(eventList);
+            }
+            if (tagEventList!=null && !tagEventList.isEmpty()){
+                uniList.addAll(tagEventList);
+            }
+            //合并数据到一个集合
             //排序
             Comparator<OutputData> timeComparator = Comparator.comparing(OutputData::getTime);
             uniList.sort(timeComparator);
+
+            excelPath = makeExcel(uniList, inputSTime, inputETime);
         }
 
         // 读到流中
@@ -721,9 +740,9 @@ public class ExcelFillController {
                     JsonNode metaDataNode = oneObjNode.get("metadata");
                     //颜色
                     JsonNode colorNode = metaDataNode.get("colors");
-                    if (!colorNode.isEmpty()){
+                    if (!colorNode.isEmpty()) {
                         aText.append("Colors:");
-                        for (JsonNode oneColor:colorNode){
+                        for (JsonNode oneColor : colorNode) {
                             aText.append(oneColor.asText()).append(",");
                         }
                         aText.append(". ");
@@ -731,17 +750,17 @@ public class ExcelFillController {
                     //车牌
                     if (metaDataNode.has("licensePlate")) {
                         JsonNode lpNode = metaDataNode.get("licensePlate");
-                        if (lpNode.has("number")){
+                        if (lpNode.has("number")) {
                             aText.append("LPR:").append(lpNode.get("number").asText()).append(". ");
                         }
                     }
                     //车制造型号
                     if (metaDataNode.has("makeModel")) {
                         JsonNode mmNode = metaDataNode.get("makeModel");
-                        if (mmNode.has("make")){
+                        if (mmNode.has("make")) {
                             aText.append("Make:").append(mmNode.get("make").asText()).append(". ");
                         }
-                        if (mmNode.has("model")){
+                        if (mmNode.has("model")) {
                             aText.append("Model:").append(mmNode.get("model").asText()).append(". ");
                         }
                     }
