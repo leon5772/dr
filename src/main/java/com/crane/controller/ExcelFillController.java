@@ -138,7 +138,7 @@ public class ExcelFillController {
 
             List<OutputData> objectList = getObjectDataFromGenesis(inputSTime, inputETime);
 
-            if (objectList != null || !objectList.isEmpty()) {
+            if (objectList != null && !objectList.isEmpty()) {
                 sceneUniList.addAll(objectList);
             }
             excelPath = makeExcel(sceneUniList, inputSTime, inputETime);
