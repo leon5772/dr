@@ -49,6 +49,15 @@ public class ExcelFillController {
     @Value("${tag_agent_config.genesis.utc}")
     private String genesisUtc;
 
+    @Value("${tag_agent_config.excel.row_pic_height}")
+    private String excelPicHeight;
+
+    @Value("${tag_agent_config.excel.row_pic_fill}")
+    private String excelPicScale;
+
+    @Value("${tag_agent_config.excel.row_text_height}")
+    private String excelTextHeight;
+
     @GetMapping("")
     public String forwardRequest(HttpServletRequest request) {
 
@@ -141,6 +150,7 @@ public class ExcelFillController {
             List<OutputData> objectList = getObjectDataFromGenesis(startTime, endTime);
             List<OutputData> eventList = getObjectDataFromGenesis(startTime, endTime);
             //合并数据到一个集合
+
             uniList.addAll(objectList);
             uniList.addAll(eventList);
             //排序
@@ -399,7 +409,7 @@ public class ExcelFillController {
             rnc1.setCellStyle(contentCellStyle);
             //填充图片到位置
             if (StringUtils.isBlank(oneEv.getResult())) {
-                rowN.setHeightInPoints(30);
+                rowN.setHeightInPoints(Float.parseFloat(excelTextHeight));
             } else {
                 //开始下载图片
                 byte[] picBts = downloadSnapshot(oneEv.getResult());
@@ -407,7 +417,7 @@ public class ExcelFillController {
                     continue;
                 } else {
 
-                    rowN.setHeightInPoints(90);
+                    rowN.setHeightInPoints(Float.parseFloat(excelPicHeight));
                     //定位图片位置
                     XSSFCreationHelper helper = workbook.getCreationHelper();
                     ClientAnchor anchor = helper.createClientAnchor();
@@ -419,7 +429,10 @@ public class ExcelFillController {
                     //绘制图片数据
                     int picIdx = workbook.addPicture(picBts, Workbook.PICTURE_TYPE_PNG);
                     Picture excelPic = drawing.createPicture(anchor, picIdx);
-                    excelPic.resize(1, 0.75);
+                    String[] scaleArr = excelPicScale.split("x");
+                    double scaleX = Double.parseDouble(scaleArr[0]);
+                    double scaleY = Double.parseDouble(scaleArr[1]);
+                    excelPic.resize(scaleX, scaleY);
                 }
 
             }
