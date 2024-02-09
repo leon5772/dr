@@ -208,7 +208,7 @@ public class ExcelFillController {
             List<NameValuePair> parList = new ArrayList<>();
             parList.add(new BasicNameValuePair("start", startTime));
             parList.add(new BasicNameValuePair("end", endTime));
-            parList.add(new BasicNameValuePair("size", "10000"));
+            parList.add(new BasicNameValuePair("size", apiEventLimit));
             uriBuilder.addParameters(parList);
 
             HttpGet httpGet = new HttpGet(uriBuilder.build());
@@ -531,7 +531,7 @@ public class ExcelFillController {
             parList.add(new BasicNameValuePair("start", startTime));
             parList.add(new BasicNameValuePair("end", endTime));
             parList.add(new BasicNameValuePair("types", "LOITERING,CROWD_DETECTION"));
-            parList.add(new BasicNameValuePair("size", "10000"));
+            parList.add(new BasicNameValuePair("size", apiEventLimit));
             uriBuilder.addParameters(parList);
 
             HttpGet httpGet = new HttpGet(uriBuilder.build());
