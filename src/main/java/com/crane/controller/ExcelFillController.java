@@ -67,6 +67,13 @@ public class ExcelFillController {
     @Value("${tag_agent_config.genesis_api_scene}")
     private String apiSceneLimit;
 
+    @Value("${tag_agent_config.genesis.camera}")
+    private String genesisCamId;
+
+    @Value("${tag_agent_config.camera_rel.neuro_to_genesis}")
+    private String megToGenesis;
+
+
     @GetMapping("")
     public String forwardRequest(HttpServletRequest request) {
 
@@ -303,22 +310,6 @@ public class ExcelFillController {
 
         }
         return reList;
-    }
-
-    public static void main(String[] args) {
-        ExcelFillController e = new ExcelFillController();
-        List<OutputData> eventList = new ArrayList<>();
-        OutputData a = new OutputData();
-
-        a.setResult("https://upload-images.jianshu.io/upload_images/14578761-eb0d6c405f5271d8.png");
-        a.setTime("2");
-        a.setCamera("3");
-        a.setType("4");
-        a.setResolution("1920x1080");
-        a.setSceneType(1);
-        a.setAttribute("Gender:Male.Hair :Long Hair.Bag:No Bag.Hat:No Hat.Sleeve:long Sleeve.Sleeve Colors: Red.Pants:Short Pants.Pants Colors:Red.");
-        eventList.add(a);
-        e.makeExcel(eventList, "2025-12-12 05:08:30", "2025-12-12 05:08:56");
     }
 
     private String makeExcel(List<OutputData> eventList, String sTime, String eTime) {
@@ -813,6 +804,40 @@ public class ExcelFillController {
             logger.error("ask genesis event http error: ", e);
             return null;
         }
+    }
+
+
+    public String getAllCameras() {
+
+        Set<String> cidSet = new HashSet<>();
+        String[] genesisCamArr = genesisCamId.split(",");
+        for (String oneCid : genesisCamArr) {
+            cidSet.add(oneCid);
+        }
+
+        String[] mirArr = megToGenesis.split(",");
+        for (String oneMapper : mirArr) {
+            cidSet.add(oneMapper.split("@")[1]);
+        }
+
+        StringBuilder resultCid = new StringBuilder();
+        for (String oneCam:cidSet){
+            resultCid.append(oneCam).append(",");
+        }
+
+        if (resultCid.length()>1){
+            resultCid.deleteCharAt(resultCid.length() - 1);
+        }
+
+        return resultCid.toString();
+
+    }
+
+    @GetMapping("/backup_page1")
+    @ResponseBody
+    public String backup_page1(HttpServletRequest request) {
+
+        return getAllCameras();
     }
 
 //    @PostMapping("/upload")
