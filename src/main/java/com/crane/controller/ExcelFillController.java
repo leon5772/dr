@@ -138,7 +138,7 @@ public class ExcelFillController {
 
             List<OutputData> objectList = getObjectDataFromGenesis(inputSTime, inputETime);
 
-            if (objectList!=null || !objectList.isEmpty()){
+            if (objectList != null || !objectList.isEmpty()) {
                 sceneUniList.addAll(objectList);
             }
             excelPath = makeExcel(sceneUniList, inputSTime, inputETime);
@@ -643,8 +643,13 @@ public class ExcelFillController {
             //如果是幻方的，就判断它的hashtag
             if (oneSceneNode.has("hashtags")) {
 
-                StringBuilder aText = new StringBuilder();
+                OutputData oneMagScene = new OutputData();
+                oneMagScene.setResult(sceneImgUrl);
+                oneMagScene.setTime(sceneTime);
+                oneMagScene.setCamera(cameraName);
+                oneMagScene.setType("Person");
 
+                StringBuilder aText = new StringBuilder();
                 JsonNode tagsNode = oneSceneNode.get("hashtags");
                 for (JsonNode oneTagNode : tagsNode) {
                     String tagStr = oneTagNode.asText();
@@ -678,6 +683,9 @@ public class ExcelFillController {
                         }
                     }
                 }
+
+                oneMagScene.setAttribute(aText.toString());
+                reList.add(oneMagScene);
 
             } else {
 
