@@ -267,7 +267,7 @@ public class ExcelFillController {
             //拿到相机的名称
             String cameraName = oneSceneNode.get("cameraName").asText();
             //拿到事件时间
-            String sceneTime = oneSceneNode.get("datetime").asText();
+            String sceneTime = oneSceneNode.get("datetime").asText().replace("T", " ").replace(genesisUtc, "");
 
             //如果是幻方的，就判断它的hashtag
             if (oneSceneNode.has("hashtags")) {
@@ -657,7 +657,7 @@ public class ExcelFillController {
             //拿到相机的名称
             String cameraName = oneSceneNode.get("cameraName").asText();
             //拿到事件时间
-            String sceneTime = oneSceneNode.get("datetime").asText();
+            String sceneTime = oneSceneNode.get("datetime").asText().replace("T", " ").replace(genesisUtc, "");
             //拿到具体的信息
             String resJson = getSceneObject(sceneID);
 
@@ -744,8 +744,9 @@ public class ExcelFillController {
                        if(!colorNode.isEmpty()){
                            aText.append("Colors:");
                            for (JsonNode oneColor : colorNode) {
-                               aText.append(oneColor.asText()).append(". ");
+                               aText.append(oneColor.asText()).append(",");
                            }
+                           aText.append(".");
                        }
                     }
                     //车牌
