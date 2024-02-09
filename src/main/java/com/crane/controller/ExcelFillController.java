@@ -714,18 +714,39 @@ public class ExcelFillController {
                     //相机名称
                     oneGenesisOD.setCamera(cameraName);
                     //model 类型
-                    String sceneObjType = oneObjNode.get("objectType").asText();
-                    oneGenesisOD.setType(sceneObjType);
+                    oneGenesisOD.setType(oneObjNode.get("objectType").asText());
+
                     //属性
+                    StringBuilder aText = new StringBuilder();
                     JsonNode metaDataNode = oneObjNode.get("metadata");
+                    //颜色
+                    JsonNode colorNode = metaDataNode.get("colors");
+                    if (!colorNode.isEmpty()){
+                        aText.append("Colors:");
+                        for (JsonNode oneColor:colorNode){
+                            aText.append(oneColor.asText()).append(",");
+                        }
+                        aText.append(". ");
+                    }
+                    //车牌
                     if (metaDataNode.has("licensePlate")) {
                         JsonNode lpNode = metaDataNode.get("licensePlate");
-
+                        if (lpNode.has("number")){
+                            aText.append("LPR:").append(lpNode.get("number").asText()).append(". ");
+                        }
                     }
+                    //车制造型号
                     if (metaDataNode.has("makeModel")) {
-
+                        JsonNode mmNode = metaDataNode.get("makeModel");
+                        if (mmNode.has("make")){
+                            aText.append("Make:").append(mmNode.get("make").asText()).append(". ");
+                        }
+                        if (mmNode.has("model")){
+                            aText.append("Model:").append(mmNode.get("model").asText()).append(". ");
+                        }
                     }
-                    if (metaDataNode.has("makeModel")) {
+                    if (metaDataNode.has("face")) {
+                        JsonNode faceNode = metaDataNode.get("face");
 
                     }
 
