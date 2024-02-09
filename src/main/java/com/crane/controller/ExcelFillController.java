@@ -268,32 +268,39 @@ public class ExcelFillController {
             String cameraName = oneSceneNode.get("cameraName").asText();
             //拿到事件时间
             String sceneTime = oneSceneNode.get("datetime").asText().replace("T", " ").replace(genesisUtc, "");
+            //拿到具体的信息
+            String resJson = getSceneObject(sceneID);
 
-            //如果是幻方的，就判断它的hashtag
-            if (oneSceneNode.has("hashtags")) {
+            JsonNode oneObjectsNode = objectMapper.readTree(resJson);
 
-                JsonNode tagsNode = oneSceneNode.get("hashtags");
-                String firstTag = tagsNode.get(0).asText();
+            for (JsonNode oneObjNode : oneObjectsNode) {
+                //如果是幻方的，就判断它的hashtag
+                if (oneObjNode.has("hashtags")) {
 
-                //是幻方的行为
-                if (firstTag.equals("fighting")) {
-                    OutputData magFight = new OutputData();
-                    magFight.setResult(sceneImgUrl);
-                    magFight.setTime(sceneTime);
-                    magFight.setCamera(cameraName);
-                    magFight.setType("Person");
-                    magFight.setAttribute("fight");
-                    reList.add(magFight);
-                } else if (firstTag.equals("running")) {
-                    OutputData magRun = new OutputData();
-                    magRun.setResult(sceneImgUrl);
-                    magRun.setTime(sceneTime);
-                    magRun.setCamera(cameraName);
-                    magRun.setType("Person");
-                    magRun.setAttribute("Running");
-                    reList.add(magRun);
+                    JsonNode tagsNode = oneSceneNode.get("hashtags");
+                    String firstTag = tagsNode.get(0).asText();
+
+                    //是幻方的行为
+                    if (firstTag.equals("fighting")) {
+                        OutputData magFight = new OutputData();
+                        magFight.setResult(sceneImgUrl);
+                        magFight.setTime(sceneTime);
+                        magFight.setCamera(cameraName);
+                        magFight.setType("Person");
+                        magFight.setAttribute("fight");
+                        reList.add(magFight);
+                    } else if (firstTag.equals("running")) {
+                        OutputData magRun = new OutputData();
+                        magRun.setResult(sceneImgUrl);
+                        magRun.setTime(sceneTime);
+                        magRun.setCamera(cameraName);
+                        magRun.setType("Person");
+                        magRun.setAttribute("Running");
+                        reList.add(magRun);
+                    }
                 }
             }
+
         }
         return reList;
     }
@@ -741,13 +748,13 @@ public class ExcelFillController {
                     //颜色
                     if (metaDataNode.has("colors")) {
                         JsonNode colorNode = metaDataNode.get("colors");
-                       if(!colorNode.isEmpty()){
-                           aText.append("Colors:");
-                           for (JsonNode oneColor : colorNode) {
-                               aText.append(oneColor.asText()).append(",");
-                           }
-                           aText.append(".");
-                       }
+                        if (!colorNode.isEmpty()) {
+                            aText.append("Colors:");
+                            for (JsonNode oneColor : colorNode) {
+                                aText.append(oneColor.asText()).append(",");
+                            }
+                            aText.append(".");
+                        }
                     }
                     //车牌
                     if (metaDataNode.has("licensePlate")) {
