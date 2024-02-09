@@ -773,6 +773,7 @@ public class ExcelFillController {
                         }
                     }
                     oneGenesisOD.setAttribute(aText.toString());
+                    reList.add(oneGenesisOD);
                 }
             }
         }
