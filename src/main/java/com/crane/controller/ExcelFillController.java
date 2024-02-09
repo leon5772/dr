@@ -134,7 +134,14 @@ public class ExcelFillController {
         String excelPath = "";
         if (askType.equals("object")) {
 
+            List<OutputData> sceneUniList = new ArrayList<>();
+
             List<OutputData> objectList = getObjectDataFromGenesis(inputSTime, inputETime);
+
+            if (objectList!=null || !objectList.isEmpty()){
+                sceneUniList.addAll(objectList);
+            }
+            excelPath = makeExcel(sceneUniList, inputSTime, inputETime);
 
         } else if (askType.equals("event")) {
 
