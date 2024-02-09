@@ -639,9 +639,13 @@ public class ExcelFillController {
             String cameraName = oneSceneNode.get("cameraName").asText();
             //拿到事件时间
             String sceneTime = oneSceneNode.get("datetime").asText();
+            //拿到具体的信息
+            String resJson = getSceneObject(sceneID);
+
+            JsonNode sceneObjNode = objectMapper.readTree(result);
 
             //如果是幻方的，就判断它的hashtag
-            if (oneSceneNode.has("hashtags")) {
+            if (sceneObjNode.has("hashtags")) {
 
                 OutputData oneMagScene = new OutputData();
                 oneMagScene.setResult(sceneImgUrl);
@@ -649,11 +653,17 @@ public class ExcelFillController {
                 oneMagScene.setCamera(cameraName);
                 oneMagScene.setType("Person");
 
+                int eventFlag = 1;
+
                 StringBuilder aText = new StringBuilder();
                 JsonNode tagsNode = oneSceneNode.get("hashtags");
                 for (JsonNode oneTagNode : tagsNode) {
                     String tagStr = oneTagNode.asText();
                     if (TAG_LIST.contains(tagStr)) {
+
+                        if (tagStr.equalsIgnoreCase("Fighting") || tagStr.equalsIgnoreCase("Running")) {
+                            eventFlag = 2;
+                        }
 
                         //Gender:Male.Hair :Long Hair.Bag:No Bag.Hat:No Hat.Sleeve:long Sleeve.Sleeve Colors: Red.Pants:Short Pants.Pants Colors:Red.
 
@@ -684,13 +694,14 @@ public class ExcelFillController {
                     }
                 }
 
-                oneMagScene.setAttribute(aText.toString());
-                reList.add(oneMagScene);
+                if (eventFlag == 1) {
+                    oneMagScene.setAttribute(aText.toString());
+                    reList.add(oneMagScene);
+                }
 
             } else {
 
-                //查询这个scene下的识别对象
-                String resJson = getSceneObject(sceneID);
+
                 JsonNode sceneObjectsNode = objectMapper.readTree(resJson);
 
                 int i = 0;
