@@ -2,6 +2,7 @@ package com.crane.controller;
 
 import com.crane.domain.OutputData;
 import com.crane.service.impl.TransServiceImpl;
+import com.crane.utils.DataRouterConstant;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -9,6 +10,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
@@ -69,6 +71,9 @@ public class ExcelFillController2 {
 
     @Value("${tag_agent_config.camera_rel.neuro_to_genesis}")
     private String megToGenesis;
+
+    @Value("${tag_agent_config.neuro.address}")
+    private String neuroAddress;
 
 
     @GetMapping("")
@@ -140,10 +145,10 @@ public class ExcelFillController2 {
 
             List<OutputData> sceneUniList = new ArrayList<>();
 
-            List<OutputData> objectList = getObjectDataFromGenesis(inputSTime, inputETime);
+            List<OutputData> bodyObjectList = getBodyDataFromMag(inputSTime, inputETime);
 
-            if (objectList != null && !objectList.isEmpty()) {
-                sceneUniList.addAll(objectList);
+            if (bodyObjectList != null && !bodyObjectList.isEmpty()) {
+                sceneUniList.addAll(bodyObjectList);
             }
 
             Comparator<OutputData> timeComparator = Comparator.comparing(OutputData::getTime);
@@ -601,14 +606,17 @@ public class ExcelFillController2 {
         return reList;
     }
 
-    private List<OutputData> getObjectDataFromGenesis(String startTime, String endTime) {
+    private List<OutputData> getBodyDataFromMag(String startTime, String endTime) {
 
         HttpClient httpClient = HttpClients.createDefault();
         //ask
         URIBuilder uriBuilder = null;
+
+        CloseableHttpResponse response = null;
         try {
 
-            uriBuilder = new URIBuilder("http://" + genesisAddress.concat("/ainvr/api/scenes"));
+            String url = "http://" + neuroAddress + DataRouterConstant.NEURO_API + "/v1/event/record/pedestrian/list";
+            uriBuilder = new URIBuilder(url);
 
             //params
             List<NameValuePair> parList = new ArrayList<>();
@@ -618,11 +626,11 @@ public class ExcelFillController2 {
             parList.add(new BasicNameValuePair("cameraIds", getAllCameras()));
             uriBuilder.addParameters(parList);
 
-            HttpGet httpGet = new HttpGet(uriBuilder.build());
+            HttpPost httpPost = new HttpPost(uriBuilder.build());
             //header
-            httpGet.addHeader("X-Auth-Token", TransServiceImpl.genesisToken);
+            httpPost.addHeader("X-Auth-Token", TransServiceImpl.genesisToken);
 
-            CloseableHttpResponse response = (CloseableHttpResponse) httpClient.execute(httpGet);
+            response = (CloseableHttpResponse) httpClient.execute(httpPost);
             int code = response.getStatusLine().getStatusCode();
             String result = EntityUtils.toString(response.getEntity());
             if (code > 199 && code < 300) {
@@ -633,6 +641,14 @@ public class ExcelFillController2 {
         } catch (Exception e) {
             logger.error("ask genesis scene http error: ", e);
             return null;
+        }finally {
+            if (response!=null){
+                try{
+                    response.close();
+                }catch (Exception e){
+                    logger.error("get mag body data close res error");
+                }
+            }
         }
     }
 
