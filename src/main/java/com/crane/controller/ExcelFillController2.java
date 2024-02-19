@@ -75,6 +75,9 @@ public class ExcelFillController2 {
     @Value("${tag_agent_config.neuro.address}")
     private String neuroAddress;
 
+    @Value("${tag_agent_config.mag_cube.camera}")
+    private String magCameras;
+
 
     @GetMapping("")
     public String forwardRequest(HttpServletRequest request) {
@@ -620,10 +623,16 @@ public class ExcelFillController2 {
 
             //params
             List<NameValuePair> parList = new ArrayList<>();
-            parList.add(new BasicNameValuePair("start", startTime));
-            parList.add(new BasicNameValuePair("end", endTime));
-            parList.add(new BasicNameValuePair("size", apiSceneLimit));
-            parList.add(new BasicNameValuePair("cameraIds", getAllCameras()));
+            //trans mills
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+            //start
+            String magStart = String.valueOf(sdf.parse(startTime.concat(".000")).getTime());
+            parList.add(new BasicNameValuePair("startTime", magStart));
+            //end
+            String magEnd = String.valueOf(sdf.parse(endTime.concat(".000")).getTime());
+            parList.add(new BasicNameValuePair("endTime", magEnd));
+            parList.add(new BasicNameValuePair("pageSize", apiSceneLimit));
+            parList.add(new BasicNameValuePair("channelUuids", getAllCameras()));
             uriBuilder.addParameters(parList);
 
             HttpPost httpPost = new HttpPost(uriBuilder.build());
@@ -807,6 +816,15 @@ public class ExcelFillController2 {
         }
     }
 
+    public Set getMagCameras() {
+
+        Set<String> cSet = new HashSet<>();
+        String[] magCamArr = magCameras.split(",");
+        for (String oneC : magCamArr) {
+            cSet.add(oneC);
+        }
+        return cSet;
+    }
 
     public String getAllCameras() {
 
