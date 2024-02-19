@@ -659,7 +659,6 @@ public class TransServiceImpl implements ITransService {
     /**
      * 启动的时候会更新一下genesis的token，避免第一次安装没有token
      */
-    @PostConstruct
     @Override
     public void updateGenesisToken() {
 
