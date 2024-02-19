@@ -628,7 +628,7 @@ public class ExcelFillController2 {
 
             HttpPost httpPost = new HttpPost(uriBuilder.build());
             //header
-            httpPost.addHeader("X-Auth-Token", TransServiceImpl.genesisToken);
+            httpPost.addHeader("Content-Type", "application/json");
 
             response = (CloseableHttpResponse) httpClient.execute(httpPost);
             int code = response.getStatusLine().getStatusCode();
@@ -641,18 +641,18 @@ public class ExcelFillController2 {
         } catch (Exception e) {
             logger.error("ask genesis scene http error: ", e);
             return null;
-        }finally {
-            if (response!=null){
-                try{
+        } finally {
+            if (response != null) {
+                try {
                     response.close();
-                }catch (Exception e){
+                } catch (Exception e) {
                     logger.error("get mag body data close res error");
                 }
             }
         }
     }
 
-    private List<OutputData> formatGenesisScene(String result) throws Exception {
+    private List<OutputData> formatMagBody(String result) throws Exception {
 
         //读取响应结果
         List<OutputData> reList = new ArrayList<>();
