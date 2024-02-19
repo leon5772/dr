@@ -79,6 +79,8 @@ public class ExcelFillController2 {
     @Value("${tag_agent_config.mag_cube.camera}")
     private String magCameras;
 
+    private static final int PER_PAGE_REC = 100;
+
 
     @GetMapping("")
     public String forwardRequest(HttpServletRequest request) {
@@ -116,15 +118,11 @@ public class ExcelFillController2 {
         Calendar threeDayLittle = Calendar.getInstance(TimeZone.getDefault());
         threeDayLittle.add(Calendar.HOUR, -67);
         timeMap.put("e_min", sdf.format(threeDayLittle.getTime()));
-        //结束最大时间
-        Calendar todayEndTime = Calendar.getInstance(TimeZone.getDefault());
-        todayEndTime.set(Calendar.HOUR_OF_DAY, 23);
-        todayEndTime.set(Calendar.MINUTE, 59);
-        todayEndTime.set(Calendar.SECOND, 59);
-        timeMap.put("e_max", sdf.format(todayEndTime.getTime()));
         //结束默认时间
         Calendar nowCal = Calendar.getInstance(TimeZone.getDefault());
         timeMap.put("e_default", sdf.format(nowCal.getTime()));
+        //结束最大时间
+        timeMap.put("e_max", sdf.format(nowCal.getTime()));
 
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.writeValueAsString(timeMap);
@@ -607,19 +605,25 @@ public class ExcelFillController2 {
 
     private List<OutputData> getBodyDataFromMag(String startTime, String endTime) {
 
+        //result
+        List<OutputData> finalBodyData = new ArrayList<>();
+
+        //apache http
         HttpClient httpClient = HttpClients.createDefault();
         //ask
         URIBuilder uriBuilder = null;
+        CloseableHttpResponse response = null;
+
+        //jackson
         ObjectMapper objectMapper = new ObjectMapper();
 
-        CloseableHttpResponse response = null;
         try {
 
             String url = "http://" + neuroAddress + DataRouterConstant.NEURO_API + "/v1/event/record/pedestrian/list";
             uriBuilder = new URIBuilder(url);
 
             //params
-            Map<String,Object> paramsMap = new HashMap<>();
+            Map<String, Object> paramsMap = new HashMap<>();
             //trans mills
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
             //start
@@ -629,7 +633,7 @@ public class ExcelFillController2 {
             String magEnd = String.valueOf(sdf.parse(endTime.concat(".000")).getTime());
             paramsMap.put("endTime", magEnd);
             //page size
-            paramsMap.put("pageSize", apiSceneLimit);
+            paramsMap.put("pageSize", pageSize);
             //camera
             paramsMap.put("channelUuids", magCameras.split(","));
 
@@ -643,10 +647,17 @@ public class ExcelFillController2 {
             int code = response.getStatusLine().getStatusCode();
             String result = EntityUtils.toString(response.getEntity());
             if (code > 199 && code < 300) {
-                return formatGenesisScene(result);
-            } else {
-                return null;
+                JsonNode firstResNode = objectMapper.readTree(result);
+                int totalRec = firstResNode.get("data").get("total").asInt();
+                if (totalRec > pageSize) ;
             }
+
+
+//            if (code > 199 && code < 300) {
+//                return formatGenesisScene(result);
+//            } else {
+//                return null;
+//            }
 
         } catch (Exception e) {
             logger.error("ask genesis scene http error: ", e);
