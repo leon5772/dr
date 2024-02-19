@@ -132,14 +132,9 @@ public class ExcelFillController2 {
     @GetMapping("/go")
     public void goDownload(HttpServletResponse response, HttpServletRequest request) throws IOException {
 
-        //genesis需要时区
-        String utc = genesisUtc;
-
         //获取请求的参数
         String inputSTime = request.getParameter("s_time").replace("T", " ");
-        String startTime = inputSTime.concat(utc);
         String inputETime = request.getParameter("e_time").replace("T", " ");
-        String endTime = inputETime.concat(utc);
         String askType = request.getParameter("ask_type");
 
         //根据选中的类型，决定获取哪些数据
@@ -634,7 +629,7 @@ public class ExcelFillController2 {
             //page size
             paramsMap.put("pageSize", apiSceneLimit);
             //camera
-            paramsMap.put("channelUuids", getMagCameras());
+            paramsMap.put("channelUuids", magCameras.split(","));
 
             HttpPost httpPost = new HttpPost(uriBuilder.build());
             //header
