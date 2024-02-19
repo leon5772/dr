@@ -622,18 +622,19 @@ public class ExcelFillController2 {
             uriBuilder = new URIBuilder(url);
 
             //params
-            List<NameValuePair> parList = new ArrayList<>();
+            Map<String,Object> paramsMap = new HashMap<>();
             //trans mills
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
             //start
             String magStart = String.valueOf(sdf.parse(startTime.concat(".000")).getTime());
-            parList.add(new BasicNameValuePair("startTime", magStart));
+            paramsMap.put("startTime", magStart);
             //end
             String magEnd = String.valueOf(sdf.parse(endTime.concat(".000")).getTime());
-            parList.add(new BasicNameValuePair("endTime", magEnd));
-            parList.add(new BasicNameValuePair("pageSize", apiSceneLimit));
-            parList.add(new BasicNameValuePair("channelUuids", getAllCameras()));
-            uriBuilder.addParameters(parList);
+            paramsMap.put("endTime", magEnd);
+            //page size
+            paramsMap.put("pageSize", apiSceneLimit);
+            //camera
+            paramsMap.put("channelUuids", getMagCameras());
 
             HttpPost httpPost = new HttpPost(uriBuilder.build());
             //header
@@ -647,6 +648,7 @@ public class ExcelFillController2 {
             } else {
                 return null;
             }
+
         } catch (Exception e) {
             logger.error("ask genesis scene http error: ", e);
             return null;
@@ -814,16 +816,6 @@ public class ExcelFillController2 {
             logger.error("ask genesis event http error: ", e);
             return null;
         }
-    }
-
-    public Set getMagCameras() {
-
-        Set<String> cSet = new HashSet<>();
-        String[] magCamArr = magCameras.split(",");
-        for (String oneC : magCamArr) {
-            cSet.add(oneC);
-        }
-        return cSet;
     }
 
     public String getAllCameras() {
