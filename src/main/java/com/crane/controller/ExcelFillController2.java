@@ -2,7 +2,6 @@ package com.crane.controller;
 
 import com.crane.domain.OutputData;
 import com.crane.service.impl.TransServiceImpl;
-import com.crane.utils.DataRouterConstant;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -666,251 +665,75 @@ public class ExcelFillController2 {
                 //拿到tag数组，判断里面是否有动作标签
                 JsonNode tagArrNode = detailNode.get("hashtags");
 
-                if (!tagArrNode.isEmpty()) {
-                    int eventFlag = 1;
-                    for (JsonNode oneTag : tagArrNode) {
-                        String strTag = oneTag.asText();
-                        if (strTag.equalsIgnoreCase(DataRouterConstant.TAG_FIGHTING) || strTag.equalsIgnoreCase(DataRouterConstant.TAG_RUNNING)) {
-                            eventFlag = 2;
-                            break;
+                //如果没有tag标签，是genesis自己的数据,拿到所有子类
+                String objectsJson = getSceneObject(sceneID);
+                JsonNode sceneObjectsNode = objectMapper.readTree(objectsJson);
+
+                for (JsonNode oneObjNode : sceneObjectsNode) {
+
+                    int putFlag = 1;
+
+                    OutputData oneGenesisOD = new OutputData();
+
+                    //第一个赋予图片
+                    oneGenesisOD.setResult(sceneImgUrl);
+
+                    //时间
+                    oneGenesisOD.setTime(sceneTime);
+                    //相机名称
+                    oneGenesisOD.setCamera(cameraName);
+                    //model 类型
+                    oneGenesisOD.setType(oneObjNode.get("objectType").asText());
+
+                    //属性
+                    StringBuilder aText = new StringBuilder();
+                    JsonNode metaDataNode = oneObjNode.get("metadata");
+                    //颜色
+                    if (metaDataNode.has("colors")) {
+                        JsonNode colorNode = metaDataNode.get("colors");
+                        if (!colorNode.isEmpty()) {
+                            aText.append("Colors:");
+                            for (JsonNode oneColor : colorNode) {
+                                aText.append(oneColor.asText()).append(",");
+                            }
+                            aText.append(". ");
                         }
                     }
-
-                    //如果是mag的动作标签，不处理，如果是结构化则处理
-                    if (eventFlag == 1) {
-                        OutputData magObjectOd = new OutputData();
-                        magObjectOd.setResult(sceneImgUrl);
-                        magObjectOd.setTime(sceneTime);
-                        magObjectOd.setCamera(cameraName);
-                        magObjectOd.setType("Person");
-
-                        //循环输出hash tag
-                        StringBuilder aText = new StringBuilder();
-                        for (JsonNode oneObjTag : tagArrNode) {
-
-                            String tagStr = oneObjTag.asText();
-
-                            if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_MALE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_FEMALE)) {
-                                aText.append("Gender:").append(tagStr).append(". ");
-                            }
-                            if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_HAIR) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_HAIR)) {
-                                aText.append("Hair:").append(tagStr).append(". ");
-                            }
-                            if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_BAG) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_NO_BAG)) {
-                                aText.append("Bag:").append(tagStr).append(". ");
-                            }
-                            if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_HAT) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_NO_HAT)) {
-                                aText.append("Hat:").append(tagStr).append(". ");
-                            }
-                            if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SLEEVELESS)) {
-                                aText.append("Sleeve:").append(tagStr).append(". ");
-                            }
-                            if (DataRouterConstant.CLOTHES_COLOR_LIST.contains(tagStr)) {
-                                aText.append("Clothes Color:").append(tagStr.split("_")[0]).append(". ");
-                            }
-                            if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_PANTS) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_PANTS)) {
-                                aText.append("Pants:").append(tagStr).append(". ");
-                            }
-                            if (DataRouterConstant.PANTS_COLOR_LIST.contains(tagStr)) {
-                                aText.append("Pants Color:").append(tagStr.split("_")[0]).append(". ");
-                            }
+                    //车牌
+                    if (metaDataNode.has("licensePlate")) {
+                        putFlag = 2;
+                        JsonNode lpNode = metaDataNode.get("licensePlate");
+                        if (lpNode.has("number")) {
+                            aText.append("LPR:").append(lpNode.get("number").asText()).append(". ");
                         }
-                        magObjectOd.setAttribute(aText.toString());
-                        reList.add(magObjectOd);
                     }
-                } else {
-                    //如果没有tag标签，是genesis自己的数据,拿到所有子类
-                    String objectsJson = getSceneObject(sceneID);
-                    JsonNode sceneObjectsNode = objectMapper.readTree(objectsJson);
-
-                    for (JsonNode oneObjNode : sceneObjectsNode) {
-
-                        int putFlag = 1;
-
-                        OutputData oneGenesisOD = new OutputData();
-
-                        //第一个赋予图片
-                        oneGenesisOD.setResult(sceneImgUrl);
-
-                        //时间
-                        oneGenesisOD.setTime(sceneTime);
-                        //相机名称
-                        oneGenesisOD.setCamera(cameraName);
-                        //model 类型
-                        oneGenesisOD.setType(oneObjNode.get("objectType").asText());
-
-                        //属性
-                        StringBuilder aText = new StringBuilder();
-                        JsonNode metaDataNode = oneObjNode.get("metadata");
-                        //颜色
-                        if (metaDataNode.has("colors")) {
-                            JsonNode colorNode = metaDataNode.get("colors");
-                            if (!colorNode.isEmpty()) {
-                                aText.append("Colors:");
-                                for (JsonNode oneColor : colorNode) {
-                                    aText.append(oneColor.asText()).append(",");
-                                }
-                                aText.append(". ");
-                            }
+                    //车制造型号
+                    if (metaDataNode.has("makeModel")) {
+                        JsonNode mmNode = metaDataNode.get("makeModel");
+                        if (mmNode.has("make")) {
+                            aText.append("Make:").append(mmNode.get("make").asText()).append(". ");
                         }
-                        //车牌
-                        if (metaDataNode.has("licensePlate")) {
-                            putFlag = 2;
-                            JsonNode lpNode = metaDataNode.get("licensePlate");
-                            if (lpNode.has("number")) {
-                                aText.append("LPR:").append(lpNode.get("number").asText()).append(". ");
-                            }
+                        if (mmNode.has("model")) {
+                            aText.append("Model:").append(mmNode.get("model").asText()).append(". ");
                         }
-                        //车制造型号
-                        if (metaDataNode.has("makeModel")) {
-                            JsonNode mmNode = metaDataNode.get("makeModel");
-                            if (mmNode.has("make")) {
-                                aText.append("Make:").append(mmNode.get("make").asText()).append(". ");
-                            }
-                            if (mmNode.has("model")) {
-                                aText.append("Model:").append(mmNode.get("model").asText()).append(". ");
-                            }
-                        }
-                        if (metaDataNode.has("face")) {
+                    }
+                    if (metaDataNode.has("face")) {
 
-                            putFlag = 2;
-                            JsonNode faceNode = metaDataNode.get("face");
+                        putFlag = 2;
+                        JsonNode faceNode = metaDataNode.get("face");
 
-                            if (faceNode.has("targetName")) {
-                                aText.append("Name:").append(faceNode.get("targetName").asText()).append(". ");
-                            }
+                        if (faceNode.has("targetName")) {
+                            aText.append("Name:").append(faceNode.get("targetName").asText()).append(". ");
                         }
-                        oneGenesisOD.setAttribute(aText.toString());
+                    }
+                    oneGenesisOD.setAttribute(aText.toString());
 
-                        if (putFlag == 1) {
-                            reList.add(oneGenesisOD);
-                        }
+                    if (putFlag == 1) {
+                        reList.add(oneGenesisOD);
                     }
                 }
+
             }
-
-
-//            for (JsonNode oneObjNode : sceneObjectsNode) {
-//                //如果是幻方的，就判断它的hashtag
-//                if (oneObjNode.has("hashtags")) {
-//
-//                    OutputData oneMagScene = new OutputData();
-//                    oneMagScene.setResult(sceneImgUrl);
-//                    oneMagScene.setTime(sceneTime);
-//                    oneMagScene.setCamera(cameraName);
-//                    oneMagScene.setType("Person");
-//
-//                    int eventFlag = 1;
-//
-//                    StringBuilder aText = new StringBuilder();
-//                    JsonNode tagsNode = oneSceneNode.get("hashtags");
-//                    for (JsonNode oneTagNode : tagsNode) {
-//                        String tagStr = oneTagNode.asText();
-//                        if (TAG_LIST.contains(tagStr)) {
-//
-//                            if (tagStr.equalsIgnoreCase("Fighting") || tagStr.equalsIgnoreCase("Running")) {
-//                                eventFlag = 2;
-//                            }
-//
-//                            //Gender:Male.Hair :Long Hair.Bag:No Bag.Hat:No Hat.Sleeve:long Sleeve.Sleeve Colors: Red.Pants:Short Pants.Pants Colors:Red.
-//
-//                            if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_MALE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_FEMALE)) {
-//                                aText.append("Gender:").append(tagStr).append(". ");
-//                            }
-//                            if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_HAIR) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_HAIR)) {
-//                                aText.append("Hair:").append(tagStr).append(". ");
-//                            }
-//                            if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_BAG) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_NO_BAG)) {
-//                                aText.append("Bag:").append(tagStr).append(". ");
-//                            }
-//                            if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_HAT) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_NO_HAT)) {
-//                                aText.append("Hat:").append(tagStr).append(". ");
-//                            }
-//                            if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SLEEVELESS)) {
-//                                aText.append("Sleeve:").append(tagStr).append(". ");
-//                            }
-//                            if (tagStr.contains("_clothes")) {
-//                                aText.append("Sleeve Color:").append(tagStr.split("_")[0]).append(". ");
-//                            }
-//                            if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_PANTS) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_PANTS)) {
-//                                aText.append("Pants:").append(tagStr).append(". ");
-//                            }
-//                            if (tagStr.contains("_pants") && !tagStr.equalsIgnoreCase("Long_Pants") && !tagStr.equalsIgnoreCase("Short_Pants")) {
-//                                aText.append("Pants Color:").append(tagStr.split("_")[0]).append(". ");
-//                            }
-//                        }
-//                    }
-//
-//                    if (eventFlag == 1) {
-//                        oneMagScene.setAttribute(aText.toString());
-//                        reList.add(oneMagScene);
-//                    }
-//
-//                } else {
-//
-//                    int putFlag = 1;
-//
-//                    OutputData oneGenesisOD = new OutputData();
-//
-//                    //第一个赋予图片
-//                    oneGenesisOD.setResult(sceneImgUrl);
-//
-//                    //时间
-//                    oneGenesisOD.setTime(sceneTime);
-//                    //相机名称
-//                    oneGenesisOD.setCamera(cameraName);
-//                    //model 类型
-//                    oneGenesisOD.setType(oneObjNode.get("objectType").asText());
-//
-//                    //属性
-//                    StringBuilder aText = new StringBuilder();
-//                    JsonNode metaDataNode = oneObjNode.get("metadata");
-//                    //颜色
-//                    if (metaDataNode.has("colors")) {
-//                        JsonNode colorNode = metaDataNode.get("colors");
-//                        if (!colorNode.isEmpty()) {
-//                            aText.append("Colors:");
-//                            for (JsonNode oneColor : colorNode) {
-//                                aText.append(oneColor.asText()).append(",");
-//                            }
-//                            aText.append(". ");
-//                        }
-//                    }
-//                    //车牌
-//                    if (metaDataNode.has("licensePlate")) {
-//                        putFlag = 2;
-//                        JsonNode lpNode = metaDataNode.get("licensePlate");
-//                        if (lpNode.has("number")) {
-//                            aText.append("LPR:").append(lpNode.get("number").asText()).append(". ");
-//                        }
-//                    }
-//                    //车制造型号
-//                    if (metaDataNode.has("makeModel")) {
-//                        JsonNode mmNode = metaDataNode.get("makeModel");
-//                        if (mmNode.has("make")) {
-//                            aText.append("Make:").append(mmNode.get("make").asText()).append(". ");
-//                        }
-//                        if (mmNode.has("model")) {
-//                            aText.append("Model:").append(mmNode.get("model").asText()).append(". ");
-//                        }
-//                    }
-//                    if (metaDataNode.has("face")) {
-//
-//                        putFlag = 2;
-//                        JsonNode faceNode = metaDataNode.get("face");
-//
-//                        if (faceNode.has("targetName")) {
-//                            aText.append("Name:").append(faceNode.get("targetName").asText()).append(". ");
-//                        }
-//                    }
-//                    oneGenesisOD.setAttribute(aText.toString());
-//
-//                    if (putFlag == 1) {
-//                        reList.add(oneGenesisOD);
-//                    }
-//
-//                }
-//            }
         }
 
         return reList;
