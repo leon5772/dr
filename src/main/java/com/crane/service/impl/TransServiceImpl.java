@@ -105,6 +105,15 @@ public class TransServiceImpl implements ITransService {
                     sdf.setTimeZone(TimeZone.getDefault());
                     genesisEntity.setDatetime(sdf.format(inputMs));
 
+                    //洗tag，全部变小写
+                    if (genesisEntity.getHashtags() != null) {
+                        List<String> lowercaseTagList = new ArrayList<>();
+                        for (String oneUcTag : genesisEntity.getHashtags()) {
+                            lowercaseTagList.add(oneUcTag.toLowerCase());
+                        }
+                        genesisEntity.setHashtags(lowercaseTagList);
+                    }
+
                     String imgSavePath = downloadAndConvertImage(sourceImgUrl, "jpg");
 
                     if (!imgSavePath.equals("failed")) {
@@ -127,6 +136,15 @@ public class TransServiceImpl implements ITransService {
 
                     //format json to genesis input ask
                     GenesisScene genesisEntity = formatAlgoDetails(genesisCid, inputJson.getJSONObject("detail").getJSONObject("warehouseV20Events"));
+
+                    //洗tag，全部变小写
+                    if (genesisEntity != null && genesisEntity.getHashtags() != null) {
+                        List<String> lowercaseTagList = new ArrayList<>();
+                        for (String oneUcTag : genesisEntity.getHashtags()) {
+                            lowercaseTagList.add(oneUcTag.toLowerCase());
+                        }
+                        genesisEntity.setHashtags(lowercaseTagList);
+                    }
 
                     //download img
                     JSONObject imgInfoJson = inputJson.getJSONObject("detail").getJSONArray("fullImages").getJSONObject(0);
@@ -266,29 +284,29 @@ public class TransServiceImpl implements ITransService {
             if (structureBodyJson.containsKey("pantsColor")) {
                 int pantsColorCode = structureBodyJson.getIntValue("pantsColor");
                 if (pantsColorCode == 5) {
-                    tagArray.add(DataRouterConstant.TAG_RED_CLOTHES);
+                    tagArray.add(DataRouterConstant.TAG_RED_PANTS);
                     metadataColorSet.add(DataRouterConstant.MD_COLOR_RED);
                 } else if (pantsColorCode == 8) {
-                    tagArray.add(DataRouterConstant.TAG_GREEN_CLOTHES);
+                    tagArray.add(DataRouterConstant.TAG_GREEN_PANTS);
                     metadataColorSet.add(DataRouterConstant.MD_COLOR_GREEN);
                 } else if (pantsColorCode == 9 || pantsColorCode == 10 || pantsColorCode == 14 || pantsColorCode == 15) {
                     //裤子跟上衣颜色有差别
-                    tagArray.add(DataRouterConstant.TAG_BLUE_CLOTHES);
+                    tagArray.add(DataRouterConstant.TAG_BLUE_PANTS);
                     metadataColorSet.add(DataRouterConstant.MD_COLOR_BLUE);
                 } else if (pantsColorCode == 6 || pantsColorCode == 7 || pantsColorCode == 13) {
-                    tagArray.add(DataRouterConstant.TAG_YELLOW_CLOTHES);
+                    tagArray.add(DataRouterConstant.TAG_YELLOW_PANTS);
                     metadataColorSet.add(DataRouterConstant.MD_COLOR_YELLOW);
                 } else if (pantsColorCode == 2) {
-                    tagArray.add(DataRouterConstant.TAG_BLACK_CLOTHES);
+                    tagArray.add(DataRouterConstant.TAG_BLACK_PANTS);
                     metadataColorSet.add(DataRouterConstant.MD_COLOR_BLACK);
                 } else if (pantsColorCode == 3) {
-                    tagArray.add(DataRouterConstant.TAG_WHITE_CLOTHES);
+                    tagArray.add(DataRouterConstant.TAG_WHITE_PANTS);
                     metadataColorSet.add(DataRouterConstant.MD_COLOR_WHITE);
                 } else if (pantsColorCode == 4) {
-                    tagArray.add(DataRouterConstant.TAG_GREY_CLOTHES);
+                    tagArray.add(DataRouterConstant.TAG_GREY_PANTS);
                     metadataColorSet.add(DataRouterConstant.MD_COLOR_GREY);
                 } else if (pantsColorCode == 11 || pantsColorCode == 12) {
-                    tagArray.add(DataRouterConstant.TAG_PINK_CLOTHES);
+                    tagArray.add(DataRouterConstant.TAG_PINK_PANTS);
                     metadataColorSet.add(DataRouterConstant.MD_COLOR_PINK);
                 }
             }
@@ -501,6 +519,11 @@ public class TransServiceImpl implements ITransService {
 
     private boolean forwardToGenesis(GenesisScene genesisBodyEntity, String imgSavePath) {
 
+        if (StringUtils.isBlank(genesisToken)){
+            logger.error("send to genesis,token not ready");
+            return false;
+        }
+
         try {
 
             String url = "http://" + genesisAddress + "/ainvr/api/scenes?requiredEngines=Unknown&forceSave=false";
@@ -688,17 +711,25 @@ public class TransServiceImpl implements ITransService {
             String re = HttpPoolUtil.httpGet(url, headers);
             JSONArray tagJsonArray = JSON.parseArray(re);
 
-            //删除旧的tag
+            //判断已有的，如果已经有就不重复创建
+            Set<String> oldTagSet = new HashSet<>();
             if (tagJsonArray != null && !tagJsonArray.isEmpty()) {
                 for (Object oneOldTag : tagJsonArray) {
                     String tagStr = (String) oneOldTag;
-                    HttpPoolUtil.httpDelete(url + "/" + tagStr, headers);
+                    oldTagSet.add(tagStr);
                 }
             }
 
-            //放入新的tag
+            //我们需要的tag
+            Set<String> newTagSet = new HashSet<>();
             for (String tag : DataRouterConstant.TAG_SET) {
-                HttpPoolUtil.noJsonPost(url, tag, headers);
+                newTagSet.add(tag.toLowerCase());
+            }
+
+            //计算出差集，然后写入差集
+            newTagSet.removeAll(oldTagSet);
+            for (String oneDifTag : newTagSet) {
+                HttpPoolUtil.noJsonPost(url, oneDifTag, headers);
             }
 
             logger.error("reset tag success");

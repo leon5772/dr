@@ -255,6 +255,14 @@ public class HttpPoolUtil {
         HttpPost httpPost = new HttpPost(uri);
         CloseableHttpResponse response = null;
 
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setSocketTimeout(5000) // 设置读取超时时间为5秒
+                .build();
+
+        CloseableHttpClient httpClientSP = HttpClients.custom()
+                .setDefaultRequestConfig(requestConfig)
+                .build();
+
         try {
 
             // 创建 MultipartEntityBuilder
@@ -279,7 +287,7 @@ public class HttpPoolUtil {
                 httpPost.setHeaders(heads);
             }
 
-            response = httpClient.execute(httpPost);
+            response = httpClientSP.execute(httpPost);
             int code = response.getStatusLine().getStatusCode();
             String result = EntityUtils.toString(response.getEntity());
             if (code > 199 && code < 300) {
