@@ -12,6 +12,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
@@ -609,6 +610,7 @@ public class ExcelFillController2 {
         HttpClient httpClient = HttpClients.createDefault();
         //ask
         URIBuilder uriBuilder = null;
+        ObjectMapper objectMapper = new ObjectMapper();
 
         CloseableHttpResponse response = null;
         try {
@@ -634,6 +636,8 @@ public class ExcelFillController2 {
             HttpPost httpPost = new HttpPost(uriBuilder.build());
             //header
             httpPost.addHeader("Content-Type", "application/json");
+            //body
+            httpPost.setEntity(new StringEntity(objectMapper.writeValueAsString(paramsMap)));
 
             response = (CloseableHttpResponse) httpClient.execute(httpPost);
             int code = response.getStatusLine().getStatusCode();
