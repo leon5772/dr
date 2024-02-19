@@ -653,8 +653,8 @@ public class ExcelFillController2 {
                 int totalRec = firstResNode.get("data").get("total").asInt();
                 if (totalRec >= PER_PAGE_REC) {
                     int loopNum = (totalRec / PER_PAGE_REC) + 1;
-                    for (int i = 0; i < loopNum; i++) {
-
+                    for (int i = 1; i <= loopNum; i++) {
+                        formatMagBody(getBodyDataFromMagPage(magStart,magEnd,i));
                     }
                 } else {
                     finalBodyData.addAll(formatMagBody(res));
@@ -675,7 +675,7 @@ public class ExcelFillController2 {
         return finalBodyData;
     }
 
-    private List<OutputData> getBodyDataFromMagPage(String startMills, String endMills, int pageTh) {
+    private String getBodyDataFromMagPage(String startMills, String endMills, int pageTh) {
 
         //apache http
         HttpClient httpClient = HttpClients.createDefault();
