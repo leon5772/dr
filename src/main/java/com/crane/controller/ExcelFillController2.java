@@ -744,22 +744,19 @@ public class ExcelFillController2 {
         for (JsonNode oneSceneNode : contentNodes) {
 
             //拿到事件的id
-            String sceneID = oneSceneNode.get("sceneId").asText();
+            //String sceneID = oneSceneNode.get("sceneId").asText();
             //拿到事件的图片链接
             String sceneImgUrl = "http://"+oneSceneNode.get("imageUri").asText();
             //拿到相机的名称
             String cameraName = oneSceneNode.get("channelName").asText();
             //拿到事件时间
-            String sceneTime = oneSceneNode.get("datetime").asText().replace("T", " ").replace(genesisUtc, "");
-            //拿到具体的信息
-            String oneDetailJson = getSceneDetail(sceneID);
-
-            //判断具体信息，是不是有tag信息，有的话是幻方给的
-            JsonNode detailNode = objectMapper.readTree(oneDetailJson);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+            String sceneTime = sdf.format(oneSceneNode.get("timeMs").asText());
 
             //性别
-            if (structureBodyJson.containsKey("gender")) {
-                int genderCode = structureBodyJson.getIntValue("gender");
+            List<String> tagArray = new ArrayList<>();
+            if (oneSceneNode.has("gender")) {
+                int genderCode = oneSceneNode.get("gender").asInt();
                 if (genderCode == 2) {
                     tagArray.add(DataRouterConstant.TAG_MALE);
                 } else if (genderCode == 3) {
@@ -768,8 +765,8 @@ public class ExcelFillController2 {
             }
 
             //发型
-            if (structureBodyJson.containsKey("hairStyle")) {
-                int hairCode = structureBodyJson.getIntValue("hairStyle");
+            if (oneSceneNode.has("hairStyle")) {
+                int hairCode = oneSceneNode.get("hairStyle").asInt();
                 if (DataRouterConstant.HAIR_STYLE_SHORT.contains(hairCode)) {
                     tagArray.add(DataRouterConstant.TAG_SHORT_HAIR);
                 } else if (DataRouterConstant.HAIR_STYLE_LONG.contains(hairCode)) {
@@ -778,8 +775,8 @@ public class ExcelFillController2 {
             }
 
             //是否戴帽子
-            if (structureBodyJson.containsKey("wearHat")) {
-                int wearHatCode = structureBodyJson.getIntValue("wearHat");
+            if (oneSceneNode.has("wearHat")) {
+                int wearHatCode = oneSceneNode.get("wearHat").asInt();
                 if (wearHatCode == 2) {
                     tagArray.add(DataRouterConstant.TAG_NO_HAT);
                 } else if (wearHatCode == 3) {
