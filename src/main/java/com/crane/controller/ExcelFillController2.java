@@ -172,29 +172,28 @@ public class ExcelFillController2 {
 
         } else {
 
-//            //查询两个接口的数据
-//            List<OutputData> uniList = new ArrayList<>();
-//
-//            List<OutputData> objectList = getObjectDataFromGenesis(inputSTime, inputETime);
-//
-//            List<OutputData> eventList = getEventDataFromGenesis(startTime, endTime);
-//            List<OutputData> tagEventList = getEventByTag(inputSTime, inputETime);
-//
-//            if (objectList != null && !objectList.isEmpty()) {
-//                uniList.addAll(objectList);
-//            }
-//            if (eventList != null && !eventList.isEmpty()) {
-//                uniList.addAll(eventList);
-//            }
-//            if (tagEventList != null && !tagEventList.isEmpty()) {
-//                uniList.addAll(tagEventList);
-//            }
-//            //合并数据到一个集合
-//            //排序
-//            Comparator<OutputData> timeComparator = Comparator.comparing(OutputData::getTime);
-//            uniList.sort(timeComparator);
-//
-//            excelPath = makeExcel(uniList, inputSTime, inputETime);
+            //查询两个接口的数据
+            List<OutputData> uniList = new ArrayList<>();
+
+            List<OutputData> bodyObjectList = getBodyDataFromMag(inputSTime, inputETime);
+            if (bodyObjectList != null && !bodyObjectList.isEmpty()) {
+                uniList.addAll(bodyObjectList);
+            }
+            List<OutputData> faceObjectList = getFaceDataFromMag(inputSTime, inputETime);
+            if (faceObjectList != null && !faceObjectList.isEmpty()) {
+                uniList.addAll(faceObjectList);
+            }
+
+            List<OutputData> eventList = getEventDataFromMag(inputSTime, inputETime);
+            if (eventList != null && !eventList.isEmpty()) {
+                uniList.addAll(eventList);
+            }
+
+            //排序
+            Comparator<OutputData> timeComparator = Comparator.comparing(OutputData::getTime);
+            uniList.sort(timeComparator);
+
+            excelPath = makeExcel(uniList, inputSTime, inputETime);
         }
 
         // 读到流中
