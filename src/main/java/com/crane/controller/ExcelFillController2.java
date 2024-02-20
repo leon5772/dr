@@ -753,8 +753,10 @@ public class ExcelFillController2 {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
             String sceneTime = sdf.format(oneSceneNode.get("timeMs").asText());
 
-            //性别
+            //pop
             List<String> tagArray = new ArrayList<>();
+            HashSet<String> metadataColorSet = new HashSet<>();
+            //性别
             if (oneSceneNode.has("gender")) {
                 int genderCode = oneSceneNode.get("gender").asInt();
                 if (genderCode == 2) {
@@ -785,8 +787,8 @@ public class ExcelFillController2 {
             }
 
             //是否携带包
-            if (structureBodyJson.containsKey("carryBag")) {
-                int carryBagCode = structureBodyJson.getIntValue("carryBag");
+            if (oneSceneNode.has("carryBag")) {
+                int carryBagCode = oneSceneNode.get("carryBag").asInt();
                 if (carryBagCode == 2) {
                     tagArray.add(DataRouterConstant.TAG_NO_BAG);
                 } else if (carryBagCode == 3) {
@@ -795,8 +797,8 @@ public class ExcelFillController2 {
             }
 
             //上衣的长度
-            if (structureBodyJson.containsKey("coatLength")) {
-                int coatLengthCode = structureBodyJson.getIntValue("coatLength");
+            if (oneSceneNode.has("coatLength")) {
+                int coatLengthCode = oneSceneNode.get("coatLength").asInt();
                 if (coatLengthCode == 2) {
                     tagArray.add(DataRouterConstant.TAG_LONG_SLEEVE);
                 } else if (coatLengthCode == 3) {
@@ -806,8 +808,8 @@ public class ExcelFillController2 {
                 }
             }
             //上衣的颜色
-            if (structureBodyJson.containsKey("coatColor")) {
-                int coatColorCode = structureBodyJson.getIntValue("coatColor");
+            if (oneSceneNode.has("coatColor")) {
+                int coatColorCode = oneSceneNode.get("coatColor").asInt();
                 if (coatColorCode == 5) {
                     tagArray.add(DataRouterConstant.TAG_RED_CLOTHES);
                     metadataColorSet.add(DataRouterConstant.MD_COLOR_RED);
@@ -836,8 +838,8 @@ public class ExcelFillController2 {
             }
 
             //裤子的长短
-            if (structureBodyJson.containsKey("pantsLength")) {
-                int pantsLengthCode = structureBodyJson.getIntValue("pantsLength");
+            if (oneSceneNode.has("pantsLength")) {
+                int pantsLengthCode = oneSceneNode.get("pantsLength").asInt();
                 if (pantsLengthCode == 2) {
                     tagArray.add(DataRouterConstant.TAG_LONG_PANTS);
                 } else if (pantsLengthCode == 3) {
@@ -845,8 +847,8 @@ public class ExcelFillController2 {
                 }
             }
             //裤子的颜色
-            if (structureBodyJson.containsKey("pantsColor")) {
-                int pantsColorCode = structureBodyJson.getIntValue("pantsColor");
+            if (oneSceneNode.has("pantsColor")) {
+                int pantsColorCode = oneSceneNode.get("pantsColor").asInt();
                 if (pantsColorCode == 5) {
                     tagArray.add(DataRouterConstant.TAG_RED_PANTS);
                     metadataColorSet.add(DataRouterConstant.MD_COLOR_RED);
