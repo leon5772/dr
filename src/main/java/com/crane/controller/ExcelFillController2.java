@@ -654,7 +654,7 @@ public class ExcelFillController2 {
                 if (totalRec >= PER_PAGE_REC) {
                     int loopNum = (totalRec / PER_PAGE_REC) + 1;
                     for (int i = 1; i <= loopNum; i++) {
-                        formatMagBody(getBodyDataFromMagPage(magStart,magEnd,i));
+                        formatMagBody(getBodyDataFromMagPage(magStart, magEnd, i));
                     }
                 } else {
                     finalBodyData.addAll(formatMagBody(res));
@@ -713,7 +713,7 @@ public class ExcelFillController2 {
             int code = response.getStatusLine().getStatusCode();
             String res = EntityUtils.toString(response.getEntity());
             if (code > 199 && code < 300) {
-
+                return res;
             }
 
         } catch (Exception e) {
