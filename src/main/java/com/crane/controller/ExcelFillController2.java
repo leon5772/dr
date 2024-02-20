@@ -143,10 +143,13 @@ public class ExcelFillController2 {
             List<OutputData> sceneUniList = new ArrayList<>();
 
             List<OutputData> bodyObjectList = getBodyDataFromMag(inputSTime, inputETime);
+            List<OutputData> ObjectList = getBodyDataFromMag(inputSTime, inputETime);
 
             if (bodyObjectList != null && !bodyObjectList.isEmpty()) {
                 sceneUniList.addAll(bodyObjectList);
             }
+
+
 
             Comparator<OutputData> timeComparator = Comparator.comparing(OutputData::getTime);
             sceneUniList.sort(timeComparator);
@@ -912,6 +915,7 @@ public class ExcelFillController2 {
                 }
             }
             oneMagScene.setAttribute(aText.toString());
+
             reList.add(oneMagScene);
         }
 
