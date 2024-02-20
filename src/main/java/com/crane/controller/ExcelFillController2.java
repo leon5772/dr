@@ -972,7 +972,9 @@ public class ExcelFillController2 {
             }
             if (oneSceneNode.has("imageUri")){
                 String sceneImgUrl = "http:"+oneSceneNode.get("imageUri").asText();
-                oneMagScene.setResult(sceneImgUrl);
+                if (StringUtils.isNotBlank(sceneImgUrl) && sceneImgUrl.length()>5){
+                    oneMagScene.setResult(sceneImgUrl);
+                }
             }
 
             //拿到相机的名称
