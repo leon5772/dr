@@ -654,7 +654,8 @@ public class ExcelFillController2 {
                 if (totalRec >= PER_PAGE_REC) {
                     int loopNum = (totalRec / PER_PAGE_REC) + 1;
                     for (int i = 1; i <= loopNum; i++) {
-                        formatMagBody(getBodyDataFromMagPage(magStart, magEnd, i));
+                        List<OutputData> onePageData = formatMagBody(getBodyDataFromMagPage(magStart, magEnd, i));
+                        finalBodyData.addAll(onePageData);
                     }
                 } else {
                     finalBodyData.addAll(formatMagBody(res));
@@ -739,15 +740,15 @@ public class ExcelFillController2 {
         JsonNode mainNode = objectMapper.readTree(result);
 
         //转为excel实体类格式
-        JsonNode contentNodes = mainNode.get("content");
+        JsonNode contentNodes = mainNode.get("data").get("list");
         for (JsonNode oneSceneNode : contentNodes) {
 
             //拿到事件的id
             String sceneID = oneSceneNode.get("sceneId").asText();
             //拿到事件的图片链接
-            String sceneImgUrl = oneSceneNode.get("thumbnail").asText();
+            String sceneImgUrl = "http://"+oneSceneNode.get("imageUri").asText();
             //拿到相机的名称
-            String cameraName = oneSceneNode.get("cameraName").asText();
+            String cameraName = oneSceneNode.get("channelName").asText();
             //拿到事件时间
             String sceneTime = oneSceneNode.get("datetime").asText().replace("T", " ").replace(genesisUtc, "");
             //拿到具体的信息
@@ -755,80 +756,128 @@ public class ExcelFillController2 {
 
             //判断具体信息，是不是有tag信息，有的话是幻方给的
             JsonNode detailNode = objectMapper.readTree(oneDetailJson);
-            if (detailNode.has("hashtags")) {
 
-                //拿到tag数组，判断里面是否有动作标签
-                JsonNode tagArrNode = detailNode.get("hashtags");
-
-                //如果没有tag标签，是genesis自己的数据,拿到所有子类
-                String objectsJson = getSceneObject(sceneID);
-                JsonNode sceneObjectsNode = objectMapper.readTree(objectsJson);
-
-                for (JsonNode oneObjNode : sceneObjectsNode) {
-
-                    int putFlag = 1;
-
-                    OutputData oneGenesisOD = new OutputData();
-
-                    //第一个赋予图片
-                    oneGenesisOD.setResult(sceneImgUrl);
-
-                    //时间
-                    oneGenesisOD.setTime(sceneTime);
-                    //相机名称
-                    oneGenesisOD.setCamera(cameraName);
-                    //model 类型
-                    oneGenesisOD.setType(oneObjNode.get("objectType").asText());
-
-                    //属性
-                    StringBuilder aText = new StringBuilder();
-                    JsonNode metaDataNode = oneObjNode.get("metadata");
-                    //颜色
-                    if (metaDataNode.has("colors")) {
-                        JsonNode colorNode = metaDataNode.get("colors");
-                        if (!colorNode.isEmpty()) {
-                            aText.append("Colors:");
-                            for (JsonNode oneColor : colorNode) {
-                                aText.append(oneColor.asText()).append(",");
-                            }
-                            aText.append(". ");
-                        }
-                    }
-                    //车牌
-                    if (metaDataNode.has("licensePlate")) {
-                        putFlag = 2;
-                        JsonNode lpNode = metaDataNode.get("licensePlate");
-                        if (lpNode.has("number")) {
-                            aText.append("LPR:").append(lpNode.get("number").asText()).append(". ");
-                        }
-                    }
-                    //车制造型号
-                    if (metaDataNode.has("makeModel")) {
-                        JsonNode mmNode = metaDataNode.get("makeModel");
-                        if (mmNode.has("make")) {
-                            aText.append("Make:").append(mmNode.get("make").asText()).append(". ");
-                        }
-                        if (mmNode.has("model")) {
-                            aText.append("Model:").append(mmNode.get("model").asText()).append(". ");
-                        }
-                    }
-                    if (metaDataNode.has("face")) {
-
-                        putFlag = 2;
-                        JsonNode faceNode = metaDataNode.get("face");
-
-                        if (faceNode.has("targetName")) {
-                            aText.append("Name:").append(faceNode.get("targetName").asText()).append(". ");
-                        }
-                    }
-                    oneGenesisOD.setAttribute(aText.toString());
-
-                    if (putFlag == 1) {
-                        reList.add(oneGenesisOD);
-                    }
+            //性别
+            if (structureBodyJson.containsKey("gender")) {
+                int genderCode = structureBodyJson.getIntValue("gender");
+                if (genderCode == 2) {
+                    tagArray.add(DataRouterConstant.TAG_MALE);
+                } else if (genderCode == 3) {
+                    tagArray.add(DataRouterConstant.TAG_FEMALE);
                 }
-
             }
+
+            //发型
+            if (structureBodyJson.containsKey("hairStyle")) {
+                int hairCode = structureBodyJson.getIntValue("hairStyle");
+                if (DataRouterConstant.HAIR_STYLE_SHORT.contains(hairCode)) {
+                    tagArray.add(DataRouterConstant.TAG_SHORT_HAIR);
+                } else if (DataRouterConstant.HAIR_STYLE_LONG.contains(hairCode)) {
+                    tagArray.add(DataRouterConstant.TAG_LONG_HAIR);
+                }
+            }
+
+            //是否戴帽子
+            if (structureBodyJson.containsKey("wearHat")) {
+                int wearHatCode = structureBodyJson.getIntValue("wearHat");
+                if (wearHatCode == 2) {
+                    tagArray.add(DataRouterConstant.TAG_NO_HAT);
+                } else if (wearHatCode == 3) {
+                    tagArray.add(DataRouterConstant.TAG_HAT);
+                }
+            }
+
+            //是否携带包
+            if (structureBodyJson.containsKey("carryBag")) {
+                int carryBagCode = structureBodyJson.getIntValue("carryBag");
+                if (carryBagCode == 2) {
+                    tagArray.add(DataRouterConstant.TAG_NO_BAG);
+                } else if (carryBagCode == 3) {
+                    tagArray.add(DataRouterConstant.TAG_BAG);
+                }
+            }
+
+            //上衣的长度
+            if (structureBodyJson.containsKey("coatLength")) {
+                int coatLengthCode = structureBodyJson.getIntValue("coatLength");
+                if (coatLengthCode == 2) {
+                    tagArray.add(DataRouterConstant.TAG_LONG_SLEEVE);
+                } else if (coatLengthCode == 3) {
+                    tagArray.add(DataRouterConstant.TAG_SHORT_SLEEVE);
+                } else if (coatLengthCode == 4) {
+                    tagArray.add(DataRouterConstant.TAG_SLEEVELESS);
+                }
+            }
+            //上衣的颜色
+            if (structureBodyJson.containsKey("coatColor")) {
+                int coatColorCode = structureBodyJson.getIntValue("coatColor");
+                if (coatColorCode == 5) {
+                    tagArray.add(DataRouterConstant.TAG_RED_CLOTHES);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_RED);
+                } else if (coatColorCode == 8) {
+                    tagArray.add(DataRouterConstant.TAG_GREEN_CLOTHES);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_GREEN);
+                } else if (coatColorCode == 9 || coatColorCode == 10 || coatColorCode == 15 || coatColorCode == 16) {
+                    tagArray.add(DataRouterConstant.TAG_BLUE_CLOTHES);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_BLUE);
+                } else if (coatColorCode == 6 || coatColorCode == 7 || coatColorCode == 13) {
+                    tagArray.add(DataRouterConstant.TAG_YELLOW_CLOTHES);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_YELLOW);
+                } else if (coatColorCode == 2) {
+                    tagArray.add(DataRouterConstant.TAG_BLACK_CLOTHES);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_BLACK);
+                } else if (coatColorCode == 3) {
+                    tagArray.add(DataRouterConstant.TAG_WHITE_CLOTHES);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_WHITE);
+                } else if (coatColorCode == 4) {
+                    tagArray.add(DataRouterConstant.TAG_GREY_CLOTHES);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_GREY);
+                } else if (coatColorCode == 11 || coatColorCode == 12) {
+                    tagArray.add(DataRouterConstant.TAG_PINK_CLOTHES);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_PINK);
+                }
+            }
+
+            //裤子的长短
+            if (structureBodyJson.containsKey("pantsLength")) {
+                int pantsLengthCode = structureBodyJson.getIntValue("pantsLength");
+                if (pantsLengthCode == 2) {
+                    tagArray.add(DataRouterConstant.TAG_LONG_PANTS);
+                } else if (pantsLengthCode == 3) {
+                    tagArray.add(DataRouterConstant.TAG_SHORT_PANTS);
+                }
+            }
+            //裤子的颜色
+            if (structureBodyJson.containsKey("pantsColor")) {
+                int pantsColorCode = structureBodyJson.getIntValue("pantsColor");
+                if (pantsColorCode == 5) {
+                    tagArray.add(DataRouterConstant.TAG_RED_PANTS);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_RED);
+                } else if (pantsColorCode == 8) {
+                    tagArray.add(DataRouterConstant.TAG_GREEN_PANTS);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_GREEN);
+                } else if (pantsColorCode == 9 || pantsColorCode == 10 || pantsColorCode == 14 || pantsColorCode == 15) {
+                    //裤子跟上衣颜色有差别
+                    tagArray.add(DataRouterConstant.TAG_BLUE_PANTS);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_BLUE);
+                } else if (pantsColorCode == 6 || pantsColorCode == 7 || pantsColorCode == 13) {
+                    tagArray.add(DataRouterConstant.TAG_YELLOW_PANTS);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_YELLOW);
+                } else if (pantsColorCode == 2) {
+                    tagArray.add(DataRouterConstant.TAG_BLACK_PANTS);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_BLACK);
+                } else if (pantsColorCode == 3) {
+                    tagArray.add(DataRouterConstant.TAG_WHITE_PANTS);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_WHITE);
+                } else if (pantsColorCode == 4) {
+                    tagArray.add(DataRouterConstant.TAG_GREY_PANTS);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_GREY);
+                } else if (pantsColorCode == 11 || pantsColorCode == 12) {
+                    tagArray.add(DataRouterConstant.TAG_PINK_PANTS);
+                    metadataColorSet.add(DataRouterConstant.MD_COLOR_PINK);
+                }
+            }
+
         }
 
         return reList;
