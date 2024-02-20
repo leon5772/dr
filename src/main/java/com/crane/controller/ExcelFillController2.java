@@ -158,22 +158,17 @@ public class ExcelFillController2 {
 
         } else if (askType.equals("event")) {
 
-//            List<OutputData> uniList = new ArrayList<>();
-//
-//            List<OutputData> eventList = getEventDataFromGenesis(startTime, endTime);
-//            List<OutputData> tagEventList = getEventByTag(inputSTime, inputETime);
-//
-//            if (eventList != null && !eventList.isEmpty()) {
-//                uniList.addAll(eventList);
-//            }
-//            if (tagEventList != null && !tagEventList.isEmpty()) {
-//                uniList.addAll(tagEventList);
-//            }
-//
-//            Comparator<OutputData> timeComparator = Comparator.comparing(OutputData::getTime);
-//            uniList.sort(timeComparator);
-//
-//            excelPath = makeExcel(uniList, inputSTime, inputETime);
+            List<OutputData> uniList = new ArrayList<>();
+
+            List<OutputData> eventList = getEventDataFromMag(startTime, endTime);
+            if (eventList != null && !eventList.isEmpty()) {
+                uniList.addAll(eventList);
+            }
+
+            Comparator<OutputData> timeComparator = Comparator.comparing(OutputData::getTime);
+            uniList.sort(timeComparator);
+
+            excelPath = makeExcel(uniList, inputSTime, inputETime);
 
         } else {
 
@@ -535,7 +530,7 @@ public class ExcelFillController2 {
 
     }
 
-    private List<OutputData> getEventDataFromGenesis(String startTime, String endTime) {
+    private List<OutputData> getEventDataFromMag(String startTime, String endTime) {
 
         HttpClient httpClient = HttpClients.createDefault();
         //ask
@@ -603,6 +598,135 @@ public class ExcelFillController2 {
         }
 
         return reList;
+    }
+
+    private List<OutputData> getEventDataFromMag(String startTime, String endTime) {
+
+        //result
+        List<OutputData> finalBodyData = new ArrayList<>();
+
+        //apache http
+        HttpClient httpClient = HttpClients.createDefault();
+        //ask
+        URIBuilder uriBuilder = null;
+        CloseableHttpResponse response = null;
+
+        //jackson
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+
+            String url = "http://" + neuroAddress + DataRouterConstant.NEURO_API + "/v1/event/record/pedestrian/list";
+            uriBuilder = new URIBuilder(url);
+
+            //params
+            Map<String, Object> paramsMap = new HashMap<>();
+            //trans mills
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+            //start
+            String magStart = String.valueOf(sdf.parse(startTime.concat(".000")).getTime());
+            paramsMap.put("startTime", magStart);
+            //end
+            String magEnd = String.valueOf(sdf.parse(endTime.concat(".000")).getTime());
+            paramsMap.put("endTime", magEnd);
+            //page size
+            paramsMap.put("pageSize", PER_PAGE_REC);
+            //page num
+            paramsMap.put("pageNum", 1);
+            //camera
+            paramsMap.put("channelUuids", magCameras.split(","));
+
+            HttpPost httpPost = new HttpPost(uriBuilder.build());
+            //header
+            httpPost.addHeader("Content-Type", "application/json");
+            //body
+            httpPost.setEntity(new StringEntity(objectMapper.writeValueAsString(paramsMap)));
+
+            response = (CloseableHttpResponse) httpClient.execute(httpPost);
+            int code = response.getStatusLine().getStatusCode();
+            String res = EntityUtils.toString(response.getEntity());
+            if (code > 199 && code < 300) {
+                JsonNode firstResNode = objectMapper.readTree(res);
+                int totalRec = firstResNode.get("data").get("total").asInt();
+                if (totalRec >= PER_PAGE_REC) {
+                    int loopNum = (totalRec / PER_PAGE_REC) + 1;
+                    for (int i = 1; i <= loopNum; i++) {
+                        List<OutputData> onePageData = formatMagBody(getEventDataFromMagPage(magStart, magEnd, i));
+                        finalBodyData.addAll(onePageData);
+                    }
+                } else {
+                    finalBodyData.addAll(formatMagBody(res));
+                }
+            }
+        } catch (Exception e) {
+            logger.error("ask genesis scene http error: ", e);
+            return null;
+        } finally {
+            if (response != null) {
+                try {
+                    response.close();
+                } catch (Exception e) {
+                    logger.error("get mag body data close res error");
+                }
+            }
+        }
+        return finalBodyData;
+    }
+
+    private String getEventDataFromMagPage(String startMills, String endMills, int pageTh) {
+
+        //apache http
+        HttpClient httpClient = HttpClients.createDefault();
+        //ask
+        URIBuilder uriBuilder = null;
+        CloseableHttpResponse response = null;
+
+        try {
+
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            String url = "http://" + neuroAddress + DataRouterConstant.NEURO_API + "/v1/event/record/pedestrian/list";
+            uriBuilder = new URIBuilder(url);
+
+            //params
+            Map<String, Object> paramsMap = new HashMap<>();
+            //start
+            paramsMap.put("startTime", startMills);
+            //end
+            paramsMap.put("endTime", endMills);
+            //page size
+            paramsMap.put("pageSize", PER_PAGE_REC);
+            //page num
+            paramsMap.put("pageNum", pageTh);
+            //camera
+            paramsMap.put("channelUuids", magCameras.split(","));
+
+            HttpPost httpPost = new HttpPost(uriBuilder.build());
+            //header
+            httpPost.addHeader("Content-Type", "application/json");
+            //body
+            httpPost.setEntity(new StringEntity(objectMapper.writeValueAsString(paramsMap)));
+
+            response = (CloseableHttpResponse) httpClient.execute(httpPost);
+            int code = response.getStatusLine().getStatusCode();
+            String res = EntityUtils.toString(response.getEntity());
+            if (code > 199 && code < 300) {
+                return res;
+            }
+
+        } catch (Exception e) {
+            logger.error("ask genesis scene http error(page): ", e);
+            return null;
+        } finally {
+            if (response != null) {
+                try {
+                    response.close();
+                } catch (Exception e) {
+                    logger.error("get mag body data close res error(page):");
+                }
+            }
+        }
+        return null;
     }
 
     private List<OutputData> getBodyDataFromMag(String startTime, String endTime) {
@@ -863,6 +987,63 @@ public class ExcelFillController2 {
         return null;
     }
 
+    private List<OutputData> formatMagEvent(String result) throws Exception {
+
+        //读取响应结果
+        List<OutputData> reList = new ArrayList<>();
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode mainNode = objectMapper.readTree(result);
+
+        //转为excel实体类格式
+        JsonNode contentNodes = mainNode.get("data").get("list");
+        for (JsonNode oneSceneNode : contentNodes) {
+
+            OutputData oneMagScene = new OutputData();
+
+            //拿到事件的id
+            //String sceneID = oneSceneNode.get("sceneId").asText();
+            //拿到事件的图片链接
+            if (oneSceneNode.has("fullImageUri")){
+                String sceneImgUrl = "http:"+oneSceneNode.get("fullImageUri").asText();
+                oneMagScene.setResult(sceneImgUrl);
+            }
+            if (oneSceneNode.has("imageUri")){
+                String sceneImgUrl = "http:"+oneSceneNode.get("imageUri").asText();
+                oneMagScene.setResult(sceneImgUrl);
+            }
+
+            //拿到相机的名称
+            String cameraName = oneSceneNode.get("channelName").asText();
+            oneMagScene.setCamera(cameraName);
+            //拿到事件时间
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+            String sceneTime = sdf.format(oneSceneNode.get("timeMs").asLong());
+            oneMagScene.setTime(sceneTime);
+            oneMagScene.setType("Event");
+
+            //pop
+            if (oneSceneNode.has("alarmMinor")) {
+                String inputEventType = oneSceneNode.get("alarmMinor").asText();
+
+                if (inputEventType.equals("fight")) {
+                    oneMagScene.setAttribute(DataRouterConstant.TAG_FIGHTING);
+                } else if (inputEventType.equals("run")) {
+                    oneMagScene.setAttribute(DataRouterConstant.TAG_RUNNING);
+                } else if (inputEventType.equals("person_over_querying")) {
+                    oneMagScene.setAttribute("crowd detection");
+                } else if (inputEventType.equals("wander")) {
+                    oneMagScene.setAttribute("loitering");
+                } else {
+                    return null;
+                }
+            }
+
+            reList.add(oneMagScene);
+        }
+
+        return reList;
+    }
+
     private List<OutputData> formatMagBody(String result) throws Exception {
 
         //读取响应结果
@@ -1050,6 +1231,7 @@ public class ExcelFillController2 {
 
         return reList;
     }
+
     private List<OutputData> formatMagFace(String result) throws Exception {
 
         //读取响应结果
