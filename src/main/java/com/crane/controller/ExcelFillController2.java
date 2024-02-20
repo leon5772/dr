@@ -755,7 +755,7 @@ public class ExcelFillController2 {
             oneMagScene.setCamera(cameraName);
             //拿到事件时间
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-            String sceneTime = sdf.format(oneSceneNode.get("timeMs").asText());
+            String sceneTime = sdf.format(oneSceneNode.get("timeMs").asLong());
             oneMagScene.setTime(sceneTime);
             oneMagScene.setType("Person");
 
@@ -884,7 +884,35 @@ public class ExcelFillController2 {
             }
 
             //pop
-            oneMagScene.setTime();
+            StringBuilder aText = new StringBuilder();
+            for (String tagStr : tagArray) {
+
+                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_MALE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_FEMALE)) {
+                    aText.append("Gender:").append(tagStr).append(". ");
+                }
+                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_HAIR) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_HAIR)) {
+                    aText.append("Hair:").append(tagStr).append(". ");
+                }
+                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_BAG) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_NO_BAG)) {
+                    aText.append("Bag:").append(tagStr).append(". ");
+                }
+                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_HAT) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_NO_HAT)) {
+                    aText.append("Hat:").append(tagStr).append(". ");
+                }
+                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SLEEVELESS)) {
+                    aText.append("Sleeve:").append(tagStr).append(". ");
+                }
+                if (DataRouterConstant.CLOTHES_COLOR_LIST.contains(tagStr)) {
+                    aText.append("Clothes Color:").append(tagStr.split("_")[0]).append(". ");
+                }
+                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_PANTS) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_PANTS)) {
+                    aText.append("Pants:").append(tagStr).append(". ");
+                }
+                if (DataRouterConstant.PANTS_COLOR_LIST.contains(tagStr)) {
+                    aText.append("Pants Color:").append(tagStr.split("_")[0]).append(". ");
+                }
+            }
+            oneMagScene.setAttribute(aText.toString());
             reList.add(oneMagScene);
         }
 
