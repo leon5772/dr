@@ -143,13 +143,13 @@ public class ExcelFillController2 {
             List<OutputData> sceneUniList = new ArrayList<>();
 
             List<OutputData> bodyObjectList = getBodyDataFromMag(inputSTime, inputETime);
-            List<OutputData> ObjectList = getBodyDataFromMag(inputSTime, inputETime);
-
             if (bodyObjectList != null && !bodyObjectList.isEmpty()) {
                 sceneUniList.addAll(bodyObjectList);
             }
-
-
+            List<OutputData> faceObjectList = getFaceDataFromMag(inputSTime, inputETime);
+            if (faceObjectList != null && !faceObjectList.isEmpty()) {
+                sceneUniList.addAll(faceObjectList);
+            }
 
             Comparator<OutputData> timeComparator = Comparator.comparing(OutputData::getTime);
             sceneUniList.sort(timeComparator);
@@ -734,6 +734,135 @@ public class ExcelFillController2 {
         return null;
     }
 
+    private List<OutputData> getFaceDataFromMag(String startTime, String endTime) {
+
+        //result
+        List<OutputData> finalBodyData = new ArrayList<>();
+
+        //apache http
+        HttpClient httpClient = HttpClients.createDefault();
+        //ask
+        URIBuilder uriBuilder = null;
+        CloseableHttpResponse response = null;
+
+        //jackson
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+
+            String url = "http://" + neuroAddress + DataRouterConstant.NEURO_API + "/v1/event/record/face/list";
+            uriBuilder = new URIBuilder(url);
+
+            //params
+            Map<String, Object> paramsMap = new HashMap<>();
+            //trans mills
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+            //start
+            String magStart = String.valueOf(sdf.parse(startTime.concat(".000")).getTime());
+            paramsMap.put("startTime", magStart);
+            //end
+            String magEnd = String.valueOf(sdf.parse(endTime.concat(".000")).getTime());
+            paramsMap.put("endTime", magEnd);
+            //page size
+            paramsMap.put("pageSize", PER_PAGE_REC);
+            //page num
+            paramsMap.put("pageNum", 1);
+            //camera
+            paramsMap.put("channelUuids", magCameras.split(","));
+
+            HttpPost httpPost = new HttpPost(uriBuilder.build());
+            //header
+            httpPost.addHeader("Content-Type", "application/json");
+            //body
+            httpPost.setEntity(new StringEntity(objectMapper.writeValueAsString(paramsMap)));
+
+            response = (CloseableHttpResponse) httpClient.execute(httpPost);
+            int code = response.getStatusLine().getStatusCode();
+            String res = EntityUtils.toString(response.getEntity());
+            if (code > 199 && code < 300) {
+                JsonNode firstResNode = objectMapper.readTree(res);
+                int totalRec = firstResNode.get("data").get("total").asInt();
+                if (totalRec >= PER_PAGE_REC) {
+                    int loopNum = (totalRec / PER_PAGE_REC) + 1;
+                    for (int i = 1; i <= loopNum; i++) {
+                        List<OutputData> onePageData = formatMagBody(getFaceDataFromMagPage(magStart, magEnd, i));
+                        finalBodyData.addAll(onePageData);
+                    }
+                } else {
+                    finalBodyData.addAll(formatMagFace(res));
+                }
+            }
+        } catch (Exception e) {
+            logger.error("ask genesis scene http error: ", e);
+            return null;
+        } finally {
+            if (response != null) {
+                try {
+                    response.close();
+                } catch (Exception e) {
+                    logger.error("get mag body data close res error");
+                }
+            }
+        }
+        return finalBodyData;
+    }
+
+    private String getFaceDataFromMagPage(String startMills, String endMills, int pageTh) {
+
+        //apache http
+        HttpClient httpClient = HttpClients.createDefault();
+        //ask
+        URIBuilder uriBuilder = null;
+        CloseableHttpResponse response = null;
+
+        try {
+
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            String url = "http://" + neuroAddress + DataRouterConstant.NEURO_API + "/v1/event/record/pedestrian/list";
+            uriBuilder = new URIBuilder(url);
+
+            //params
+            Map<String, Object> paramsMap = new HashMap<>();
+            //start
+            paramsMap.put("startTime", startMills);
+            //end
+            paramsMap.put("endTime", endMills);
+            //page size
+            paramsMap.put("pageSize", PER_PAGE_REC);
+            //page num
+            paramsMap.put("pageNum", pageTh);
+            //camera
+            paramsMap.put("channelUuids", magCameras.split(","));
+
+            HttpPost httpPost = new HttpPost(uriBuilder.build());
+            //header
+            httpPost.addHeader("Content-Type", "application/json");
+            //body
+            httpPost.setEntity(new StringEntity(objectMapper.writeValueAsString(paramsMap)));
+
+            response = (CloseableHttpResponse) httpClient.execute(httpPost);
+            int code = response.getStatusLine().getStatusCode();
+            String res = EntityUtils.toString(response.getEntity());
+            if (code > 199 && code < 300) {
+                return res;
+            }
+
+        } catch (Exception e) {
+            logger.error("ask genesis scene http error(page): ", e);
+            return null;
+        } finally {
+            if (response != null) {
+                try {
+                    response.close();
+                } catch (Exception e) {
+                    logger.error("get mag body data close res error(page):");
+                }
+            }
+        }
+        return null;
+    }
+
     private List<OutputData> formatMagBody(String result) throws Exception {
 
         //读取响应结果
@@ -921,6 +1050,121 @@ public class ExcelFillController2 {
 
         return reList;
     }
+    private List<OutputData> formatMagFace(String result) throws Exception {
+
+        //读取响应结果
+        List<OutputData> reList = new ArrayList<>();
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode mainNode = objectMapper.readTree(result);
+
+        //转为excel实体类格式
+        JsonNode contentNodes = mainNode.get("data").get("list");
+        for (JsonNode oneSceneNode : contentNodes) {
+
+            OutputData oneMagScene = new OutputData();
+
+            //拿到事件的id
+            //String sceneID = oneSceneNode.get("sceneId").asText();
+            //拿到事件的图片链接
+            String sceneImgUrl = "http:"+oneSceneNode.get("imageUri").asText();
+            oneMagScene.setResult(sceneImgUrl);
+            //拿到相机的名称
+            String cameraName = oneSceneNode.get("channelName").asText();
+            oneMagScene.setCamera(cameraName);
+            //拿到事件时间
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+            String sceneTime = sdf.format(oneSceneNode.get("timeMs").asLong());
+            oneMagScene.setTime(sceneTime);
+            oneMagScene.setType("Person");
+
+            //pop
+            List<String> tagArray = new ArrayList<>();
+            HashSet<String> metadataColorSet = new HashSet<>();
+            try {
+
+                //性别
+                if (oneSceneNode.has("gender")) {
+                    int genderCode = oneSceneNode.get("gender").asInt();
+                    if (genderCode == 2) {
+                        tagArray.add(DataRouterConstant.TAG_MALE);
+                    } else if (genderCode == 3) {
+                        tagArray.add(DataRouterConstant.TAG_FEMALE);
+                    }
+                }
+
+                //发型
+                if (oneSceneNode.has("hairStyle")) {
+                    int hairCode = oneSceneNode.get("hairStyle").asInt();
+                    if (DataRouterConstant.HAIR_STYLE_SHORT.contains(hairCode)) {
+                        tagArray.add(DataRouterConstant.TAG_SHORT_HAIR);
+                    } else if (DataRouterConstant.HAIR_STYLE_LONG.contains(hairCode)) {
+                        tagArray.add(DataRouterConstant.TAG_LONG_HAIR);
+                    }
+                }
+
+                //是否戴帽子
+                if (oneSceneNode.has("wearHat")) {
+                    int wearHatCode = oneSceneNode.get("wearHat").asInt();
+                    if (wearHatCode == 2) {
+                        tagArray.add(DataRouterConstant.TAG_NO_HAT);
+                    } else if (wearHatCode == 3) {
+                        tagArray.add(DataRouterConstant.TAG_HAT);
+                    }
+                }
+
+                //skin color
+                if (oneSceneNode.has("skinColor")) {
+                    int skinColorCode = oneSceneNode.get("skinColor").asInt();
+                    if (skinColorCode == 2) {
+                        metadataColorSet.add(DataRouterConstant.MD_COLOR_BLACK);
+                    } else if (skinColorCode == 3) {
+                        metadataColorSet.add(DataRouterConstant.MD_COLOR_WHITE);
+                    } else if (skinColorCode == 4 || skinColorCode == 5) {
+                        metadataColorSet.add(DataRouterConstant.MD_COLOR_YELLOW);
+                    }
+                }
+
+            } catch (Exception e) {
+                return null;
+            }
+
+            //pop
+            StringBuilder aText = new StringBuilder();
+            for (String tagStr : tagArray) {
+
+                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_MALE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_FEMALE)) {
+                    aText.append("Gender:").append(tagStr).append(". ");
+                }
+                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_HAIR) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_HAIR)) {
+                    aText.append("Hair:").append(tagStr).append(". ");
+                }
+                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_BAG) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_NO_BAG)) {
+                    aText.append("Bag:").append(tagStr).append(". ");
+                }
+                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_HAT) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_NO_HAT)) {
+                    aText.append("Hat:").append(tagStr).append(". ");
+                }
+                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SLEEVELESS)) {
+                    aText.append("Sleeve:").append(tagStr).append(". ");
+                }
+                if (DataRouterConstant.CLOTHES_COLOR_LIST.contains(tagStr)) {
+                    aText.append("Clothes Color:").append(tagStr.split("_")[0]).append(". ");
+                }
+                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_PANTS) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_PANTS)) {
+                    aText.append("Pants:").append(tagStr).append(". ");
+                }
+                if (DataRouterConstant.PANTS_COLOR_LIST.contains(tagStr)) {
+                    aText.append("Pants Color:").append(tagStr.split("_")[0]).append(". ");
+                }
+            }
+            oneMagScene.setAttribute(aText.toString());
+
+            reList.add(oneMagScene);
+        }
+
+        return reList;
+    }
+
 
     private String getSceneObject(String sceneID) {
 
