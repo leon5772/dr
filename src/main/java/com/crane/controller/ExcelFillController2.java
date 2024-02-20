@@ -648,7 +648,7 @@ public class ExcelFillController2 {
 
             ObjectMapper objectMapper = new ObjectMapper();
 
-            String url = "http://" + neuroAddress + DataRouterConstant.NEURO_API + "/v1/event/record/pedestrian/list";
+            String url = "http://" + neuroAddress + DataRouterConstant.NEURO_API + "/v1/event/record/alarmEvent/list";
             uriBuilder = new URIBuilder(url);
 
             //params
@@ -986,7 +986,7 @@ public class ExcelFillController2 {
 
             //pop
             if (oneSceneNode.has("alarmMinor")) {
-                String inputEventType = oneSceneNode.get("alarmMinor").asText();
+                String inputEventType = oneSceneNode.get("alarmMinor").asText().toLowerCase();
 
                 if (inputEventType.equals("fight")) {
                     oneMagScene.setAttribute(DataRouterConstant.TAG_FIGHTING);
