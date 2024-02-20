@@ -160,7 +160,7 @@ public class ExcelFillController2 {
 
             List<OutputData> uniList = new ArrayList<>();
 
-            List<OutputData> eventList = getEventDataFromMag(startTime, endTime);
+            List<OutputData> eventList = getEventDataFromMag(inputSTime, inputETime);
             if (eventList != null && !eventList.isEmpty()) {
                 uniList.addAll(eventList);
             }
@@ -530,42 +530,6 @@ public class ExcelFillController2 {
 
     }
 
-    private List<OutputData> getEventDataFromMag(String startTime, String endTime) {
-
-        HttpClient httpClient = HttpClients.createDefault();
-        //ask
-        URIBuilder uriBuilder = null;
-        try {
-
-            uriBuilder = new URIBuilder("http://" + genesisAddress.concat("/ainvr/api/commonEvents"));
-
-            //params
-            List<NameValuePair> parList = new ArrayList<>();
-            parList.add(new BasicNameValuePair("start", startTime));
-            parList.add(new BasicNameValuePair("end", endTime));
-            parList.add(new BasicNameValuePair("types", "LOITERING,CROWD_DETECTION"));
-            parList.add(new BasicNameValuePair("size", apiEventLimit));
-            parList.add(new BasicNameValuePair("cameraIds", getAllCameras()));
-            uriBuilder.addParameters(parList);
-
-            HttpGet httpGet = new HttpGet(uriBuilder.build());
-            //header
-            httpGet.addHeader("X-Auth-Token", TransServiceImpl.genesisToken);
-
-            CloseableHttpResponse response = (CloseableHttpResponse) httpClient.execute(httpGet);
-            int code = response.getStatusLine().getStatusCode();
-            String result = EntityUtils.toString(response.getEntity());
-            if (code > 199 && code < 300) {
-                return formatGenesisEvt(result);
-            } else {
-                return null;
-            }
-        } catch (Exception e) {
-            logger.error("ask genesis event http error: ", e);
-            return null;
-        }
-    }
-
     private List<OutputData> formatGenesisEvt(String result) throws Exception {
 
         //读取响应结果
@@ -616,7 +580,7 @@ public class ExcelFillController2 {
 
         try {
 
-            String url = "http://" + neuroAddress + DataRouterConstant.NEURO_API + "/v1/event/record/pedestrian/list";
+            String url = "http://" + neuroAddress + DataRouterConstant.NEURO_API + "/v1/event/record/alarmEvent/list";
             uriBuilder = new URIBuilder(url);
 
             //params
@@ -651,11 +615,11 @@ public class ExcelFillController2 {
                 if (totalRec >= PER_PAGE_REC) {
                     int loopNum = (totalRec / PER_PAGE_REC) + 1;
                     for (int i = 1; i <= loopNum; i++) {
-                        List<OutputData> onePageData = formatMagBody(getEventDataFromMagPage(magStart, magEnd, i));
+                        List<OutputData> onePageData = formatMagEvent(getEventDataFromMagPage(magStart, magEnd, i));
                         finalBodyData.addAll(onePageData);
                     }
                 } else {
-                    finalBodyData.addAll(formatMagBody(res));
+                    finalBodyData.addAll(formatMagEvent(res));
                 }
             }
         } catch (Exception e) {
