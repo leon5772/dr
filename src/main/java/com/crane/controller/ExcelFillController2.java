@@ -743,15 +743,21 @@ public class ExcelFillController2 {
         JsonNode contentNodes = mainNode.get("data").get("list");
         for (JsonNode oneSceneNode : contentNodes) {
 
+            OutputData oneMagScene = new OutputData();
+
             //拿到事件的id
             //String sceneID = oneSceneNode.get("sceneId").asText();
             //拿到事件的图片链接
             String sceneImgUrl = "http://"+oneSceneNode.get("imageUri").asText();
+            oneMagScene.setResult(sceneImgUrl);
             //拿到相机的名称
             String cameraName = oneSceneNode.get("channelName").asText();
+            oneMagScene.setCamera(cameraName);
             //拿到事件时间
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
             String sceneTime = sdf.format(oneSceneNode.get("timeMs").asText());
+            oneMagScene.setTime(sceneTime);
+            oneMagScene.setType("Person");
 
             //pop
             List<String> tagArray = new ArrayList<>();
@@ -877,6 +883,9 @@ public class ExcelFillController2 {
                 }
             }
 
+            //pop
+            oneMagScene.setTime();
+            reList.add(oneMagScene);
         }
 
         return reList;
