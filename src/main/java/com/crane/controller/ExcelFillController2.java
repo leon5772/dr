@@ -326,7 +326,6 @@ public class ExcelFillController2 {
         sheet.setColumnWidth(2, colWid);
         sheet.setColumnWidth(3, colWid);
         sheet.setColumnWidth(4, colWid * 3);
-        float colWidPix = sheet.getColumnWidthInPixels(0);
 
         //大点的字体
         XSSFFont biggerFont = workbook.createFont();
@@ -748,7 +747,7 @@ public class ExcelFillController2 {
             //拿到事件的id
             //String sceneID = oneSceneNode.get("sceneId").asText();
             //拿到事件的图片链接
-            String sceneImgUrl = "http://"+oneSceneNode.get("imageUri").asText();
+            String sceneImgUrl = "http:"+oneSceneNode.get("imageUri").asText();
             oneMagScene.setResult(sceneImgUrl);
             //拿到相机的名称
             String cameraName = oneSceneNode.get("channelName").asText();
