@@ -545,7 +545,6 @@ public class ExcelFillController2 {
             newEv.setTime(oneSceneNode.get("datetime").asText().replace("T", " ").replace(genesisUtc, ""));
             newEv.setCamera(oneSceneNode.get("camera").get("name").asText());
             newEv.setType("Event");
-            newEv.setSceneType(1);
             newEv.setResolution(oneSceneNode.get("camera").get("resolution").asText());
 
             //事件的属性
