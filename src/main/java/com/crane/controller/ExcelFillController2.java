@@ -872,7 +872,7 @@ public class ExcelFillController2 {
                 if (totalRec >= PER_PAGE_REC) {
                     int loopNum = (totalRec / PER_PAGE_REC) + 1;
                     for (int i = 1; i <= loopNum; i++) {
-                        List<OutputData> onePageData = formatMagBody(getFaceDataFromMagPage(magStart, magEnd, i));
+                        List<OutputData> onePageData = formatMagFace(getFaceDataFromMagPage(magStart, magEnd, i));
                         finalBodyData.addAll(onePageData);
                     }
                 } else {
