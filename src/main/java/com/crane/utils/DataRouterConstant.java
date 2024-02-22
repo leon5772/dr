@@ -47,6 +47,9 @@ public class DataRouterConstant {
     public static final String[] PANTS_COLOR_SET = {"red_pants", "green_pants", "blue_pants", "yellow_pants", "black_pants", "white_pants", "grey_pants", "pink_pants"};
     public static List<String> PANTS_COLOR_LIST = Arrays.asList(PANTS_COLOR_SET);
 
+    public static final String[] HAT_COLOR_SET = {"Hat_Color_Red", "Hat_Color_Green", "Hat_Color_Blue", "Hat_Color_Yellow", "Hat_Color_Black", "Hat_Color_White", "Hat_Color_Grey", "Hat_Color_Pink"};
+    public static List<String> HAT_COLOR_LIST = Arrays.asList(HAT_COLOR_SET);
+
     public static final String[] CLOTHES_COLOR_SET = {"red_clothes", "green_clothes", "blue_clothes", "yellow_clothes", "black_clothes", "white_clothes", "grey_clothes", "pink_clothes"};
     public static List<String> CLOTHES_COLOR_LIST = Arrays.asList(CLOTHES_COLOR_SET);
 

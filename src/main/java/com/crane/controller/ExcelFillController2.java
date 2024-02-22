@@ -1154,17 +1154,20 @@ public class ExcelFillController2 {
             if (oneSceneNode.has("pedestrianOrientation")){
                 int pedestrianOrientationCode = oneSceneNode.get("pedestrianOrientation").asInt();
                 if (pedestrianOrientationCode==2){
-                    tagArray.add("humanFaceTo_".concat());
+                    tagArray.add("humanFaceTo_".concat("front"));
+                }else if(pedestrianOrientationCode==3){
+                    tagArray.add("humanFaceTo_".concat("back"));
+                }else if(pedestrianOrientationCode==4){
+                    tagArray.add("humanFaceTo_".concat("left"));
+                }else if(pedestrianOrientationCode==5){
+                    tagArray.add("humanFaceTo_".concat("right"));
                 }
-
             }
 
             //是否携带包
             if (oneSceneNode.has("carryBag")) {
                 int carryBagCode = oneSceneNode.get("carryBag").asInt();
-                if (carryBagCode == 2) {
-                    tagArray.add(DataRouterConstant.TAG_NO_BAG);
-                } else if (carryBagCode == 3) {
+                if (carryBagCode == 3) {
                     tagArray.add(DataRouterConstant.TAG_BAG);
                 }
             }
@@ -1259,14 +1262,8 @@ public class ExcelFillController2 {
                 if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_MALE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_FEMALE)) {
                     aText.append("Gender:").append(tagStr).append(". ");
                 }
-                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_HAIR) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_HAIR)) {
-                    aText.append("Hair:").append(tagStr).append(". ");
-                }
-                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_BAG) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_NO_BAG)) {
-                    aText.append("Bag:").append(tagStr).append(". ");
-                }
-                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_HAT) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_NO_HAT)) {
-                    aText.append("Hat:").append(tagStr).append(". ");
+                if (tagStr.contains("Age_Group:")){
+                    aText.append("Age:").append(tagStr.split(":")[1]).append(". ");
                 }
                 if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SLEEVELESS)) {
                     aText.append("Clothes:").append(tagStr).append(". ");
@@ -1280,6 +1277,22 @@ public class ExcelFillController2 {
                 if (DataRouterConstant.PANTS_COLOR_LIST.contains(tagStr)) {
                     aText.append("Pants Color:").append(tagStr.split("_")[0]).append(". ");
                 }
+                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_HAIR) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_HAIR)) {
+                    aText.append("Hair:").append(tagStr).append(". ");
+                }
+                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_HAT) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_NO_HAT)) {
+                    aText.append("With Hat:").append("Yes").append(". ");
+                }
+                if (DataRouterConstant.HAT_COLOR_LIST.contains(tagStr)) {
+                    aText.append("Hat Color:").append(tagStr.split("_")[2]).append(". ");
+                }
+                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_BAG) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_NO_BAG)) {
+                    aText.append("With Bag:").append("Yes").append(". ");
+                }
+                if (tagStr.equalsIgnoreCase("holdUmbrella") || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_NO_BAG)) {
+                    aText.append("Hold Umbrella:").append("Yes").append(". ");
+                }
+
             }
             oneMagScene.setAttribute(aText.toString());
 
