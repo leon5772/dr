@@ -1068,9 +1068,7 @@ public class ExcelFillController2 {
             //是否戴帽子
             if (oneSceneNode.has("wearHat")) {
                 int wearHatCode = oneSceneNode.get("wearHat").asInt();
-                if (wearHatCode == 2) {
-                    tagArray.add(DataRouterConstant.TAG_NO_HAT);
-                } else if (wearHatCode == 3) {
+                if (wearHatCode == 3) {
                     tagArray.add(DataRouterConstant.TAG_HAT);
                 }
             }
@@ -1081,21 +1079,84 @@ public class ExcelFillController2 {
 
                 if (hatColorCode == 2) {
                     tagArray.add("Hat_Color_".concat(DataRouterConstant.MD_COLOR_BLACK));
-                }else if(hatColorCode == 3){
+                } else if (hatColorCode == 3) {
                     tagArray.add("Hat_Color_".concat(DataRouterConstant.MD_COLOR_WHITE));
-                }else if(hatColorCode == 4){
+                } else if (hatColorCode == 4) {
                     tagArray.add("Hat_Color_".concat(DataRouterConstant.MD_COLOR_GREY));
-                }else if(hatColorCode == 5 || hatColorCode==11){
+                } else if (hatColorCode == 5 || hatColorCode == 11) {
                     tagArray.add("Hat_Color_".concat(DataRouterConstant.MD_COLOR_RED));
-                }else if(hatColorCode == 6 || hatColorCode==7 || hatColorCode==13){
+                } else if (hatColorCode == 6 || hatColorCode == 7 || hatColorCode == 13) {
                     tagArray.add("Hat_Color_".concat(DataRouterConstant.MD_COLOR_YELLOW));
-                }else if(hatColorCode == 8){
+                } else if (hatColorCode == 8) {
                     tagArray.add("Hat_Color_".concat(DataRouterConstant.MD_COLOR_GREEN));
-                }else if(hatColorCode == 9 || hatColorCode==10){
+                } else if (hatColorCode == 9 || hatColorCode == 10) {
                     tagArray.add("Hat_Color_".concat(DataRouterConstant.MD_COLOR_BLUE));
-                }else if(hatColorCode == 12){
+                } else if (hatColorCode == 12) {
                     tagArray.add("Hat_Color_".concat(DataRouterConstant.MD_COLOR_PINK));
                 }
+            }
+
+            //bike on
+            if (oneSceneNode.has("rideBike")) {
+                int bikeOnCode = oneSceneNode.get("rideBike").asInt();
+                if (bikeOnCode == 3) {
+                    tagArray.add("rideBike");
+                }
+            }
+
+            //umbrella
+            if (oneSceneNode.has("holdUmbrella")){
+                int umbCode = oneSceneNode.get("holdUmbrella").asInt();
+                if (umbCode==3){
+                    tagArray.add("holdUmbrella");
+                }
+            }
+
+            //shoesColor
+            if (oneSceneNode.has("shoesColor")){
+                int shoesCCode = oneSceneNode.get("shoesColor").asInt();
+                if (shoesCCode==2){
+                    tagArray.add("shoes_color_".concat(DataRouterConstant.MD_COLOR_BLACK));
+                }else if(shoesCCode==3){
+                    tagArray.add("shoes_color_".concat(DataRouterConstant.MD_COLOR_WHITE));
+                }else if(shoesCCode==4){
+                    tagArray.add("shoes_color_".concat(DataRouterConstant.MD_COLOR_GREY));
+                }else if(shoesCCode==5 || shoesCCode==11){
+                    tagArray.add("shoes_color_".concat(DataRouterConstant.MD_COLOR_RED));
+                }else if(shoesCCode==6 || shoesCCode==7 || shoesCCode==13){
+                    tagArray.add("shoes_color_".concat(DataRouterConstant.MD_COLOR_YELLOW));
+                }else if(shoesCCode==8){
+                    tagArray.add("shoes_color_".concat(DataRouterConstant.MD_COLOR_GREEN));
+                }else if(shoesCCode==9 || shoesCCode==10){
+                    tagArray.add("shoes_color_".concat(DataRouterConstant.MD_COLOR_BLUE));
+                }else if(shoesCCode==12){
+                    tagArray.add("shoes_color_".concat(DataRouterConstant.MD_COLOR_PINK));
+                }
+            }
+
+            //wearHelmet
+            if (oneSceneNode.has("wearHelmet")){
+                int wearHelmetCode = oneSceneNode.get("wearHelmet").asInt();
+                if (wearHelmetCode==3){
+                    tagArray.add("wearHelmet");
+                }
+            }
+
+            //wearSafetycap
+            if (oneSceneNode.has("wearSafetycap")){
+                int safetycapCode = oneSceneNode.get("wearSafetycap").asInt();
+                if (safetycapCode==3){
+                    tagArray.add("wearSafetycap");
+                }
+            }
+
+            //pedestrianOrientation
+            if (oneSceneNode.has("pedestrianOrientation")){
+                int pedestrianOrientationCode = oneSceneNode.get("pedestrianOrientation").asInt();
+                if (pedestrianOrientationCode==2){
+                    tagArray.add("humanFaceTo_".concat());
+                }
+
             }
 
             //是否携带包
