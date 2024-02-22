@@ -433,7 +433,7 @@ public class ExcelFillController2 {
 
             //每行第1列为图片，动态的行高
             XSSFCell rnc1 = rowN.createCell(0);
-            rnc1.setCellValue(oneEv.getResult());
+            //rnc1.setCellValue(oneEv.getResult());
             rnc1.setCellStyle(contentCellStyle);
             //填充图片到位置
             if (StringUtils.isBlank(oneEv.getResult())) {
@@ -965,13 +965,13 @@ public class ExcelFillController2 {
             //拿到事件的id
             //String sceneID = oneSceneNode.get("sceneId").asText();
             //拿到事件的图片链接
-            if (oneSceneNode.has("fullImageUri")){
-                String sceneImgUrl = "http:"+oneSceneNode.get("fullImageUri").asText();
+            if (oneSceneNode.has("fullImageUri")) {
+                String sceneImgUrl = "http:" + oneSceneNode.get("fullImageUri").asText();
                 oneMagScene.setResult(sceneImgUrl);
             }
-            if (oneSceneNode.has("imageUri")){
-                String sceneImgUrl = "http:"+oneSceneNode.get("imageUri").asText();
-                if (StringUtils.isNotBlank(sceneImgUrl) && sceneImgUrl.length()>5){
+            if (oneSceneNode.has("imageUri")) {
+                String sceneImgUrl = "http:" + oneSceneNode.get("imageUri").asText();
+                if (StringUtils.isNotBlank(sceneImgUrl) && sceneImgUrl.length() > 5) {
                     oneMagScene.setResult(sceneImgUrl);
                 }
             }
@@ -1024,7 +1024,7 @@ public class ExcelFillController2 {
             //拿到事件的id
             //String sceneID = oneSceneNode.get("sceneId").asText();
             //拿到事件的图片链接
-            String sceneImgUrl = "http:"+oneSceneNode.get("imageUri").asText();
+            String sceneImgUrl = "http:" + oneSceneNode.get("imageUri").asText();
             oneMagScene.setResult(sceneImgUrl);
             //拿到相机的名称
             String cameraName = oneSceneNode.get("channelName").asText();
@@ -1048,6 +1048,13 @@ public class ExcelFillController2 {
                 }
             }
 
+            //age between
+            if (oneSceneNode.has("ageLowerLimit") && oneSceneNode.has("ageUpperLimit")) {
+                int ageL = oneSceneNode.get("ageLowerLimit").asInt();
+                int ageU = oneSceneNode.get("ageUpperLimit").asInt();
+                tagArray.add("Age_Group:" + ageL + "-" + ageU);
+            }
+
             //发型
             if (oneSceneNode.has("hairStyle")) {
                 int hairCode = oneSceneNode.get("hairStyle").asInt();
@@ -1065,6 +1072,29 @@ public class ExcelFillController2 {
                     tagArray.add(DataRouterConstant.TAG_NO_HAT);
                 } else if (wearHatCode == 3) {
                     tagArray.add(DataRouterConstant.TAG_HAT);
+                }
+            }
+
+            //hat color
+            if (oneSceneNode.has("hatColor")) {
+                int hatColorCode = oneSceneNode.get("hatColor").asInt();
+
+                if (hatColorCode == 2) {
+                    tagArray.add("Hat_Color_".concat(DataRouterConstant.MD_COLOR_BLACK));
+                }else if(hatColorCode == 3){
+                    tagArray.add("Hat_Color_".concat(DataRouterConstant.MD_COLOR_WHITE));
+                }else if(hatColorCode == 4){
+                    tagArray.add("Hat_Color_".concat(DataRouterConstant.MD_COLOR_GREY));
+                }else if(hatColorCode == 5 || hatColorCode==11){
+                    tagArray.add("Hat_Color_".concat(DataRouterConstant.MD_COLOR_RED));
+                }else if(hatColorCode == 6 || hatColorCode==7 || hatColorCode==13){
+                    tagArray.add("Hat_Color_".concat(DataRouterConstant.MD_COLOR_YELLOW));
+                }else if(hatColorCode == 8){
+                    tagArray.add("Hat_Color_".concat(DataRouterConstant.MD_COLOR_GREEN));
+                }else if(hatColorCode == 9 || hatColorCode==10){
+                    tagArray.add("Hat_Color_".concat(DataRouterConstant.MD_COLOR_BLUE));
+                }else if(hatColorCode == 12){
+                    tagArray.add("Hat_Color_".concat(DataRouterConstant.MD_COLOR_PINK));
                 }
             }
 
@@ -1159,6 +1189,8 @@ public class ExcelFillController2 {
                 }
             }
 
+            //
+
             //pop
             StringBuilder aText = new StringBuilder();
             for (String tagStr : tagArray) {
@@ -1176,7 +1208,7 @@ public class ExcelFillController2 {
                     aText.append("Hat:").append(tagStr).append(". ");
                 }
                 if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SLEEVELESS)) {
-                    aText.append("Sleeve:").append(tagStr).append(". ");
+                    aText.append("Clothes:").append(tagStr).append(". ");
                 }
                 if (DataRouterConstant.CLOTHES_COLOR_LIST.contains(tagStr)) {
                     aText.append("Clothes Color:").append(tagStr.split("_")[0]).append(". ");
@@ -1212,7 +1244,7 @@ public class ExcelFillController2 {
             //拿到事件的id
             //String sceneID = oneSceneNode.get("sceneId").asText();
             //拿到事件的图片链接
-            String sceneImgUrl = "http:"+oneSceneNode.get("imageUri").asText();
+            String sceneImgUrl = "http:" + oneSceneNode.get("imageUri").asText();
             oneMagScene.setResult(sceneImgUrl);
             //拿到相机的名称
             String cameraName = oneSceneNode.get("channelName").asText();
