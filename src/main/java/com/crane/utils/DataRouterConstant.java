@@ -53,6 +53,9 @@ public class DataRouterConstant {
     public static final String[] CLOTHES_COLOR_SET = {"red_clothes", "green_clothes", "blue_clothes", "yellow_clothes", "black_clothes", "white_clothes", "grey_clothes", "pink_clothes"};
     public static List<String> CLOTHES_COLOR_LIST = Arrays.asList(CLOTHES_COLOR_SET);
 
+    public static final String[] SHOES_COLOR_SET = {"Hat_Color_Red", "Hat_Color_Green", "Hat_Color_Blue", "Hat_Color_Yellow", "Hat_Color_Black", "Hat_Color_White", "Hat_Color_Grey", "Hat_Color_Pink"};
+    public static List<String> SHOES_COLOR_LIST = Arrays.asList(SHOES_COLOR_SET);
+
     public static final Set<Integer> HAIR_STYLE_SHORT = new HashSet<>(Arrays.asList(2, 3, 4, 5, 6, 11, 13));
     public static final Set<Integer> HAIR_STYLE_LONG = new HashSet<>(Arrays.asList(8, 9, 10, 12, 14));
 

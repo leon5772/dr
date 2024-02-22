@@ -1280,18 +1280,25 @@ public class ExcelFillController2 {
                 if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_HAIR) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_HAIR)) {
                     aText.append("Hair:").append(tagStr).append(". ");
                 }
-                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_HAT) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_NO_HAT)) {
+                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_HAT)) {
                     aText.append("With Hat:").append("Yes").append(". ");
                 }
                 if (DataRouterConstant.HAT_COLOR_LIST.contains(tagStr)) {
                     aText.append("Hat Color:").append(tagStr.split("_")[2]).append(". ");
                 }
-                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_BAG) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_NO_BAG)) {
+                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_BAG)) {
                     aText.append("With Bag:").append("Yes").append(". ");
                 }
-                if (tagStr.equalsIgnoreCase("holdUmbrella") || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_NO_BAG)) {
+                if (tagStr.equalsIgnoreCase("rideBike")) {
+                    aText.append("Ride Bike:").append("Yes").append(". ");
+                }
+                if (tagStr.equalsIgnoreCase("holdUmbrella")) {
                     aText.append("Hold Umbrella:").append("Yes").append(". ");
                 }
+                if (DataRouterConstant.) {
+                    aText.append("Hold Umbrella:").append("Yes").append(". ");
+                }
+
 
             }
             oneMagScene.setAttribute(aText.toString());
