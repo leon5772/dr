@@ -322,7 +322,7 @@ public class ExcelFillController2 {
         sheet.setColumnWidth(1, colWid);
         sheet.setColumnWidth(2, colWid);
         sheet.setColumnWidth(3, colWid);
-        sheet.setColumnWidth(4, colWid * 3);
+        sheet.setColumnWidth(4, colWid * 5);
 
         //大点的字体
         XSSFFont biggerFont = workbook.createFont();
