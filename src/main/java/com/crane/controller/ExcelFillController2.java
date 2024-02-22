@@ -5,6 +5,8 @@ import com.crane.service.impl.TransServiceImpl;
 import com.crane.utils.DataRouterConstant;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
+import com.sun.org.apache.xml.internal.dtm.DTMAxisIterator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -1358,6 +1360,30 @@ public class ExcelFillController2 {
                     }
                 }
 
+                //age
+                if (oneSceneNode.has("age")){
+                    int age = oneSceneNode.get("age").asInt();
+                    tagArray.add("Age:"+age);
+                }
+
+                //wearRespirator
+                if (oneSceneNode.has("wearRespirator")){
+                    int wearRespiratorCode = oneSceneNode.get("wearRespirator").asInt();
+                    if (wearRespiratorCode==3){
+                        tagArray.add("wearRespirator");
+                    }
+                }
+
+                //wearGlasses
+                if (oneSceneNode.has("wearGlasses")){
+                    int wearGlassesCode = oneSceneNode.get("wearGlasses").asInt();
+                    if (wearGlassesCode==3){
+                        tagArray.add("wearGlasses");
+                    }
+                }
+
+                //
+
                 //发型
                 if (oneSceneNode.has("hairStyle")) {
                     int hairCode = oneSceneNode.get("hairStyle").asInt();
@@ -1368,25 +1394,15 @@ public class ExcelFillController2 {
                     }
                 }
 
-                //是否戴帽子
-                if (oneSceneNode.has("wearHat")) {
-                    int wearHatCode = oneSceneNode.get("wearHat").asInt();
-                    if (wearHatCode == 2) {
-                        tagArray.add(DataRouterConstant.TAG_NO_HAT);
-                    } else if (wearHatCode == 3) {
-                        tagArray.add(DataRouterConstant.TAG_HAT);
-                    }
-                }
-
                 //skin color
                 if (oneSceneNode.has("skinColor")) {
                     int skinColorCode = oneSceneNode.get("skinColor").asInt();
                     if (skinColorCode == 2) {
-                        metadataColorSet.add(DataRouterConstant.MD_COLOR_BLACK);
+                        tagArray.add("skin_color_".concat(DataRouterConstant.MD_COLOR_BLACK));
                     } else if (skinColorCode == 3) {
-                        metadataColorSet.add(DataRouterConstant.MD_COLOR_WHITE);
+                        tagArray.add("skin_color_".concat(DataRouterConstant.MD_COLOR_WHITE));
                     } else if (skinColorCode == 4 || skinColorCode == 5) {
-                        metadataColorSet.add(DataRouterConstant.MD_COLOR_YELLOW);
+                        tagArray.add("skin_color_".concat(DataRouterConstant.MD_COLOR_YELLOW));
                     }
                 }
 
@@ -1397,31 +1413,25 @@ public class ExcelFillController2 {
             //pop
             StringBuilder aText = new StringBuilder();
             for (String tagStr : tagArray) {
-
-                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_MALE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_FEMALE)) {
+                if (tagStr.equals(DataRouterConstant.TAG_MALE) || tagStr.equals(DataRouterConstant.TAG_FEMALE)){
                     aText.append("Gender:").append(tagStr).append(". ");
                 }
-                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_HAIR) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_HAIR)) {
+                if (tagStr.contains("Age:")){
+                    aText.append("Age:").append(tagStr.split(":")[1]).append(". ");
+                }
+                if (tagStr.equals("wearRespirator")){
+                    aText.append("Wear Respirator:").append("Yes").append(". ");
+                }
+                if (tagStr.equals("wearGlasses")){
+                    aText.append("Wear Glasses:").append("Yes").append(". ");
+                }
+                if (tagStr.equals(DataRouterConstant.TAG_SHORT_HAIR) || tagStr.equals(DataRouterConstant.TAG_LONG_HAIR)){
                     aText.append("Hair:").append(tagStr).append(". ");
                 }
-                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_BAG) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_NO_BAG)) {
-                    aText.append("Bag:").append(tagStr).append(". ");
+                if (tagStr.contains("skin_color_")){
+                    aText.append("Skin Color:").append(tagStr.split("_")[2]).append(". ");
                 }
-                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_HAT) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_NO_HAT)) {
-                    aText.append("Hat:").append(tagStr).append(". ");
-                }
-                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SLEEVELESS)) {
-                    aText.append("Sleeve:").append(tagStr).append(". ");
-                }
-                if (DataRouterConstant.CLOTHES_COLOR_LIST.contains(tagStr)) {
-                    aText.append("Clothes Color:").append(tagStr.split("_")[0]).append(". ");
-                }
-                if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_PANTS) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_PANTS)) {
-                    aText.append("Pants:").append(tagStr).append(". ");
-                }
-                if (DataRouterConstant.PANTS_COLOR_LIST.contains(tagStr)) {
-                    aText.append("Pants Color:").append(tagStr.split("_")[0]).append(". ");
-                }
+
             }
             oneMagScene.setAttribute(aText.toString());
 
