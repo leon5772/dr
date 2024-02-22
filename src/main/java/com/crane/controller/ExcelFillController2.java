@@ -1154,13 +1154,13 @@ public class ExcelFillController2 {
             if (oneSceneNode.has("pedestrianOrientation")){
                 int pedestrianOrientationCode = oneSceneNode.get("pedestrianOrientation").asInt();
                 if (pedestrianOrientationCode==2){
-                    tagArray.add("humanFaceTo_".concat("front"));
+                    tagArray.add("humanFaceTo_".concat("Front"));
                 }else if(pedestrianOrientationCode==3){
-                    tagArray.add("humanFaceTo_".concat("back"));
+                    tagArray.add("humanFaceTo_".concat("Back"));
                 }else if(pedestrianOrientationCode==4){
-                    tagArray.add("humanFaceTo_".concat("left"));
+                    tagArray.add("humanFaceTo_".concat("Left"));
                 }else if(pedestrianOrientationCode==5){
-                    tagArray.add("humanFaceTo_".concat("right"));
+                    tagArray.add("humanFaceTo_".concat("Right"));
                 }
             }
 
@@ -1295,11 +1295,18 @@ public class ExcelFillController2 {
                 if (tagStr.equalsIgnoreCase("holdUmbrella")) {
                     aText.append("Hold Umbrella:").append("Yes").append(". ");
                 }
-                if (DataRouterConstant.) {
-                    aText.append("Hold Umbrella:").append("Yes").append(". ");
+                if (DataRouterConstant.SHOES_COLOR_LIST.contains(tagStr)) {
+                    aText.append("Shoes Color:").append(tagStr.split("_")[2]).append(". ");
                 }
-
-
+                if(tagStr.equals("wearHelmet")){
+                    aText.append("Wear Helmet:").append("Yes").append(". ");
+                }
+                if(tagStr.equals("wearSafetycap")){
+                    aText.append("Wear SafetyCap:").append("Yes").append(". ");
+                }
+                if (tagStr.contains("humanFaceTo_")){
+                    aText.append("Pedestrian Orientation:").append(tagStr.split("_")[1]).append(". ");
+                }
             }
             oneMagScene.setAttribute(aText.toString());
 
