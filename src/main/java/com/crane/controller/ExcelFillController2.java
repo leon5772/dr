@@ -1362,7 +1362,7 @@ public class ExcelFillController2 {
 
                 //age
                 if (oneSceneNode.has("age")){
-                    int age = oneSceneNode.get("age").asInt();
+                    String age = oneSceneNode.get("age").asText();
                     tagArray.add("Age:"+age);
                 }
 
@@ -1382,7 +1382,13 @@ public class ExcelFillController2 {
                     }
                 }
 
-                //
+                //beard
+                if (oneSceneNode.has("beardStatus")){
+                    int beardCode = oneSceneNode.get("beardStatus").asInt();
+                    if (beardCode==3){
+                        tagArray.add("beardStatus3");
+                    }
+                }
 
                 //发型
                 if (oneSceneNode.has("hairStyle")) {
@@ -1424,6 +1430,9 @@ public class ExcelFillController2 {
                 }
                 if (tagStr.equals("wearGlasses")){
                     aText.append("Wear Glasses:").append("Yes").append(". ");
+                }
+                if (tagStr.equals("beardStatus3")){
+                    aText.append("Have Beard:").append("Yes").append(". ");
                 }
                 if (tagStr.equals(DataRouterConstant.TAG_SHORT_HAIR) || tagStr.equals(DataRouterConstant.TAG_LONG_HAIR)){
                     aText.append("Hair:").append(tagStr).append(". ");
