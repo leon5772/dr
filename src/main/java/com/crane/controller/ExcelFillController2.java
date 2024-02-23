@@ -857,6 +857,8 @@ public class ExcelFillController2 {
             paramsMap.put("pageNum", 1);
             //camera
             paramsMap.put("channelUuids", magCameras.split(","));
+            //
+            paramsMap.put("recordType",2);
 
             HttpPost httpPost = new HttpPost(uriBuilder.build());
             //header
@@ -907,7 +909,7 @@ public class ExcelFillController2 {
 
             ObjectMapper objectMapper = new ObjectMapper();
 
-            String url = "http://" + neuroAddress + DataRouterConstant.NEURO_API + "/v1/event/record/pedestrian/list";
+            String url = "http://" + neuroAddress + DataRouterConstant.NEURO_API + "/v1/event/record/face/list";
             uriBuilder = new URIBuilder(url);
 
             //params
@@ -922,6 +924,7 @@ public class ExcelFillController2 {
             paramsMap.put("pageNum", pageTh);
             //camera
             paramsMap.put("channelUuids", magCameras.split(","));
+            paramsMap.put("recordType",2);
 
             HttpPost httpPost = new HttpPost(uriBuilder.build());
             //header
@@ -1270,13 +1273,13 @@ public class ExcelFillController2 {
                 if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SLEEVELESS)) {
                     aText.append("Clothes:").append(tagStr).append(". ");
                 }
-                if (DataRouterConstant.CLOTHES_COLOR_LIST.contains(tagStr)) {
+                if (DataRouterConstant.CLOTHES_COLOR_LIST.contains(tagStr.toLowerCase())) {
                     aText.append("Clothes Color:").append(tagStr.split("_")[0]).append(". ");
                 }
                 if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_PANTS) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_PANTS)) {
                     aText.append("Pants:").append(tagStr).append(". ");
                 }
-                if (DataRouterConstant.PANTS_COLOR_LIST.contains(tagStr)) {
+                if (DataRouterConstant.PANTS_COLOR_LIST.contains(tagStr.toLowerCase())) {
                     aText.append("Pants Color:").append(tagStr.split("_")[0]).append(". ");
                 }
                 if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_HAIR) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_HAIR)) {
