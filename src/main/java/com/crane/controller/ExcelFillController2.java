@@ -1271,16 +1271,16 @@ public class ExcelFillController2 {
                     aText.append("Age:").append(tagStr.split(":")[1]).append(". ");
                 }
                 if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SLEEVELESS)) {
-                    aText.append("Clothes:").append(tagStr).append(". ");
+                    aText.append("Upper Body:").append(tagStr).append(". ");
                 }
                 if (DataRouterConstant.CLOTHES_COLOR_LIST.contains(tagStr.toLowerCase())) {
-                    aText.append("Clothes Color:").append(tagStr.split("_")[0]).append(". ");
+                    aText.append("Upper Body Color:").append(tagStr.split("_")[0]).append(". ");
                 }
                 if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_PANTS) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_PANTS)) {
-                    aText.append("Pants:").append(tagStr).append(". ");
+                    aText.append("Lower Body:").append(tagStr).append(". ");
                 }
                 if (DataRouterConstant.PANTS_COLOR_LIST.contains(tagStr.toLowerCase())) {
-                    aText.append("Pants Color:").append(tagStr.split("_")[0]).append(". ");
+                    aText.append("Lower Body Color:").append(tagStr.split("_")[0]).append(". ");
                 }
                 if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_HAIR) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_HAIR)) {
                     aText.append("Hair:").append(tagStr).append(". ");
@@ -1346,7 +1346,7 @@ public class ExcelFillController2 {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
             String sceneTime = sdf.format(oneSceneNode.get("timeMs").asLong());
             oneMagScene.setTime(sceneTime);
-            oneMagScene.setType("Person");
+            oneMagScene.setType("Face");
 
             //pop
             List<String> tagArray = new ArrayList<>();
