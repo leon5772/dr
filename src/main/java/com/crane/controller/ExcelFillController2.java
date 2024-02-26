@@ -1429,7 +1429,7 @@ public class ExcelFillController2 {
                     aText.append("Age:").append(tagStr.split(":")[1]).append(". ");
                 }
                 if (tagStr.equals("wearRespirator")){
-                    aText.append("Wear Respirator:").append("Yes").append(". ");
+                    aText.append("Wear Mask:").append("Yes").append(". ");
                 }
                 if (tagStr.equals("wearGlasses")){
                     aText.append("Wear Glasses:").append("Yes").append(". ");
