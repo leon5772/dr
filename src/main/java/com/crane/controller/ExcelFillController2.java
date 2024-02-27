@@ -142,12 +142,13 @@ public class ExcelFillController2 {
 
         //如果用户选了face识别，就只走识别代码
         String faceMode = request.getParameter("fd_mode");
+        String groupSet = request.getParameter("list_set");
         if (faceMode != null && faceMode.equals("match")) {
 
             List<FaceReData> faceReList = new ArrayList<>();
             faceReList = getFaceReFromMag(inputSTime, inputETime);
 
-            excelPath = frExcelMake(faceReList, inputSTime, inputETime);
+            excelPath = frExcelMake(faceReList, inputSTime, inputETime, groupSet);
 
         } else {
 
@@ -534,11 +535,11 @@ public class ExcelFillController2 {
         FaceReData f = new FaceReData();
         b.add(f);
 
-        String re = a.frExcelMake(b,"2024-02-20 16:50:88:888","2024-02-20 16:50:88:888");
+        String re = a.frExcelMake(b, "2024-02-20 16:50:02:000", "2024-02-20 16:50:02:000", "vip1,vip2,vip3");
         System.out.println(re);
     }
 
-    private String frExcelMake(List<FaceReData> faceReList, String sTime, String eTime) {
+    private String frExcelMake(List<FaceReData> faceReList, String sTime, String eTime, String groupSetStr) {
 
         //用新型的excel
         XSSFWorkbook workbook = new XSSFWorkbook();
@@ -587,6 +588,17 @@ public class ExcelFillController2 {
         CellStyle r3c1CellStyle = workbook.createCellStyle();
         r3c1CellStyle.setFont(normalFont);
         r3c1.setCellStyle(r3c1CellStyle);
+
+        //名单行
+        XSSFRow row4 = sheet.createRow(3);
+        XSSFCell r4c1 = row4.createCell(0);
+        XSSFCell r4c2 = row4.createCell(1);
+        XSSFCell r4c3 = row4.createCell(2);
+        //长度需要跨列
+        sheet.addMergedRegion(new CellRangeAddress(3, 3, 0, 2));
+        r4c1.setCellValue("List: " + groupSetStr);
+        //字体
+        r4c1.setCellStyle(r3c1CellStyle);
 
         //标题行
         XSSFRow row4 = sheet.createRow(3);
