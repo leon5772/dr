@@ -148,7 +148,9 @@ public class ExcelFillController2 {
 
         if (faceMode != null && faceMode.equals("match")) {
 
-            //如果用户选了名单
+            List<FaceReData> resultList = new ArrayList<>();
+
+            //如果用户选了名单，转为set方便处理
             Set<String> groupNameSet = new HashSet<>();
             if (StringUtils.isNotBlank(groupSetStr)) {
                 //变成set
@@ -156,19 +158,32 @@ public class ExcelFillController2 {
                 groupNameSet = Arrays.stream(listNameArr).collect(Collectors.toSet());
             }
 
-            List<FaceReData> resultList = new ArrayList<>();
+            //两个条件判断
+            boolean groupNameFlag = false;
+            boolean simFlag = false;
             List<FaceReData> faceReList = getFaceReFromMag(inputSTime, inputETime);
             for (FaceReData oneFaceRe : faceReList) {
 
                 //如果用户输入了名单名字，就要进行判断
-                if (!groupNameSet.isEmpty()){
+                if (!groupNameSet.isEmpty()) {
                     String groupName = oneFaceRe.getListName();
                     if (StringUtils.isNotBlank(groupName) && groupNameSet.contains(groupName)) {
-                        resultList.add(oneFaceRe);
+                        groupNameFlag = true;
                     }
                 }
-                //如果用户限定了
-
+                //如果用户限定了相似度，就是大于并等于
+                if (StringUtils.isNotBlank(sim)) {
+                    Float oneReSim = oneFaceRe.getSimilarity();
+                    if (oneReSim != null) {
+                        float inputSim = Float.parseFloat(sim);
+                        if (Float.compare(oneReSim,inputSim)>0){
+                            simFlag=true;
+                        }
+                    }
+                }
+                if (groupNameFlag && simFlag){
+                    resultList.add(oneFaceRe);
+                }
             }
 
             excelPath = frExcelMake(faceReList, inputSTime, inputETime, groupSetStr, sim);
@@ -637,9 +652,9 @@ public class ExcelFillController2 {
         //相似度
         XSSFRow row5 = sheet.createRow(4);
         XSSFCell r5c1 = row5.createCell(0);
-        if (StringUtils.isBlank(sim)){
+        if (StringUtils.isBlank(sim)) {
             r5c1.setCellValue("Similarity: All");
-        }else{
+        } else {
             r5c1.setCellValue("Similarity: " + sim);
         }
 
