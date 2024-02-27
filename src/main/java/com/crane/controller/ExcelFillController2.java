@@ -758,8 +758,7 @@ public class ExcelFillController2 {
         //数据从8行开始
         int i = 8;
         Drawing<XSSFShape> drawing = sheet.createDrawingPatriarch();
-        List<OutputData> eventList = new ArrayList<>();
-        for (OutputData oneEv : eventList) {
+        for (FaceReData oneFr : faceReList) {
 
             //创建行
             XSSFRow rowN = sheet.createRow(i);
@@ -773,16 +772,16 @@ public class ExcelFillController2 {
             //rnc1.setCellValue(oneEv.getResult());
             rnc1.setCellStyle(contentCellStyle);
             //填充图片到位置
-            if (StringUtils.isBlank(oneEv.getResult())) {
-                rowN.setHeightInPoints(Float.parseFloat(excelTextHeight));
+            if (StringUtils.isBlank(oneFr.getFaceImgUrl())) {
+                rowN.setHeightInPoints(60f);
             } else {
                 //开始下载图片
-                byte[] picBts = downloadSnapshot(oneEv.getResult());
+                byte[] picBts = downloadSnapshot(oneFr.getFaceImgUrl());
                 if (picBts == null) {
                     continue;
                 } else {
 
-                    rowN.setHeightInPoints(Float.parseFloat(excelPicHeight));
+                    rowN.setHeightInPoints(60f);
                     //定位图片位置
                     XSSFCreationHelper helper = workbook.getCreationHelper();
                     ClientAnchor anchor = helper.createClientAnchor();
@@ -802,25 +801,76 @@ public class ExcelFillController2 {
 
             }
 
-            //每行第2列为时间
+            //每行第2列为相似度
             XSSFCell rnc2 = rowN.createCell(1);
-            rnc2.setCellValue(oneEv.getTime());
+            rnc2.setCellValue(oneFr.getSimilarity());
             rnc2.setCellStyle(contentCellStyle);
 
-            //每行第3列为相机
+            //每行第3列为年龄
             XSSFCell rnc3 = rowN.createCell(2);
-            rnc3.setCellValue(oneEv.getCamera());
+            rnc3.setCellValue(oneFr.getAge());
             rnc3.setCellStyle(contentCellStyle);
 
-            //每行第4列为类型
+            //每行第4列为性别
             XSSFCell rnc4 = rowN.createCell(3);
-            rnc4.setCellValue(oneEv.getType());
+            rnc4.setCellValue(oneFr.getGender());
             rnc4.setCellStyle(contentCellStyle);
 
-            //每行第5列为时间
+            //每行第5列为底库
             XSSFCell rnc5 = rowN.createCell(4);
-            rnc5.setCellValue(oneEv.getAttribute());
-            rnc5.setCellStyle(contentCellStyle);
+            if (StringUtils.isBlank(oneFr.getTargetImgUrl())) {
+                rowN.setHeightInPoints(60f);
+            } else {
+                //开始下载图片
+                byte[] picBts = downloadSnapshot(oneFr.getTargetImgUrl());
+                if (picBts == null) {
+                    continue;
+                } else {
+
+                    rowN.setHeightInPoints(60f);
+                    //定位图片位置
+                    XSSFCreationHelper helper = workbook.getCreationHelper();
+                    ClientAnchor anchor = helper.createClientAnchor();
+                    anchor.setCol1(5);
+                    anchor.setRow1(i - 1);
+                    anchor.setCol2(6);
+                    anchor.setRow2(i);
+
+                    //绘制图片数据
+                    int picIdx = workbook.addPicture(picBts, Workbook.PICTURE_TYPE_PNG);
+                    Picture excelPic = drawing.createPicture(anchor, picIdx);
+                    String[] scaleArr = excelPicScale.split("x");
+                    double scaleX = Double.parseDouble(scaleArr[0]);
+                    double scaleY = Double.parseDouble(scaleArr[1]);
+                    excelPic.resize(scaleX, scaleY);
+                }
+
+            }
+
+            //每行第6列为名字
+            XSSFCell rnc6 = rowN.createCell(5);
+            rnc6.setCellValue(oneFr.getMatchName());
+            rnc6.setCellStyle(contentCellStyle);
+
+            //每行第7列为名单
+            XSSFCell rnc7 = rowN.createCell(6);
+            rnc7.setCellValue(oneFr.getListName());
+            rnc7.setCellStyle(contentCellStyle);
+
+            //每行第8列为描述
+            XSSFCell rnc8 = rowN.createCell(7);
+            rnc8.setCellValue("dec");
+            rnc8.setCellStyle(contentCellStyle);
+
+            //每行第9列为名单
+            XSSFCell rnc9 = rowN.createCell(8);
+            rnc9.setCellValue(oneFr.getTime());
+            rnc9.setCellStyle(contentCellStyle);
+
+            //每行第10列为名单
+            XSSFCell rnc10 = rowN.createCell(9);
+            rnc10.setCellValue(oneFr.getCameraName());
+            rnc10.setCellStyle(contentCellStyle);
         }
 
         // 设置Excel文件路径
