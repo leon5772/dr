@@ -531,7 +531,7 @@ public class ExcelFillController2 {
         return outputPath;
     }
 
-    private String frExcelMake(List<FaceReData> eventList, String sTime, String eTime) {
+    private String frExcelMake(List<FaceReData> faceReList, String sTime, String eTime) {
 
         //用新型的excel
         XSSFWorkbook workbook = new XSSFWorkbook();
@@ -645,6 +645,7 @@ public class ExcelFillController2 {
         //数据从5行开始
         int i = 4;
         Drawing<XSSFShape> drawing = sheet.createDrawingPatriarch();
+        List<OutputData> eventList = new ArrayList<>();
         for (OutputData oneEv : eventList) {
 
             //创建行
@@ -1229,10 +1230,12 @@ public class ExcelFillController2 {
                     int loopNum = (totalRec / PER_PAGE_REC) + 1;
                     for (int i = 1; i <= loopNum; i++) {
                         List<OutputData> onePageData = formatMagFace(getFaceDataFromMagPage(magStart, magEnd, i));
-                        faceReList.addAll(onePageData);
+                        List<FaceReData> twoPageData = new ArrayList<>();
+                        faceReList.addAll(twoPageData);
                     }
                 } else {
-                    faceReList.addAll(formatMagFace(res));
+                    //faceReList.addAll(formatMagFace(res));
+                    //faceReList.addAll();
                 }
             }
         } catch (Exception e) {
