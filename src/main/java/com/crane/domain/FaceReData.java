@@ -3,7 +3,7 @@ package com.crane.domain;
 public class FaceReData {
 
     private String faceImgUrl;
-    private Float similarity;
+    private Double similarity;
     private Integer Age;
     private Integer Gender;
     private String targetImgUrl;
@@ -21,11 +21,11 @@ public class FaceReData {
         this.faceImgUrl = faceImgUrl;
     }
 
-    public Float getSimilarity() {
+    public Double getSimilarity() {
         return similarity;
     }
 
-    public void setSimilarity(Float similarity) {
+    public void setSimilarity(Double similarity) {
         this.similarity = similarity;
     }
 
