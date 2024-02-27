@@ -534,7 +534,7 @@ public class ExcelFillController2 {
         FaceReData f = new FaceReData();
         b.add(f);
 
-        String re = a.frExcelMake(f,"111","222");
+        String re = a.frExcelMake(b,"2024-02-20 16:50:88:888","2024-02-20 16:50:88:888");
         System.out.println(re);
     }
 
@@ -570,21 +570,23 @@ public class ExcelFillController2 {
         CellStyle r1c1CellStyle = workbook.createCellStyle();
         r1c1CellStyle.setFont(biggerFont);
         //赋值
-        r1c1.setCellValue("Metadata");
+        r1c1.setCellValue("History of Face Recognition");
         r1c1.setCellStyle(r1c1CellStyle);
+        //跨列
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 1));
 
-        //行2
-        XSSFRow row2 = sheet.createRow(1);
-        XSSFCell r2c1 = row2.createCell(0);
-        XSSFCell r2c2 = row2.createCell(1);
-        XSSFCell r2c3 = row2.createCell(2);
+        //行3
+        XSSFRow row3 = sheet.createRow(2);
+        XSSFCell r3c1 = row3.createCell(0);
+        XSSFCell r3c2 = row3.createCell(1);
+        XSSFCell r3c3 = row3.createCell(2);
         //长度需要跨列
-        sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, 1));
-        r2c1.setCellValue("Time: " + sTime + " - " + eTime);
+        sheet.addMergedRegion(new CellRangeAddress(2, 2, 0, 2));
+        r3c1.setCellValue("Search Time: " + sTime + " - " + eTime);
         //字体
-        CellStyle r2c1CellStyle = workbook.createCellStyle();
-        r2c1CellStyle.setFont(normalFont);
-        r2c1.setCellStyle(r2c1CellStyle);
+        CellStyle r3c1CellStyle = workbook.createCellStyle();
+        r3c1CellStyle.setFont(normalFont);
+        r3c1.setCellStyle(r3c1CellStyle);
 
         //标题行
         XSSFRow row4 = sheet.createRow(3);
