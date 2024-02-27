@@ -142,13 +142,14 @@ public class ExcelFillController2 {
 
         //如果用户选了face识别，就只走识别代码
         String faceMode = request.getParameter("fd_mode");
-        String groupSet = request.getParameter("list_set");
+        String groupSetStr = request.getParameter("list_set");
+        float sim = Float.parseFloat(request.getParameter("sim"));
         if (faceMode != null && faceMode.equals("match")) {
 
             List<FaceReData> faceReList = new ArrayList<>();
             faceReList = getFaceReFromMag(inputSTime, inputETime);
 
-            excelPath = frExcelMake(faceReList, inputSTime, inputETime, groupSet);
+            excelPath = frExcelMake(faceReList, inputSTime, inputETime, groupSetStr, sim);
 
         } else {
 
@@ -535,11 +536,11 @@ public class ExcelFillController2 {
         FaceReData f = new FaceReData();
         b.add(f);
 
-        String re = a.frExcelMake(b, "2024-02-20 16:50:02:000", "2024-02-20 16:50:02:000", "vip1,vip2,vip3");
+        String re = a.frExcelMake(b, "2024-02-20 16:50:02:000", "2024-02-20 16:50:02:000", "vip1,vip2,vip3", 60f);
         System.out.println(re);
     }
 
-    private String frExcelMake(List<FaceReData> faceReList, String sTime, String eTime, String groupSetStr) {
+    private String frExcelMake(List<FaceReData> faceReList, String sTime, String eTime, String groupSetStr, float sim) {
 
         //用新型的excel
         XSSFWorkbook workbook = new XSSFWorkbook();
@@ -600,9 +601,28 @@ public class ExcelFillController2 {
         //字体
         r4c1.setCellStyle(r3c1CellStyle);
 
+        //相似度
+        XSSFRow row5 = sheet.createRow(4);
+        XSSFCell r5c1 = row5.createCell(0);
+        r5c1.setCellValue("Similarity: " + sim);
+        //字体
+        r5c1.setCellStyle(r3c1CellStyle);
+
+        //下载时间行
+        XSSFRow row6 = sheet.createRow(5);
+        XSSFCell r6c1 = row6.createCell(0);
+        XSSFCell r6c2 = row6.createCell(1);
+        XSSFCell r6c3 = row6.createCell(2);
+        //长度需要跨列
+        sheet.addMergedRegion(new CellRangeAddress(6, 6, 0, 2));
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        r6c1.setCellValue("Download Time: ".concat(sdf.format(new Date())));
+        //字体
+        r6c1.setCellStyle(r3c1CellStyle);
+
         //标题行
-        XSSFRow row4 = sheet.createRow(3);
-        row4.setHeightInPoints(16);
+        XSSFRow row7 = sheet.createRow(6);
+        row7.setHeightInPoints(16);
         //黑边框样式
         CellStyle titleCellStyle = workbook.createCellStyle();
         titleCellStyle.setBorderLeft(BorderStyle.THIN);
@@ -622,27 +642,46 @@ public class ExcelFillController2 {
         titleCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         titleCellStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
 
-        //标题列需先填文本后赋值
         //声明标题并赋予样式
-        XSSFCell r4c1 = row4.createCell(0);
-        r4c1.setCellValue("Result");
-        r4c1.setCellStyle(titleCellStyle);
+        XSSFCell r7c1 = row7.createCell(0);
+        r7c1.setCellValue("Event Face");
+        r7c1.setCellStyle(titleCellStyle);
 
-        XSSFCell r4c2 = row4.createCell(1);
-        r4c2.setCellValue("Time");
-        r4c2.setCellStyle(titleCellStyle);
+        XSSFCell r7c2 = row7.createCell(1);
+        r7c2.setCellValue("Similarity");
+        r7c2.setCellStyle(titleCellStyle);
 
-        XSSFCell r4c3 = row4.createCell(2);
-        r4c3.setCellValue("Camera");
-        r4c3.setCellStyle(titleCellStyle);
+        XSSFCell r7c3 = row7.createCell(2);
+        r7c3.setCellValue("Age");
+        r7c3.setCellStyle(titleCellStyle);
 
-        XSSFCell r4c4 = row4.createCell(3);
-        r4c4.setCellValue("Type");
-        r4c4.setCellStyle(titleCellStyle);
+        XSSFCell r7c4 = row7.createCell(3);
+        r7c4.setCellValue("Gender");
+        r7c4.setCellStyle(titleCellStyle);
 
-        XSSFCell r4c5 = row4.createCell(4);
-        r4c5.setCellValue("attribute text");
-        r4c5.setCellStyle(titleCellStyle);
+        XSSFCell r7c5 = row7.createCell(4);
+        r7c5.setCellValue("Target Face");
+        r7c5.setCellStyle(titleCellStyle);
+
+        XSSFCell r7c6 = row7.createCell(5);
+        r7c6.setCellValue("Match Name");
+        r7c6.setCellStyle(titleCellStyle);
+
+        XSSFCell r7c7 = row7.createCell(6);
+        r7c7.setCellValue("List");
+        r7c7.setCellStyle(titleCellStyle);
+
+        XSSFCell r7c8 = row7.createCell(7);
+        r7c8.setCellValue("Description");
+        r7c8.setCellStyle(titleCellStyle);
+
+        XSSFCell r7c9 = row7.createCell(8);
+        r7c9.setCellValue("Time");
+        r7c9.setCellStyle(titleCellStyle);
+
+        XSSFCell r7c10 = row7.createCell(9);
+        r7c10.setCellValue("Camera Name");
+        r7c10.setCellStyle(titleCellStyle);
 
         //-----------------------------------------------------------------------------------------|
 
