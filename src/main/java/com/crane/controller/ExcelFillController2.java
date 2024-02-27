@@ -1,12 +1,11 @@
 package com.crane.controller;
 
+import com.crane.domain.FaceReData;
 import com.crane.domain.OutputData;
 import com.crane.service.impl.TransServiceImpl;
 import com.crane.utils.DataRouterConstant;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
-import com.sun.org.apache.xml.internal.dtm.DTMAxisIterator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -140,63 +139,78 @@ public class ExcelFillController2 {
 
         //根据选中的类型，决定获取哪些数据
         String excelPath = "";
-        if (askType.equals("object")) {
 
-            List<OutputData> sceneUniList = new ArrayList<>();
+        //如果用户选了face识别，就只走识别代码
+        String faceMode = request.getParameter("fd_mode");
+        if (faceMode != null && faceMode.equals("match")) {
 
-            List<OutputData> bodyObjectList = getBodyDataFromMag(inputSTime, inputETime);
-            if (bodyObjectList != null && !bodyObjectList.isEmpty()) {
-                sceneUniList.addAll(bodyObjectList);
-            }
-            List<OutputData> faceObjectList = getFaceDataFromMag(inputSTime, inputETime);
-            if (faceObjectList != null && !faceObjectList.isEmpty()) {
-                sceneUniList.addAll(faceObjectList);
-            }
+            List<FaceReData> faceReList = new ArrayList<>();
+            faceReList = getFaceReFromMag(inputSTime, inputETime);
 
-            Comparator<OutputData> timeComparator = Comparator.comparing(OutputData::getTime);
-            sceneUniList.sort(timeComparator);
-
-            excelPath = makeExcel(sceneUniList, inputSTime, inputETime);
-
-        } else if (askType.equals("event")) {
-
-            List<OutputData> uniList = new ArrayList<>();
-
-            List<OutputData> eventList = getEventDataFromMag(inputSTime, inputETime);
-            if (eventList != null && !eventList.isEmpty()) {
-                uniList.addAll(eventList);
-            }
-
-            Comparator<OutputData> timeComparator = Comparator.comparing(OutputData::getTime);
-            uniList.sort(timeComparator);
-
-            excelPath = makeExcel(uniList, inputSTime, inputETime);
+            excelPath = frExcelMake(faceReList, inputSTime, inputETime);
 
         } else {
 
-            //查询两个接口的数据
-            List<OutputData> uniList = new ArrayList<>();
+            //结构化
+            if (askType.equals("object")) {
 
-            List<OutputData> bodyObjectList = getBodyDataFromMag(inputSTime, inputETime);
-            if (bodyObjectList != null && !bodyObjectList.isEmpty()) {
-                uniList.addAll(bodyObjectList);
+                List<OutputData> sceneUniList = new ArrayList<>();
+
+                List<OutputData> bodyObjectList = getBodyDataFromMag(inputSTime, inputETime);
+                if (bodyObjectList != null && !bodyObjectList.isEmpty()) {
+                    sceneUniList.addAll(bodyObjectList);
+                }
+                List<OutputData> faceObjectList = getFaceDataFromMag(inputSTime, inputETime);
+                if (faceObjectList != null && !faceObjectList.isEmpty()) {
+                    sceneUniList.addAll(faceObjectList);
+                }
+
+                Comparator<OutputData> timeComparator = Comparator.comparing(OutputData::getTime);
+                sceneUniList.sort(timeComparator);
+
+                excelPath = makeExcel(sceneUniList, inputSTime, inputETime);
+
+            } else if (askType.equals("event")) {
+
+                List<OutputData> uniList = new ArrayList<>();
+
+                List<OutputData> eventList = getEventDataFromMag(inputSTime, inputETime);
+                if (eventList != null && !eventList.isEmpty()) {
+                    uniList.addAll(eventList);
+                }
+
+                Comparator<OutputData> timeComparator = Comparator.comparing(OutputData::getTime);
+                uniList.sort(timeComparator);
+
+                excelPath = makeExcel(uniList, inputSTime, inputETime);
+
+            } else {
+
+                //查询两个接口的数据
+                List<OutputData> uniList = new ArrayList<>();
+
+                List<OutputData> bodyObjectList = getBodyDataFromMag(inputSTime, inputETime);
+                if (bodyObjectList != null && !bodyObjectList.isEmpty()) {
+                    uniList.addAll(bodyObjectList);
+                }
+                List<OutputData> faceObjectList = getFaceDataFromMag(inputSTime, inputETime);
+                if (faceObjectList != null && !faceObjectList.isEmpty()) {
+                    uniList.addAll(faceObjectList);
+                }
+
+                List<OutputData> eventList = getEventDataFromMag(inputSTime, inputETime);
+                if (eventList != null && !eventList.isEmpty()) {
+                    uniList.addAll(eventList);
+                }
+
+                //排序
+                Comparator<OutputData> timeComparator = Comparator.comparing(OutputData::getTime);
+                uniList.sort(timeComparator);
+
+                excelPath = makeExcel(uniList, inputSTime, inputETime);
             }
-            List<OutputData> faceObjectList = getFaceDataFromMag(inputSTime, inputETime);
-            if (faceObjectList != null && !faceObjectList.isEmpty()) {
-                uniList.addAll(faceObjectList);
-            }
-
-            List<OutputData> eventList = getEventDataFromMag(inputSTime, inputETime);
-            if (eventList != null && !eventList.isEmpty()) {
-                uniList.addAll(eventList);
-            }
-
-            //排序
-            Comparator<OutputData> timeComparator = Comparator.comparing(OutputData::getTime);
-            uniList.sort(timeComparator);
-
-            excelPath = makeExcel(uniList, inputSTime, inputETime);
         }
+
 
         // 读到流中
         InputStream inputStream = Files.newInputStream(Paths.get(excelPath));// 文件的存放路径
@@ -217,6 +231,10 @@ public class ExcelFillController2 {
 
         //删除临时文件
         finishedExcel.delete();
+    }
+
+    private String frExcelMake(FaceReData faceReData, String startTime, String endTime) {
+
     }
 
     private List<OutputData> getEventByTag(String startTime, String endTime) {
@@ -311,6 +329,209 @@ public class ExcelFillController2 {
     }
 
     private String makeExcel(List<OutputData> eventList, String sTime, String eTime) {
+
+        //用新型的excel
+        XSSFWorkbook workbook = new XSSFWorkbook();
+
+        //sheet单
+        XSSFSheet sheet = workbook.createSheet("History");
+
+        //列的宽度设置
+        int colWid = 20 * 256;
+        sheet.setColumnWidth(0, colWid);
+        sheet.setColumnWidth(1, colWid);
+        sheet.setColumnWidth(2, colWid);
+        sheet.setColumnWidth(3, colWid);
+        sheet.setColumnWidth(4, colWid * 5);
+
+        //大点的字体
+        XSSFFont biggerFont = workbook.createFont();
+        biggerFont.setFontHeightInPoints((short) 15);
+
+        //正常的字体
+        XSSFFont normalFont = workbook.createFont();
+        normalFont.setFontHeightInPoints((short) 11);
+
+        //行1
+        XSSFRow row1 = sheet.createRow(0);
+        row1.setHeightInPoints(20);
+        XSSFCell r1c1 = row1.createCell(0);
+        //字体
+        CellStyle r1c1CellStyle = workbook.createCellStyle();
+        r1c1CellStyle.setFont(biggerFont);
+        //赋值
+        r1c1.setCellValue("Metadata");
+        r1c1.setCellStyle(r1c1CellStyle);
+
+        //行2
+        XSSFRow row2 = sheet.createRow(1);
+        XSSFCell r2c1 = row2.createCell(0);
+        XSSFCell r2c2 = row2.createCell(1);
+        XSSFCell r2c3 = row2.createCell(2);
+        //长度需要跨列
+        sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, 1));
+        r2c1.setCellValue("Time: " + sTime + " - " + eTime);
+        //字体
+        CellStyle r2c1CellStyle = workbook.createCellStyle();
+        r2c1CellStyle.setFont(normalFont);
+        r2c1.setCellStyle(r2c1CellStyle);
+
+        //标题行
+        XSSFRow row4 = sheet.createRow(3);
+        row4.setHeightInPoints(16);
+        //黑边框样式
+        CellStyle titleCellStyle = workbook.createCellStyle();
+        titleCellStyle.setBorderLeft(BorderStyle.THIN);
+        titleCellStyle.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+        titleCellStyle.setBorderTop(BorderStyle.THIN);
+        titleCellStyle.setTopBorderColor(IndexedColors.BLACK.getIndex());
+        titleCellStyle.setBorderRight(BorderStyle.THIN);
+        titleCellStyle.setRightBorderColor(IndexedColors.BLACK.getIndex());
+        titleCellStyle.setBorderBottom(BorderStyle.THIN);
+        titleCellStyle.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+        //左右上下居中
+        titleCellStyle.setAlignment(HorizontalAlignment.CENTER);
+        titleCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        //字体
+        titleCellStyle.setFont(normalFont);
+        //背景
+        titleCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        titleCellStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+
+        //标题列需先填文本后赋值
+        //声明标题并赋予样式
+        XSSFCell r4c1 = row4.createCell(0);
+        r4c1.setCellValue("Result");
+        r4c1.setCellStyle(titleCellStyle);
+
+        XSSFCell r4c2 = row4.createCell(1);
+        r4c2.setCellValue("Time");
+        r4c2.setCellStyle(titleCellStyle);
+
+        XSSFCell r4c3 = row4.createCell(2);
+        r4c3.setCellValue("Camera");
+        r4c3.setCellStyle(titleCellStyle);
+
+        XSSFCell r4c4 = row4.createCell(3);
+        r4c4.setCellValue("Type");
+        r4c4.setCellStyle(titleCellStyle);
+
+        XSSFCell r4c5 = row4.createCell(4);
+        r4c5.setCellValue("attribute text");
+        r4c5.setCellStyle(titleCellStyle);
+
+        //-----------------------------------------------------------------------------------------|
+
+        //内容行的边框
+        CellStyle contentCellStyle = workbook.createCellStyle();
+        contentCellStyle.setBorderLeft(BorderStyle.THIN);
+        contentCellStyle.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+        contentCellStyle.setBorderTop(BorderStyle.THIN);
+        contentCellStyle.setTopBorderColor(IndexedColors.BLACK.getIndex());
+        contentCellStyle.setBorderRight(BorderStyle.THIN);
+        contentCellStyle.setRightBorderColor(IndexedColors.BLACK.getIndex());
+        contentCellStyle.setBorderBottom(BorderStyle.THIN);
+        contentCellStyle.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+        //字体，以及自动折行
+        contentCellStyle.setFont(normalFont);
+        contentCellStyle.setWrapText(true);
+        //内容行的居中策略
+        contentCellStyle.setAlignment(HorizontalAlignment.LEFT);
+        contentCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+        //数据从5行开始
+        int i = 4;
+        Drawing<XSSFShape> drawing = sheet.createDrawingPatriarch();
+        for (OutputData oneEv : eventList) {
+
+            //创建行
+            XSSFRow rowN = sheet.createRow(i);
+            i = i + 1;
+            if (i % 100 == 0) {
+                (workbook).getSheet("History");
+            }
+
+            //每行第1列为图片，动态的行高
+            XSSFCell rnc1 = rowN.createCell(0);
+            //rnc1.setCellValue(oneEv.getResult());
+            rnc1.setCellStyle(contentCellStyle);
+            //填充图片到位置
+            if (StringUtils.isBlank(oneEv.getResult())) {
+                rowN.setHeightInPoints(Float.parseFloat(excelTextHeight));
+            } else {
+                //开始下载图片
+                byte[] picBts = downloadSnapshot(oneEv.getResult());
+                if (picBts == null) {
+                    continue;
+                } else {
+
+                    rowN.setHeightInPoints(Float.parseFloat(excelPicHeight));
+                    //定位图片位置
+                    XSSFCreationHelper helper = workbook.getCreationHelper();
+                    ClientAnchor anchor = helper.createClientAnchor();
+                    anchor.setCol1(0);
+                    anchor.setRow1(i - 1);
+                    anchor.setCol2(1);
+                    anchor.setRow2(i);
+
+                    //绘制图片数据
+                    int picIdx = workbook.addPicture(picBts, Workbook.PICTURE_TYPE_PNG);
+                    Picture excelPic = drawing.createPicture(anchor, picIdx);
+                    String[] scaleArr = excelPicScale.split("x");
+                    double scaleX = Double.parseDouble(scaleArr[0]);
+                    double scaleY = Double.parseDouble(scaleArr[1]);
+                    excelPic.resize(scaleX, scaleY);
+                }
+
+            }
+
+            //每行第2列为时间
+            XSSFCell rnc2 = rowN.createCell(1);
+            rnc2.setCellValue(oneEv.getTime());
+            rnc2.setCellStyle(contentCellStyle);
+
+            //每行第3列为相机
+            XSSFCell rnc3 = rowN.createCell(2);
+            rnc3.setCellValue(oneEv.getCamera());
+            rnc3.setCellStyle(contentCellStyle);
+
+            //每行第4列为类型
+            XSSFCell rnc4 = rowN.createCell(3);
+            rnc4.setCellValue(oneEv.getType());
+            rnc4.setCellStyle(contentCellStyle);
+
+            //每行第5列为时间
+            XSSFCell rnc5 = rowN.createCell(4);
+            rnc5.setCellValue(oneEv.getAttribute());
+            rnc5.setCellStyle(contentCellStyle);
+        }
+
+        // 设置Excel文件路径
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+        String downloadTime = sdf.format(new Date());
+        String outputPath = "./metadata/data/excel/" + downloadTime + ".xlsx";
+        File file = new File(outputPath);
+
+        try {
+            // 创建指向该路径的输出流
+            FileOutputStream stream = new FileOutputStream(file);
+
+            // 将数据导出到Excel表格
+            workbook.write(stream);
+            workbook.close();
+
+            // 关闭输出流
+            stream.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return outputPath;
+    }
+
+    private String frExcelMake(List<FaceReData> eventList, String sTime, String eTime) {
 
         //用新型的excel
         XSSFWorkbook workbook = new XSSFWorkbook();
@@ -858,7 +1079,7 @@ public class ExcelFillController2 {
             //camera
             paramsMap.put("channelUuids", magCameras.split(","));
             //
-            paramsMap.put("recordType",2);
+            paramsMap.put("recordType", 2);
 
             HttpPost httpPost = new HttpPost(uriBuilder.build());
             //header
@@ -897,6 +1118,81 @@ public class ExcelFillController2 {
         return finalBodyData;
     }
 
+    private List<FaceReData> getFaceReFromMag(String startTime, String endTime) {
+
+        //result
+        List<FaceReData> faceReList = new ArrayList<>();
+
+        //apache http
+        HttpClient httpClient = HttpClients.createDefault();
+        //ask
+        URIBuilder uriBuilder = null;
+        CloseableHttpResponse response = null;
+
+        //jackson
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+
+            String url = "http://" + neuroAddress + DataRouterConstant.NEURO_API + "/v1/event/record/face/list";
+            uriBuilder = new URIBuilder(url);
+
+            //params
+            Map<String, Object> paramsMap = new HashMap<>();
+            //trans mills
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+            //start
+            String magStart = String.valueOf(sdf.parse(startTime.concat(".000")).getTime());
+            paramsMap.put("startTime", magStart);
+            //end
+            String magEnd = String.valueOf(sdf.parse(endTime.concat(".000")).getTime());
+            paramsMap.put("endTime", magEnd);
+            //page size
+            paramsMap.put("pageSize", PER_PAGE_REC);
+            //page num
+            paramsMap.put("pageNum", 1);
+            //camera
+            paramsMap.put("channelUuids", magCameras.split(","));
+            //
+            paramsMap.put("recordType", 1);
+
+            HttpPost httpPost = new HttpPost(uriBuilder.build());
+            //header
+            httpPost.addHeader("Content-Type", "application/json");
+            //body
+            httpPost.setEntity(new StringEntity(objectMapper.writeValueAsString(paramsMap)));
+
+            response = (CloseableHttpResponse) httpClient.execute(httpPost);
+            int code = response.getStatusLine().getStatusCode();
+            String res = EntityUtils.toString(response.getEntity());
+            if (code > 199 && code < 300) {
+                JsonNode firstResNode = objectMapper.readTree(res);
+                int totalRec = firstResNode.get("data").get("total").asInt();
+                if (totalRec >= PER_PAGE_REC) {
+                    int loopNum = (totalRec / PER_PAGE_REC) + 1;
+                    for (int i = 1; i <= loopNum; i++) {
+                        List<OutputData> onePageData = formatMagFace(getFaceDataFromMagPage(magStart, magEnd, i));
+                        faceReList.addAll(onePageData);
+                    }
+                } else {
+                    faceReList.addAll(formatMagFace(res));
+                }
+            }
+        } catch (Exception e) {
+            logger.error("ask genesis scene http error: ", e);
+            return null;
+        } finally {
+            if (response != null) {
+                try {
+                    response.close();
+                } catch (Exception e) {
+                    logger.error("get mag body data close res error");
+                }
+            }
+        }
+        return faceReList;
+    }
+
     private String getFaceDataFromMagPage(String startMills, String endMills, int pageTh) {
 
         //apache http
@@ -924,7 +1220,7 @@ public class ExcelFillController2 {
             paramsMap.put("pageNum", pageTh);
             //camera
             paramsMap.put("channelUuids", magCameras.split(","));
-            paramsMap.put("recordType",2);
+            paramsMap.put("recordType", 2);
 
             HttpPost httpPost = new HttpPost(uriBuilder.build());
             //header
@@ -1110,61 +1406,61 @@ public class ExcelFillController2 {
             }
 
             //umbrella
-            if (oneSceneNode.has("holdUmbrella")){
+            if (oneSceneNode.has("holdUmbrella")) {
                 int umbCode = oneSceneNode.get("holdUmbrella").asInt();
-                if (umbCode==3){
+                if (umbCode == 3) {
                     tagArray.add("holdUmbrella");
                 }
             }
 
             //shoesColor
-            if (oneSceneNode.has("shoesColor")){
+            if (oneSceneNode.has("shoesColor")) {
                 int shoesCCode = oneSceneNode.get("shoesColor").asInt();
-                if (shoesCCode==2){
+                if (shoesCCode == 2) {
                     tagArray.add("shoes_color_".concat(DataRouterConstant.MD_COLOR_BLACK));
-                }else if(shoesCCode==3){
+                } else if (shoesCCode == 3) {
                     tagArray.add("shoes_color_".concat(DataRouterConstant.MD_COLOR_WHITE));
-                }else if(shoesCCode==4){
+                } else if (shoesCCode == 4) {
                     tagArray.add("shoes_color_".concat(DataRouterConstant.MD_COLOR_GREY));
-                }else if(shoesCCode==5 || shoesCCode==11){
+                } else if (shoesCCode == 5 || shoesCCode == 11) {
                     tagArray.add("shoes_color_".concat(DataRouterConstant.MD_COLOR_RED));
-                }else if(shoesCCode==6 || shoesCCode==7 || shoesCCode==13){
+                } else if (shoesCCode == 6 || shoesCCode == 7 || shoesCCode == 13) {
                     tagArray.add("shoes_color_".concat(DataRouterConstant.MD_COLOR_YELLOW));
-                }else if(shoesCCode==8){
+                } else if (shoesCCode == 8) {
                     tagArray.add("shoes_color_".concat(DataRouterConstant.MD_COLOR_GREEN));
-                }else if(shoesCCode==9 || shoesCCode==10){
+                } else if (shoesCCode == 9 || shoesCCode == 10) {
                     tagArray.add("shoes_color_".concat(DataRouterConstant.MD_COLOR_BLUE));
-                }else if(shoesCCode==12){
+                } else if (shoesCCode == 12) {
                     tagArray.add("shoes_color_".concat(DataRouterConstant.MD_COLOR_PINK));
                 }
             }
 
             //wearHelmet
-            if (oneSceneNode.has("wearHelmet")){
+            if (oneSceneNode.has("wearHelmet")) {
                 int wearHelmetCode = oneSceneNode.get("wearHelmet").asInt();
-                if (wearHelmetCode==3){
+                if (wearHelmetCode == 3) {
                     tagArray.add("wearHelmet");
                 }
             }
 
             //wearSafetycap
-            if (oneSceneNode.has("wearSafetycap")){
+            if (oneSceneNode.has("wearSafetycap")) {
                 int safetycapCode = oneSceneNode.get("wearSafetycap").asInt();
-                if (safetycapCode==3){
+                if (safetycapCode == 3) {
                     tagArray.add("wearSafetycap");
                 }
             }
 
             //pedestrianOrientation
-            if (oneSceneNode.has("pedestrianOrientation")){
+            if (oneSceneNode.has("pedestrianOrientation")) {
                 int pedestrianOrientationCode = oneSceneNode.get("pedestrianOrientation").asInt();
-                if (pedestrianOrientationCode==2){
+                if (pedestrianOrientationCode == 2) {
                     tagArray.add("humanFaceTo_".concat("Front"));
-                }else if(pedestrianOrientationCode==3){
+                } else if (pedestrianOrientationCode == 3) {
                     tagArray.add("humanFaceTo_".concat("Back"));
-                }else if(pedestrianOrientationCode==4){
+                } else if (pedestrianOrientationCode == 4) {
                     tagArray.add("humanFaceTo_".concat("Left"));
-                }else if(pedestrianOrientationCode==5){
+                } else if (pedestrianOrientationCode == 5) {
                     tagArray.add("humanFaceTo_".concat("Right"));
                 }
             }
@@ -1267,7 +1563,7 @@ public class ExcelFillController2 {
                 if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_MALE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_FEMALE)) {
                     aText.append("Gender:").append(tagStr).append(". ");
                 }
-                if (tagStr.contains("Age_Group:")){
+                if (tagStr.contains("Age_Group:")) {
                     aText.append("Age:").append(tagStr.split(":")[1]).append(". ");
                 }
                 if (tagStr.equalsIgnoreCase(DataRouterConstant.TAG_LONG_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SHORT_SLEEVE) || tagStr.equalsIgnoreCase(DataRouterConstant.TAG_SLEEVELESS)) {
@@ -1303,13 +1599,13 @@ public class ExcelFillController2 {
                 if (DataRouterConstant.SHOES_COLOR_LIST.contains(tagStr)) {
                     aText.append("Shoes Color:").append(tagStr.split("_")[2]).append(". ");
                 }
-                if(tagStr.equals("wearHelmet")){
+                if (tagStr.equals("wearHelmet")) {
                     aText.append("Wear Helmet:").append("Yes").append(". ");
                 }
-                if(tagStr.equals("wearSafetycap")){
+                if (tagStr.equals("wearSafetycap")) {
                     aText.append("Wear SafetyCap:").append("Yes").append(". ");
                 }
-                if (tagStr.contains("humanFaceTo_")){
+                if (tagStr.contains("humanFaceTo_")) {
                     aText.append("Pedestrian Orientation:").append(tagStr.split("_")[1]).append(". ");
                 }
             }
@@ -1364,31 +1660,31 @@ public class ExcelFillController2 {
                 }
 
                 //age
-                if (oneSceneNode.has("age")){
+                if (oneSceneNode.has("age")) {
                     String age = oneSceneNode.get("age").asText();
-                    tagArray.add("Age:"+age);
+                    tagArray.add("Age:" + age);
                 }
 
                 //wearRespirator
-                if (oneSceneNode.has("wearRespirator")){
+                if (oneSceneNode.has("wearRespirator")) {
                     int wearRespiratorCode = oneSceneNode.get("wearRespirator").asInt();
-                    if (wearRespiratorCode==3){
+                    if (wearRespiratorCode == 3) {
                         tagArray.add("wearRespirator");
                     }
                 }
 
                 //wearGlasses
-                if (oneSceneNode.has("wearGlasses")){
+                if (oneSceneNode.has("wearGlasses")) {
                     int wearGlassesCode = oneSceneNode.get("wearGlasses").asInt();
-                    if (wearGlassesCode==3){
+                    if (wearGlassesCode == 3) {
                         tagArray.add("wearGlasses");
                     }
                 }
 
                 //beard
-                if (oneSceneNode.has("beardStatus")){
+                if (oneSceneNode.has("beardStatus")) {
                     int beardCode = oneSceneNode.get("beardStatus").asInt();
-                    if (beardCode==3){
+                    if (beardCode == 3) {
                         tagArray.add("beardStatus3");
                     }
                 }
@@ -1422,25 +1718,25 @@ public class ExcelFillController2 {
             //pop
             StringBuilder aText = new StringBuilder();
             for (String tagStr : tagArray) {
-                if (tagStr.equals(DataRouterConstant.TAG_MALE) || tagStr.equals(DataRouterConstant.TAG_FEMALE)){
+                if (tagStr.equals(DataRouterConstant.TAG_MALE) || tagStr.equals(DataRouterConstant.TAG_FEMALE)) {
                     aText.append("Gender:").append(tagStr).append(". ");
                 }
-                if (tagStr.contains("Age:")){
+                if (tagStr.contains("Age:")) {
                     aText.append("Age:").append(tagStr.split(":")[1]).append(". ");
                 }
-                if (tagStr.equals("wearRespirator")){
+                if (tagStr.equals("wearRespirator")) {
                     aText.append("Wear Mask:").append("Yes").append(". ");
                 }
-                if (tagStr.equals("wearGlasses")){
+                if (tagStr.equals("wearGlasses")) {
                     aText.append("Wear Glasses:").append("Yes").append(". ");
                 }
-                if (tagStr.equals("beardStatus3")){
+                if (tagStr.equals("beardStatus3")) {
                     aText.append("Have Beard:").append("Yes").append(". ");
                 }
-                if (tagStr.equals(DataRouterConstant.TAG_SHORT_HAIR) || tagStr.equals(DataRouterConstant.TAG_LONG_HAIR)){
+                if (tagStr.equals(DataRouterConstant.TAG_SHORT_HAIR) || tagStr.equals(DataRouterConstant.TAG_LONG_HAIR)) {
                     aText.append("Hair:").append(tagStr).append(". ");
                 }
-                if (tagStr.contains("skin_color_")){
+                if (tagStr.contains("skin_color_")) {
                     aText.append("Skin Color:").append(tagStr.split("_")[2]).append(". ");
                 }
 
