@@ -148,8 +148,6 @@ public class ExcelFillController2 {
 
         if (faceMode != null && faceMode.equals("match")) {
 
-            List<FaceReData> resultList = new ArrayList<>();
-
             //如果用户选了名单，转为set方便处理
             Set<String> groupNameSet = new HashSet<>();
             if (StringUtils.isNotBlank(groupSetStr)) {
@@ -159,16 +157,16 @@ public class ExcelFillController2 {
             }
 
             //两个条件判断
-            boolean groupNameFlag = false;
-            boolean simFlag = false;
             List<FaceReData> faceReList = getFaceReFromMag(inputSTime, inputETime);
             for (FaceReData oneFaceRe : faceReList) {
 
                 //如果用户输入了名单名字，就要进行判断
                 if (!groupNameSet.isEmpty()) {
+
                     String groupName = oneFaceRe.getListName();
                     if (StringUtils.isNotBlank(groupName) && groupNameSet.contains(groupName)) {
-                        groupNameFlag = true;
+                        faceReList.remove(oneFaceRe);
+                        continue;
                     }
                 }
                 //如果用户限定了相似度，就是大于并等于
@@ -176,14 +174,12 @@ public class ExcelFillController2 {
                     Float oneReSim = oneFaceRe.getSimilarity();
                     if (oneReSim != null) {
                         float inputSim = Float.parseFloat(sim);
-                        if (Float.compare(oneReSim,inputSim)>0){
-                            simFlag=true;
+                        if (Float.compare(oneReSim, inputSim) > 0) {
+                            faceReList.remove(oneFaceRe);
                         }
                     }
                 }
-                if (groupNameFlag && simFlag){
-                    resultList.add(oneFaceRe);
-                }
+
             }
 
             excelPath = frExcelMake(faceReList, inputSTime, inputETime, groupSetStr, sim);
