@@ -4,8 +4,8 @@ public class FaceReData {
 
     private String faceImgUrl;
     private Double similarity;
-    private Integer Age;
-    private Integer Gender;
+    private String Age;
+    private String Gender;
     private String targetImgUrl;
     private String matchName;
     private String listName;
@@ -29,19 +29,19 @@ public class FaceReData {
         this.similarity = similarity;
     }
 
-    public Integer getAge() {
+    public String getAge() {
         return Age;
     }
 
-    public void setAge(Integer age) {
+    public void setAge(String age) {
         Age = age;
     }
 
-    public Integer getGender() {
+    public String getGender() {
         return Gender;
     }
 
-    public void setGender(Integer gender) {
+    public void setGender(String gender) {
         Gender = gender;
     }
 

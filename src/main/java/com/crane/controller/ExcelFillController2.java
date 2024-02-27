@@ -1937,8 +1937,27 @@ public class ExcelFillController2 {
             String sceneImgUrl = "http:" + oneSceneNode.get("imageUri").asText();
             oneMagFr.setFaceImgUrl(sceneImgUrl);
 
-            //拿到相似度
-            oneMagFr.setSimilarity(oneSceneNode.get("recognitionInfo").get("faceScore").asDouble());
+            //Age
+            oneMagFr.setAge((oneSceneNode.get("age").asText()).concat(" (±5)"));
+
+            //性别
+            int gender = oneSceneNode.get("gender").asInt();
+            if (gender==2){
+                oneMagFr.setGender(DataRouterConstant.TAG_MALE);
+            }else if(gender==3){
+                oneMagFr.setGender(DataRouterConstant.TAG_FEMALE);
+            }else {
+                oneMagFr.setGender("Unknown");
+            }
+
+            //底库的信息
+            String frType = oneSceneNode.get("alarmMinor").asText();
+            if (frType.equalsIgnoreCase("face_comparison_successful")){
+                oneMagFr.setSimilarity(oneSceneNode.get("recognitionInfo").get("faceScore").asDouble());
+                oneMagFr.setTargetImgUrl(oneSceneNode.get("recognitionInfo").get("personImageUri").asText());
+                oneMagFr.setMatchName(oneSceneNode.get("recognitionInfo").get("personName").asText());
+                oneMagFr.setListName(oneSceneNode.get("recognitionInfo").get("personGroupName").asText());
+            }
 
             //拿到相机的名称
             String cameraName = oneSceneNode.get("channelName").asText();
