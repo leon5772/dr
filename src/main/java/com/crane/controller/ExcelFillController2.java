@@ -144,7 +144,7 @@ public class ExcelFillController2 {
         //如果用户选了face识别，就只走识别代码
         String faceMode = request.getParameter("fd_mode");
         String groupSetStr = request.getParameter("list_set");
-        float sim = Float.parseFloat(request.getParameter("sim"));
+        String sim = request.getParameter("sim");
 
         if (faceMode != null && faceMode.equals("match")) {
 
@@ -160,10 +160,15 @@ public class ExcelFillController2 {
             List<FaceReData> faceReList = getFaceReFromMag(inputSTime, inputETime);
             for (FaceReData oneFaceRe : faceReList) {
 
-                String groupName = oneFaceRe.getListName();
-                if (StringUtils.isNotBlank(groupName) && groupNameSet.contains(groupName)) {
-                    resultList.add(oneFaceRe);
+                //如果用户输入了名单名字，就要进行判断
+                if (!groupNameSet.isEmpty()){
+                    String groupName = oneFaceRe.getListName();
+                    if (StringUtils.isNotBlank(groupName) && groupNameSet.contains(groupName)) {
+                        resultList.add(oneFaceRe);
+                    }
                 }
+                //如果用户限定了
+
             }
 
             excelPath = frExcelMake(faceReList, inputSTime, inputETime, groupSetStr, sim);
@@ -553,11 +558,11 @@ public class ExcelFillController2 {
         FaceReData f = new FaceReData();
         b.add(f);
 
-        String re = a.frExcelMake(b, "2024-02-20 16:50:02:000", "2024-02-20 16:50:02:000", null, 60f);
+        String re = a.frExcelMake(b, "2024-02-20 16:50:02:000", "2024-02-20 16:50:02:000", null, "60");
         System.out.println(re);
     }
 
-    private String frExcelMake(List<FaceReData> faceReList, String sTime, String eTime, String groupSetStr, float sim) {
+    private String frExcelMake(List<FaceReData> faceReList, String sTime, String eTime, String groupSetStr, String sim) {
 
         //用新型的excel
         XSSFWorkbook workbook = new XSSFWorkbook();
@@ -632,7 +637,12 @@ public class ExcelFillController2 {
         //相似度
         XSSFRow row5 = sheet.createRow(4);
         XSSFCell r5c1 = row5.createCell(0);
-        r5c1.setCellValue("Similarity: " + sim);
+        if (StringUtils.isBlank(sim)){
+            r5c1.setCellValue("Similarity: All");
+        }else{
+            r5c1.setCellValue("Similarity: " + sim);
+        }
+
         //字体
         r5c1.setCellStyle(r3c1CellStyle);
 
