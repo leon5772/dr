@@ -531,6 +531,16 @@ public class ExcelFillController2 {
         return outputPath;
     }
 
+    public static void main(String[] args) {
+        ExcelFillController2 a = new ExcelFillController2();
+
+        List<FaceReData> b = new ArrayList<>();
+        FaceReData f = new FaceReData();
+        b.add(f);
+
+        a.frExcelMake(f,"111","222");
+    }
+
     private String frExcelMake(List<FaceReData> faceReList, String sTime, String eTime) {
 
         //用新型的excel
@@ -1229,13 +1239,11 @@ public class ExcelFillController2 {
                 if (totalRec >= PER_PAGE_REC) {
                     int loopNum = (totalRec / PER_PAGE_REC) + 1;
                     for (int i = 1; i <= loopNum; i++) {
-                        List<OutputData> onePageData = formatMagFace(getFaceDataFromMagPage(magStart, magEnd, i));
-                        List<FaceReData> twoPageData = new ArrayList<>();
-                        faceReList.addAll(twoPageData);
+                        List<FaceReData> onePageData = formatMagFr(getFaceReFromMagPage(magStart, magEnd, i));
+                        faceReList.addAll(onePageData);
                     }
                 } else {
-                    //faceReList.addAll(formatMagFace(res));
-                    //faceReList.addAll();
+                    faceReList.addAll(formatMagFr(res));
                 }
             }
         } catch (Exception e) {
@@ -1808,10 +1816,11 @@ public class ExcelFillController2 {
 
         return reList;
     }
-    private List<OutputData> formatMagFr(String result) throws Exception {
+
+    private List<FaceReData> formatMagFr(String result) throws Exception {
 
         //读取响应结果
-        List<OutputData> reList = new ArrayList<>();
+        List<FaceReData> reList = new ArrayList<>();
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode mainNode = objectMapper.readTree(result);
 
@@ -1819,21 +1828,21 @@ public class ExcelFillController2 {
         JsonNode contentNodes = mainNode.get("data").get("list");
         for (JsonNode oneSceneNode : contentNodes) {
 
-            OutputData oneMagScene = new OutputData();
+            FaceReData oneMagFr = new FaceReData();
 
             //拿到事件的id
             //String sceneID = oneSceneNode.get("sceneId").asText();
             //拿到事件的图片链接
             String sceneImgUrl = "http:" + oneSceneNode.get("imageUri").asText();
-            oneMagScene.setResult(sceneImgUrl);
+            oneMagFr.setFaceImgUrl(sceneImgUrl);
             //拿到相机的名称
             String cameraName = oneSceneNode.get("channelName").asText();
-            oneMagScene.setCamera(cameraName);
+            oneMagFr.setCameraName(cameraName);
             //拿到事件时间
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
             String sceneTime = sdf.format(oneSceneNode.get("timeMs").asLong());
-            oneMagScene.setTime(sceneTime);
-            oneMagScene.setType("Face");
+            oneMagFr.setTime(sceneTime);
+            oneMagFr.setTargetImgUrl("Face");
 
             //pop
             List<String> tagArray = new ArrayList<>();
@@ -1932,9 +1941,9 @@ public class ExcelFillController2 {
                 }
 
             }
-            oneMagScene.setAttribute(aText.toString());
+            oneMagFr.setDescription(aText.toString());
 
-            reList.add(oneMagScene);
+            reList.add(oneMagFr);
         }
 
         return reList;
