@@ -40,6 +40,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/excel_download2")
@@ -146,8 +147,28 @@ public class ExcelFillController2 {
         float sim = Float.parseFloat(request.getParameter("sim"));
         if (faceMode != null && faceMode.equals("match")) {
 
-            List<FaceReData> faceReList = new ArrayList<>();
-            faceReList = getFaceReFromMag(inputSTime, inputETime);
+            //如果用户选了名单
+            Set<String> listNameSet = new HashSet<>();
+            if (StringUtils.isNotBlank(groupSetStr)) {
+                //变成set
+                String[] listNameArr = groupSetStr.split(",");
+                listNameSet = Arrays.stream(listNameArr).collect(Collectors.toSet());
+            }
+
+            List<FaceReData> resultList = new ArrayList<>();
+            List<FaceReData> faceReList = getFaceReFromMag(inputSTime, inputETime);
+            for (FaceReData oneFaceRe:faceReList){
+
+
+
+                    String reListName = oneFaceRe.getListName();
+                    if (StringUtils.isNotBlank(reListName) && ){
+
+                    }
+                }
+
+            }
+
 
             excelPath = frExcelMake(faceReList, inputSTime, inputETime, groupSetStr, sim);
 
@@ -536,7 +557,7 @@ public class ExcelFillController2 {
         FaceReData f = new FaceReData();
         b.add(f);
 
-        String re = a.frExcelMake(b, "2024-02-20 16:50:02:000", "2024-02-20 16:50:02:000", "vip1,vip2,vip3", 60f);
+        String re = a.frExcelMake(b, "2024-02-20 16:50:02:000", "2024-02-20 16:50:02:000", null, 60f);
         System.out.println(re);
     }
 
@@ -604,7 +625,11 @@ public class ExcelFillController2 {
         XSSFCell r4c3 = row4.createCell(2);
         //长度需要跨列
         sheet.addMergedRegion(new CellRangeAddress(3, 3, 0, 2));
-        r4c1.setCellValue("List: " + groupSetStr);
+        if (StringUtils.isBlank(groupSetStr)){
+            r4c1.setCellValue("List: All");
+        }else{
+            r4c1.setCellValue("List: " + groupSetStr);
+        }
         //字体
         r4c1.setCellStyle(r3c1CellStyle);
 
