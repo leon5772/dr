@@ -549,12 +549,18 @@ public class ExcelFillController2 {
         XSSFSheet sheet = workbook.createSheet("History");
 
         //列的宽度设置
-        int colWid = 20 * 256;
+        int colWid = 15 * 256;
         sheet.setColumnWidth(0, colWid);
         sheet.setColumnWidth(1, colWid);
         sheet.setColumnWidth(2, colWid);
         sheet.setColumnWidth(3, colWid);
-        sheet.setColumnWidth(4, colWid * 5);
+        sheet.setColumnWidth(4, colWid);
+        sheet.setColumnWidth(5, colWid);
+        sheet.setColumnWidth(6, colWid);
+        sheet.setColumnWidth(7, colWid);
+        sheet.setColumnWidth(8, colWid);
+        sheet.setColumnWidth(9, colWid);
+        sheet.setColumnWidth(10, colWid);
 
         //大点的字体
         XSSFFont biggerFont = workbook.createFont();
@@ -582,8 +588,9 @@ public class ExcelFillController2 {
         XSSFCell r3c1 = row3.createCell(0);
         XSSFCell r3c2 = row3.createCell(1);
         XSSFCell r3c3 = row3.createCell(2);
+        XSSFCell r3c4 = row3.createCell(3);
         //长度需要跨列
-        sheet.addMergedRegion(new CellRangeAddress(2, 2, 0, 2));
+        sheet.addMergedRegion(new CellRangeAddress(2, 2, 0, 3));
         r3c1.setCellValue("Search Time: " + sTime + " - " + eTime);
         //字体
         CellStyle r3c1CellStyle = workbook.createCellStyle();
@@ -614,7 +621,7 @@ public class ExcelFillController2 {
         XSSFCell r6c2 = row6.createCell(1);
         XSSFCell r6c3 = row6.createCell(2);
         //长度需要跨列
-        sheet.addMergedRegion(new CellRangeAddress(6, 6, 0, 2));
+        sheet.addMergedRegion(new CellRangeAddress(5, 5, 0, 2));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         r6c1.setCellValue("Download Time: ".concat(sdf.format(new Date())));
         //字体
