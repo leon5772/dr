@@ -234,7 +234,7 @@ public class ExcelFillController2 {
     }
 
     private String frExcelMake(FaceReData faceReData, String startTime, String endTime) {
-
+        return "";
     }
 
     private List<OutputData> getEventByTag(String startTime, String endTime) {
@@ -1118,6 +1118,63 @@ public class ExcelFillController2 {
         return finalBodyData;
     }
 
+    private String getFaceDataFromMagPage(String startMills, String endMills, int pageTh) {
+
+        //apache http
+        HttpClient httpClient = HttpClients.createDefault();
+        //ask
+        URIBuilder uriBuilder = null;
+        CloseableHttpResponse response = null;
+
+        try {
+
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            String url = "http://" + neuroAddress + DataRouterConstant.NEURO_API + "/v1/event/record/face/list";
+            uriBuilder = new URIBuilder(url);
+
+            //params
+            Map<String, Object> paramsMap = new HashMap<>();
+            //start
+            paramsMap.put("startTime", startMills);
+            //end
+            paramsMap.put("endTime", endMills);
+            //page size
+            paramsMap.put("pageSize", PER_PAGE_REC);
+            //page num
+            paramsMap.put("pageNum", pageTh);
+            //camera
+            paramsMap.put("channelUuids", magCameras.split(","));
+            paramsMap.put("recordType", 2);
+
+            HttpPost httpPost = new HttpPost(uriBuilder.build());
+            //header
+            httpPost.addHeader("Content-Type", "application/json");
+            //body
+            httpPost.setEntity(new StringEntity(objectMapper.writeValueAsString(paramsMap)));
+
+            response = (CloseableHttpResponse) httpClient.execute(httpPost);
+            int code = response.getStatusLine().getStatusCode();
+            String res = EntityUtils.toString(response.getEntity());
+            if (code > 199 && code < 300) {
+                return res;
+            }
+
+        } catch (Exception e) {
+            logger.error("ask genesis scene http error(page): ", e);
+            return null;
+        } finally {
+            if (response != null) {
+                try {
+                    response.close();
+                } catch (Exception e) {
+                    logger.error("get mag body data close res error(page):");
+                }
+            }
+        }
+        return null;
+    }
+
     private List<FaceReData> getFaceReFromMag(String startTime, String endTime) {
 
         //result
@@ -1193,7 +1250,7 @@ public class ExcelFillController2 {
         return faceReList;
     }
 
-    private String getFaceDataFromMagPage(String startMills, String endMills, int pageTh) {
+    private String getFaceReFromMagPage(String startMills, String endMills, int pageTh) {
 
         //apache http
         HttpClient httpClient = HttpClients.createDefault();
@@ -1618,6 +1675,137 @@ public class ExcelFillController2 {
     }
 
     private List<OutputData> formatMagFace(String result) throws Exception {
+
+        //读取响应结果
+        List<OutputData> reList = new ArrayList<>();
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode mainNode = objectMapper.readTree(result);
+
+        //转为excel实体类格式
+        JsonNode contentNodes = mainNode.get("data").get("list");
+        for (JsonNode oneSceneNode : contentNodes) {
+
+            OutputData oneMagScene = new OutputData();
+
+            //拿到事件的id
+            //String sceneID = oneSceneNode.get("sceneId").asText();
+            //拿到事件的图片链接
+            String sceneImgUrl = "http:" + oneSceneNode.get("imageUri").asText();
+            oneMagScene.setResult(sceneImgUrl);
+            //拿到相机的名称
+            String cameraName = oneSceneNode.get("channelName").asText();
+            oneMagScene.setCamera(cameraName);
+            //拿到事件时间
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+            String sceneTime = sdf.format(oneSceneNode.get("timeMs").asLong());
+            oneMagScene.setTime(sceneTime);
+            oneMagScene.setType("Face");
+
+            //pop
+            List<String> tagArray = new ArrayList<>();
+            HashSet<String> metadataColorSet = new HashSet<>();
+            try {
+
+                //性别
+                if (oneSceneNode.has("gender")) {
+                    int genderCode = oneSceneNode.get("gender").asInt();
+                    if (genderCode == 2) {
+                        tagArray.add(DataRouterConstant.TAG_MALE);
+                    } else if (genderCode == 3) {
+                        tagArray.add(DataRouterConstant.TAG_FEMALE);
+                    }
+                }
+
+                //age
+                if (oneSceneNode.has("age")) {
+                    String age = oneSceneNode.get("age").asText();
+                    tagArray.add("Age:" + age);
+                }
+
+                //wearRespirator
+                if (oneSceneNode.has("wearRespirator")) {
+                    int wearRespiratorCode = oneSceneNode.get("wearRespirator").asInt();
+                    if (wearRespiratorCode == 3) {
+                        tagArray.add("wearRespirator");
+                    }
+                }
+
+                //wearGlasses
+                if (oneSceneNode.has("wearGlasses")) {
+                    int wearGlassesCode = oneSceneNode.get("wearGlasses").asInt();
+                    if (wearGlassesCode == 3) {
+                        tagArray.add("wearGlasses");
+                    }
+                }
+
+                //beard
+                if (oneSceneNode.has("beardStatus")) {
+                    int beardCode = oneSceneNode.get("beardStatus").asInt();
+                    if (beardCode == 3) {
+                        tagArray.add("beardStatus3");
+                    }
+                }
+
+                //发型
+                if (oneSceneNode.has("hairStyle")) {
+                    int hairCode = oneSceneNode.get("hairStyle").asInt();
+                    if (DataRouterConstant.HAIR_STYLE_SHORT.contains(hairCode)) {
+                        tagArray.add(DataRouterConstant.TAG_SHORT_HAIR);
+                    } else if (DataRouterConstant.HAIR_STYLE_LONG.contains(hairCode)) {
+                        tagArray.add(DataRouterConstant.TAG_LONG_HAIR);
+                    }
+                }
+
+                //skin color
+                if (oneSceneNode.has("skinColor")) {
+                    int skinColorCode = oneSceneNode.get("skinColor").asInt();
+                    if (skinColorCode == 2) {
+                        tagArray.add("skin_color_".concat(DataRouterConstant.MD_COLOR_BLACK));
+                    } else if (skinColorCode == 3) {
+                        tagArray.add("skin_color_".concat(DataRouterConstant.MD_COLOR_WHITE));
+                    } else if (skinColorCode == 4 || skinColorCode == 5) {
+                        tagArray.add("skin_color_".concat(DataRouterConstant.MD_COLOR_YELLOW));
+                    }
+                }
+
+            } catch (Exception e) {
+                return null;
+            }
+
+            //pop
+            StringBuilder aText = new StringBuilder();
+            for (String tagStr : tagArray) {
+                if (tagStr.equals(DataRouterConstant.TAG_MALE) || tagStr.equals(DataRouterConstant.TAG_FEMALE)) {
+                    aText.append("Gender:").append(tagStr).append(". ");
+                }
+                if (tagStr.contains("Age:")) {
+                    aText.append("Age:").append(tagStr.split(":")[1]).append(". ");
+                }
+                if (tagStr.equals("wearRespirator")) {
+                    aText.append("Wear Mask:").append("Yes").append(". ");
+                }
+                if (tagStr.equals("wearGlasses")) {
+                    aText.append("Wear Glasses:").append("Yes").append(". ");
+                }
+                if (tagStr.equals("beardStatus3")) {
+                    aText.append("Have Beard:").append("Yes").append(". ");
+                }
+                if (tagStr.equals(DataRouterConstant.TAG_SHORT_HAIR) || tagStr.equals(DataRouterConstant.TAG_LONG_HAIR)) {
+                    aText.append("Hair:").append(tagStr).append(". ");
+                }
+                if (tagStr.contains("skin_color_")) {
+                    aText.append("Skin Color:").append(tagStr.split("_")[2]).append(". ");
+                }
+
+            }
+            oneMagScene.setAttribute(aText.toString());
+
+            reList.add(oneMagScene);
+        }
+
+        return reList;
+    }
+    private List<OutputData> formatMagFr(String result) throws Exception {
 
         //读取响应结果
         List<OutputData> reList = new ArrayList<>();
