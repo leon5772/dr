@@ -233,10 +233,6 @@ public class ExcelFillController2 {
         finishedExcel.delete();
     }
 
-    private String frExcelMake(FaceReData faceReData, String startTime, String endTime) {
-        return "";
-    }
-
     private List<OutputData> getEventByTag(String startTime, String endTime) {
 
         HttpClient httpClient = HttpClients.createDefault();
@@ -538,7 +534,8 @@ public class ExcelFillController2 {
         FaceReData f = new FaceReData();
         b.add(f);
 
-        a.frExcelMake(f,"111","222");
+        String re = a.frExcelMake(f,"111","222");
+        System.out.println(re);
     }
 
     private String frExcelMake(List<FaceReData> faceReList, String sTime, String eTime) {
