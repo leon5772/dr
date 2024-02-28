@@ -2031,7 +2031,6 @@ public class ExcelFillController2 {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
             String sceneTime = sdf.format(oneSceneNode.get("timeMs").asLong());
             oneMagFr.setTime(sceneTime);
-            oneMagFr.setTargetImgUrl("Face");
 
             reList.add(oneMagFr);
         }
