@@ -611,6 +611,8 @@ public class ExcelFillController2 {
         XSSFRow row1 = sheet.createRow(0);
         row1.setHeightInPoints(20);
         XSSFCell r1c1 = row1.createCell(0);
+        XSSFCell r1c2 = row1.createCell(1);
+        XSSFCell r1c3 = row1.createCell(2);
         //字体
         CellStyle r1c1CellStyle = workbook.createCellStyle();
         r1c1CellStyle.setFont(biggerFont);
@@ -618,7 +620,7 @@ public class ExcelFillController2 {
         r1c1.setCellValue("History of Face Recognition");
         r1c1.setCellStyle(r1c1CellStyle);
         //跨列
-        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 1));
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 2));
 
         //行3
         XSSFRow row3 = sheet.createRow(2);
@@ -756,7 +758,7 @@ public class ExcelFillController2 {
         contentCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
         //数据从8行开始
-        int i = 8;
+        int i = 7;
         Drawing<XSSFShape> drawing = sheet.createDrawingPatriarch();
         for (FaceReData oneFr : faceReList) {
 
