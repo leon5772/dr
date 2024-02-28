@@ -824,6 +824,7 @@ public class ExcelFillController2 {
 
             //每行第5列为底库
             XSSFCell rnc5 = rowN.createCell(4);
+            rnc5.setCellStyle(contentCellStyle);
             if (StringUtils.isBlank(oneFr.getTargetImgUrl())) {
                 rowN.setHeightInPoints(60f);
             } else {
@@ -835,20 +836,20 @@ public class ExcelFillController2 {
 
                     rowN.setHeightInPoints(60f);
                     //定位图片位置
-                    XSSFCreationHelper helper = workbook.getCreationHelper();
-                    ClientAnchor anchor = helper.createClientAnchor();
-                    anchor.setCol1(5);
-                    anchor.setRow1(i - 1);
-                    anchor.setCol2(6);
-                    anchor.setRow2(i);
+                    XSSFCreationHelper helper2 = workbook.getCreationHelper();
+                    ClientAnchor anchor2 = helper2.createClientAnchor();
+                    anchor2.setCol1(4);
+                    anchor2.setRow1(i - 1);
+                    anchor2.setCol2(5);
+                    anchor2.setRow2(i);
 
                     //绘制图片数据
-                    int picIdx = workbook.addPicture(picBts, Workbook.PICTURE_TYPE_PNG);
-                    Picture excelPic = drawing.createPicture(anchor, picIdx);
-                    String[] scaleArr = excelPicScale.split("x");
-                    double scaleX = Double.parseDouble(scaleArr[0]);
-                    double scaleY = Double.parseDouble(scaleArr[1]);
-                    excelPic.resize(scaleX, scaleY);
+                    int picIdx2 = workbook.addPicture(picBts, Workbook.PICTURE_TYPE_PNG);
+                    Picture excelPic2 = drawing.createPicture(anchor2, picIdx2);
+                    String[] scaleArr2 = excelPicScale.split("x");
+                    double scaleX2 = Double.parseDouble(scaleArr2[0]);
+                    double scaleY2 = Double.parseDouble(scaleArr2[1]);
+                    excelPic2.resize(scaleX2, scaleY2);
                 }
 
             }
