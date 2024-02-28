@@ -1,16 +1,19 @@
 package com.crane.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -25,22 +28,23 @@ public class PersonAddController {
         return "personPush/index";
     }
 
-    @PostMapping("go")
-    @ResponseBody
-    public String go(HttpServletRequest request) {
+    @GetMapping("go")
+    public String go(HttpServletRequest request, ModelMap modelMap) {
 
-        Map<String, String> pushResultMap = new HashMap<>();
-        ObjectMapper objectMapper = new ObjectMapper();
+        List<String> pushSuccessList = new ArrayList<>();
+        List<String> pushFailedList = new ArrayList<>();
 
-        pushResultMap.put("push_finished_person", "a,b,c");
-        pushResultMap.put("push_failed_person", "d,e,f");
+        pushSuccessList.add("a");
+        pushSuccessList.add("b");
+        pushSuccessList.add("c");
 
-        try {
-            String re = objectMapper.writeValueAsString(pushResultMap);
-            return re;
-        } catch (Exception e) {
-            return "{\"error\":\"404\"}";
-        }
+        pushFailedList.add("e");
+        pushFailedList.add("f");
+        pushFailedList.add("g");
+
+        modelMap.put("su",pushSuccessList);
+        modelMap.put("fa",pushFailedList);
+        return "personPush/result";
     }
 
 }

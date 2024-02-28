@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"></html>
+<head>
+  <style>
+    #result_zone {
+      width: 960px;
+      min-height: 276px;
+      border: 2.5px dashed #0062af;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: 50px;
+      padding: 20px;
+    }
+
+    #form_1 {
+      padding: 36px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="result_zone">
+    <p style="background-color:#a3c9c7;">Success List:</p>
+    <ul>
+      <li th:each="oneSu : ${su}" th:text="${oneSu}"></li>
+    </ul>
+
+    <p style="background-color:#cb7575;">failed List:</p>
+    <ul>
+      <li th:each="oneFa : ${fa}" th:text="${oneFa}"></li>
+    </ul>
+    
+  </div>
+
+  <script src="/js/1.12.4_dist_jquery.min.js"></script>
+  <script>
+
+  </script>
+</body>
+
+</html>
