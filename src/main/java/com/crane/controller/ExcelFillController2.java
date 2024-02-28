@@ -803,7 +803,11 @@ public class ExcelFillController2 {
 
             //每行第2列为相似度
             XSSFCell rnc2 = rowN.createCell(1);
-            rnc2.setCellValue(oneFr.getSimilarity());
+            if (oneFr.getSimilarity()==null){
+                rnc2.setCellValue("");
+            }else{
+                rnc2.setCellValue(oneFr.getSimilarity());
+            }
             rnc2.setCellStyle(contentCellStyle);
 
             //每行第3列为年龄
@@ -849,12 +853,20 @@ public class ExcelFillController2 {
 
             //每行第6列为名字
             XSSFCell rnc6 = rowN.createCell(5);
-            rnc6.setCellValue(oneFr.getMatchName());
+            if (oneFr.getMatchName()==null){
+                rnc6.setCellValue("");
+            }else{
+                rnc6.setCellValue(oneFr.getMatchName());
+            }
             rnc6.setCellStyle(contentCellStyle);
 
             //每行第7列为名单
             XSSFCell rnc7 = rowN.createCell(6);
-            rnc7.setCellValue(oneFr.getListName());
+            if (oneFr.getListName()==null){
+                rnc7.setCellValue("");
+            }else{
+                rnc7.setCellValue(oneFr.getListName());
+            }
             rnc7.setCellStyle(contentCellStyle);
 
             //每行第8列为描述
@@ -862,12 +874,12 @@ public class ExcelFillController2 {
             rnc8.setCellValue("dec");
             rnc8.setCellStyle(contentCellStyle);
 
-            //每行第9列为名单
+            //每行第9列为时间
             XSSFCell rnc9 = rowN.createCell(8);
             rnc9.setCellValue(oneFr.getTime());
             rnc9.setCellStyle(contentCellStyle);
 
-            //每行第10列为名单
+            //每行第10列为相机名字
             XSSFCell rnc10 = rowN.createCell(9);
             rnc10.setCellValue(oneFr.getCameraName());
             rnc10.setCellStyle(contentCellStyle);
