@@ -592,8 +592,8 @@ public class ExcelFillController2 {
         sheet.setColumnWidth(4, colWid);
         sheet.setColumnWidth(5, colWid);
         sheet.setColumnWidth(6, colWid);
-        sheet.setColumnWidth(7, colWid);
-        sheet.setColumnWidth(8, colWid * 3);
+        sheet.setColumnWidth(7, colWid * 3);
+        sheet.setColumnWidth(8, colWid);
         sheet.setColumnWidth(9, colWid);
         sheet.setColumnWidth(10, colWid);
 
