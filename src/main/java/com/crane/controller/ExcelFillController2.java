@@ -38,6 +38,7 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -567,14 +568,11 @@ public class ExcelFillController2 {
     }
 
     public static void main(String[] args) {
-        ExcelFillController2 a = new ExcelFillController2();
 
-        List<FaceReData> b = new ArrayList<>();
-        FaceReData f = new FaceReData();
-        b.add(f);
+        double f = 5.865;
+        DecimalFormat df = new DecimalFormat("#.00");
+        System.out.println(df.format(f));
 
-        String re = a.frExcelMake(b, "2024-02-20 16:50:02:000", "2024-02-20 16:50:02:000", null, "60");
-        System.out.println(re);
     }
 
     private String frExcelMake(List<FaceReData> faceReList, String sTime, String eTime, String groupSetStr, String sim) {
@@ -805,10 +803,12 @@ public class ExcelFillController2 {
 
             //每行第2列为相似度
             XSSFCell rnc2 = rowN.createCell(1);
-            if (oneFr.getSimilarity()==null){
+            if (oneFr.getSimilarity() == null) {
                 rnc2.setCellValue("");
-            }else{
-                rnc2.setCellValue(oneFr.getSimilarity());
+            } else {
+                DecimalFormat df = new DecimalFormat("#.00");
+                String strVal = df.format(oneFr.getSimilarity());
+                rnc2.setCellValue(strVal);
             }
             rnc2.setCellStyle(contentCellStyle);
 
@@ -855,18 +855,18 @@ public class ExcelFillController2 {
 
             //每行第6列为名字
             XSSFCell rnc6 = rowN.createCell(5);
-            if (oneFr.getMatchName()==null){
+            if (oneFr.getMatchName() == null) {
                 rnc6.setCellValue("");
-            }else{
+            } else {
                 rnc6.setCellValue(oneFr.getMatchName());
             }
             rnc6.setCellStyle(contentCellStyle);
 
             //每行第7列为名单
             XSSFCell rnc7 = rowN.createCell(6);
-            if (oneFr.getListName()==null){
+            if (oneFr.getListName() == null) {
                 rnc7.setCellValue("");
-            }else{
+            } else {
                 rnc7.setCellValue(oneFr.getListName());
             }
             rnc7.setCellStyle(contentCellStyle);
@@ -2006,17 +2006,17 @@ public class ExcelFillController2 {
 
             //性别
             int gender = oneSceneNode.get("gender").asInt();
-            if (gender==2){
+            if (gender == 2) {
                 oneMagFr.setGender(DataRouterConstant.TAG_MALE);
-            }else if(gender==3){
+            } else if (gender == 3) {
                 oneMagFr.setGender(DataRouterConstant.TAG_FEMALE);
-            }else {
+            } else {
                 oneMagFr.setGender("Unknown");
             }
 
             //底库的信息
             String frType = oneSceneNode.get("alarmMinor").asText();
-            if (frType.equalsIgnoreCase("face_comparison_successful")){
+            if (frType.equalsIgnoreCase("face_comparison_successful")) {
                 oneMagFr.setSimilarity(oneSceneNode.get("recognitionInfo").get("faceScore").asDouble());
                 oneMagFr.setTargetImgUrl(oneSceneNode.get("recognitionInfo").get("personImageUri").asText());
                 oneMagFr.setMatchName(oneSceneNode.get("recognitionInfo").get("personName").asText());
