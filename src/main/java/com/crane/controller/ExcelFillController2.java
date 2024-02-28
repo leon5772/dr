@@ -2027,6 +2027,82 @@ public class ExcelFillController2 {
                 oneMagFr.setListName(oneSceneNode.get("recognitionInfo").get("personGroupName").asText());
             }
 
+            //pop
+            List<String> tagArray = new ArrayList<>();
+            //wearRespirator
+            if (oneSceneNode.has("wearRespirator")) {
+                int wearRespiratorCode = oneSceneNode.get("wearRespirator").asInt();
+                if (wearRespiratorCode == 3) {
+                    tagArray.add("wearRespirator");
+                }
+            }
+
+            //wearGlasses
+            if (oneSceneNode.has("wearGlasses")) {
+                int wearGlassesCode = oneSceneNode.get("wearGlasses").asInt();
+                if (wearGlassesCode == 3) {
+                    tagArray.add("wearGlasses");
+                }
+            }
+
+            //beard
+            if (oneSceneNode.has("beardStatus")) {
+                int beardCode = oneSceneNode.get("beardStatus").asInt();
+                if (beardCode == 3) {
+                    tagArray.add("beardStatus3");
+                }
+            }
+
+            //发型
+            if (oneSceneNode.has("hairStyle")) {
+                int hairCode = oneSceneNode.get("hairStyle").asInt();
+                if (DataRouterConstant.HAIR_STYLE_SHORT.contains(hairCode)) {
+                    tagArray.add(DataRouterConstant.TAG_SHORT_HAIR);
+                } else if (DataRouterConstant.HAIR_STYLE_LONG.contains(hairCode)) {
+                    tagArray.add(DataRouterConstant.TAG_LONG_HAIR);
+                }
+            }
+
+            //skin color
+            if (oneSceneNode.has("skinColor")) {
+                int skinColorCode = oneSceneNode.get("skinColor").asInt();
+                if (skinColorCode == 2) {
+                    tagArray.add("skin_color_".concat(DataRouterConstant.MD_COLOR_BLACK));
+                } else if (skinColorCode == 3) {
+                    tagArray.add("skin_color_".concat(DataRouterConstant.MD_COLOR_WHITE));
+                } else if (skinColorCode == 4 || skinColorCode == 5) {
+                    tagArray.add("skin_color_".concat(DataRouterConstant.MD_COLOR_YELLOW));
+                }
+            }
+
+            //pop
+            StringBuilder aText = new StringBuilder();
+            for (String tagStr : tagArray) {
+                if (tagStr.equals(DataRouterConstant.TAG_MALE) || tagStr.equals(DataRouterConstant.TAG_FEMALE)) {
+                    aText.append("Gender:").append(tagStr).append(". ");
+                }
+                if (tagStr.contains("Age:")) {
+                    aText.append("Age:").append(tagStr.split(":")[1]).append(". ");
+                }
+                if (tagStr.equals("wearRespirator")) {
+                    aText.append("Wear Mask:").append("Yes").append(". ");
+                }
+                if (tagStr.equals("wearGlasses")) {
+                    aText.append("Wear Glasses:").append("Yes").append(". ");
+                }
+                if (tagStr.equals("beardStatus3")) {
+                    aText.append("Have Beard:").append("Yes").append(". ");
+                }
+                if (tagStr.equals(DataRouterConstant.TAG_SHORT_HAIR) || tagStr.equals(DataRouterConstant.TAG_LONG_HAIR)) {
+                    aText.append("Hair:").append(tagStr).append(". ");
+                }
+                if (tagStr.contains("skin_color_")) {
+                    aText.append("Skin Color:").append(tagStr.split("_")[2]).append(". ");
+                }
+
+            }
+            oneMagFr.setDescription(aText.toString());
+
             //拿到相机的名称
             String cameraName = oneSceneNode.get("channelName").asText();
             oneMagFr.setCameraName(cameraName);
