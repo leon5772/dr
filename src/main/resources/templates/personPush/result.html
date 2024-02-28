@@ -21,6 +21,9 @@
 <body>
 
   <div id="result_zone">
+
+    <p th:text="${wa}"></p>
+
     <p style="background-color:#a3c9c7;">Success List:</p>
     <ul>
       <li th:each="oneSu : ${su}" th:text="${oneSu}"></li>

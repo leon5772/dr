@@ -2,6 +2,7 @@ package com.crane.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -31,6 +32,15 @@ public class PersonAddController {
     @GetMapping("go")
     public String go(HttpServletRequest request, ModelMap modelMap) {
 
+        //消息
+        String warning = "success";
+
+        //拿到输入的路径
+        String inputFolder = request.getParameter("folder");
+        if (StringUtils.isBlank(inputFolder)){
+            warning  = "not right folder";
+        }
+
         List<String> pushSuccessList = new ArrayList<>();
         List<String> pushFailedList = new ArrayList<>();
 
@@ -41,7 +51,43 @@ public class PersonAddController {
         pushFailedList.add("e");
         pushFailedList.add("f");
         pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
+        pushFailedList.add("g");
 
+        modelMap.put("wa",warning);
         modelMap.put("su",pushSuccessList);
         modelMap.put("fa",pushFailedList);
         return "personPush/result";
