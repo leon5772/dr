@@ -773,7 +773,7 @@ public class ExcelFillController2 {
             rnc1.setCellStyle(contentCellStyle);
             //填充图片到位置
             if (StringUtils.isBlank(oneFr.getFaceImgUrl())) {
-                rowN.setHeightInPoints(60f);
+                rowN.setHeightInPoints(Float.parseFloat(excelPicHeight));
             } else {
                 //开始下载图片
                 byte[] picBts = downloadSnapshot(oneFr.getFaceImgUrl());
@@ -781,7 +781,7 @@ public class ExcelFillController2 {
                     continue;
                 } else {
 
-                    rowN.setHeightInPoints(60f);
+                    rowN.setHeightInPoints(Float.parseFloat(excelPicHeight));
                     //定位图片位置
                     XSSFCreationHelper helper = workbook.getCreationHelper();
                     ClientAnchor anchor = helper.createClientAnchor();
@@ -826,7 +826,7 @@ public class ExcelFillController2 {
             XSSFCell rnc5 = rowN.createCell(4);
             rnc5.setCellStyle(contentCellStyle);
             if (StringUtils.isBlank(oneFr.getTargetImgUrl())) {
-                rowN.setHeightInPoints(60f);
+
             } else {
                 //开始下载图片
                 byte[] picBts = downloadSnapshot(oneFr.getTargetImgUrl());
@@ -834,7 +834,6 @@ public class ExcelFillController2 {
                     continue;
                 } else {
 
-                    rowN.setHeightInPoints(60f);
                     //定位图片位置
                     XSSFCreationHelper helper2 = workbook.getCreationHelper();
                     ClientAnchor anchor2 = helper2.createClientAnchor();
