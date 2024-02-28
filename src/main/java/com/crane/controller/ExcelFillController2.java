@@ -159,21 +159,23 @@ public class ExcelFillController2 {
 
             //两个条件判断
             List<FaceReData> faceReList = getFaceReFromMag(inputSTime, inputETime);
-            for (FaceReData oneFaceRe : faceReList) {
+            //名单的判断
 
-                //如果用户输入了名单名字，就要进行判断
-                if (!groupNameSet.isEmpty()) {
-
+            //如果用户输入了名单名字，就要进行判断
+            if (!groupNameSet.isEmpty()) {
+                for (FaceReData oneFaceRe : faceReList) {
                     String groupName = oneFaceRe.getListName();
                     if (StringUtils.isNotBlank(groupName) && groupNameSet.contains(groupName)) {
 
                     } else {
                         faceReList.remove(oneFaceRe);
-                        continue;
                     }
                 }
-                //如果用户限定了相似度，就是大于并等于
-                if (StringUtils.isNotBlank(sim)) {
+            }
+
+            //如果用户限定了相似度，就是大于并等于
+            if (StringUtils.isNotBlank(sim)) {
+                for (FaceReData oneFaceRe : faceReList) {
                     Double oneReSim = oneFaceRe.getSimilarity();
                     if (oneReSim != null) {
                         double inputSim = Double.parseDouble(sim);
@@ -182,9 +184,10 @@ public class ExcelFillController2 {
                         } else {
                             faceReList.remove(oneFaceRe);
                         }
+                    } else {
+                        faceReList.remove(oneFaceRe);
                     }
                 }
-
             }
 
             excelPath = frExcelMake(faceReList, inputSTime, inputETime, groupSetStr, sim);
