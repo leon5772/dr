@@ -82,7 +82,7 @@ public class PersonAddController {
         pushFailedList.add("g");
         pushFailedList.add("g");
 
-        modelMap.put("wa", "Process Result: " + warning);
+        modelMap.put("wa", "Notice : " + warning);
         modelMap.put("su", pushSuccessList);
         modelMap.put("fa", pushFailedList);
         return "personPush/result";
