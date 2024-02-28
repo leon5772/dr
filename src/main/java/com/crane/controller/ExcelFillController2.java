@@ -143,7 +143,7 @@ public class ExcelFillController2 {
 
         //如果用户选了face识别，就只走识别代码
         String faceMode = request.getParameter("fd_mode");
-        String sim = request.getParameter("sim");
+        String sim = request.getParameter("similarity");
 
         if (faceMode != null && faceMode.equals("match")) {
 
