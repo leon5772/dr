@@ -2018,7 +2018,8 @@ public class ExcelFillController2 {
             String frType = oneSceneNode.get("alarmMinor").asText();
             if (frType.equalsIgnoreCase("face_comparison_successful")) {
                 oneMagFr.setSimilarity(oneSceneNode.get("recognitionInfo").get("faceScore").asDouble());
-                oneMagFr.setTargetImgUrl(oneSceneNode.get("recognitionInfo").get("personImageUri").asText());
+                String targetUrl = oneSceneNode.get("recognitionInfo").get("personImageUri").asText();
+                oneMagFr.setTargetImgUrl("http:" + targetUrl);
                 oneMagFr.setMatchName(oneSceneNode.get("recognitionInfo").get("personName").asText());
                 oneMagFr.setListName(oneSceneNode.get("recognitionInfo").get("personGroupName").asText());
             }
