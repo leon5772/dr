@@ -41,7 +41,6 @@ import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/excel_download2")
@@ -144,53 +143,33 @@ public class ExcelFillController2 {
 
         //如果用户选了face识别，就只走识别代码
         String faceMode = request.getParameter("fd_mode");
-        String groupSetStr = request.getParameter("list_set");
         String sim = request.getParameter("sim");
 
         if (faceMode != null && faceMode.equals("match")) {
 
-            //如果用户选了名单，转为set方便处理
-            Set<String> groupNameSet = new HashSet<>();
-            if (StringUtils.isNotBlank(groupSetStr)) {
-                //变成set
-                String[] listNameArr = groupSetStr.split(",");
-                groupNameSet = Arrays.stream(listNameArr).collect(Collectors.toSet());
-            }
-
-            //两个条件判断
+            //判断
             List<FaceReData> faceReList = getFaceReFromMag(inputSTime, inputETime);
-            //名单的判断
-
-            //如果用户输入了名单名字，就要进行判断
-            if (!groupNameSet.isEmpty()) {
-                for (FaceReData oneFaceRe : faceReList) {
-                    String groupName = oneFaceRe.getListName();
-                    if (StringUtils.isNotBlank(groupName) && groupNameSet.contains(groupName)) {
-
-                    } else {
-                        faceReList.remove(oneFaceRe);
-                    }
-                }
-            }
-
             //如果用户限定了相似度，就是大于并等于
-            if (StringUtils.isNotBlank(sim)) {
-                for (FaceReData oneFaceRe : faceReList) {
-                    Double oneReSim = oneFaceRe.getSimilarity();
-                    if (oneReSim != null) {
-                        double inputSim = Double.parseDouble(sim);
-                        if (Double.compare(oneReSim, inputSim) > 0) {
+            if (StringUtils.isNotBlank(sim) && faceReList != null) {
 
-                        } else {
-                            faceReList.remove(oneFaceRe);
-                        }
+                double inputSim = Double.parseDouble(sim);
+
+                Iterator iterator = faceReList.iterator();
+                while (iterator.hasNext()) {
+                    FaceReData oneFr = (FaceReData) iterator.next();
+                    if (oneFr.getSimilarity() == null) {
+                        iterator.remove();
                     } else {
-                        faceReList.remove(oneFaceRe);
+                        double oneFrSim = oneFr.getSimilarity();
+                        if (Double.compare(oneFrSim, inputSim) < 0) {
+                            iterator.remove();
+                        }
                     }
                 }
+
             }
 
-            excelPath = frExcelMake(faceReList, inputSTime, inputETime, groupSetStr, sim);
+            excelPath = frExcelMake(faceReList, inputSTime, inputETime, "", sim);
 
         } else {
 
