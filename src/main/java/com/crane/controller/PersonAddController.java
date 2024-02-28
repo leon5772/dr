@@ -1,7 +1,5 @@
 package com.crane.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,13 +7,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/person_add_group")
@@ -37,8 +32,8 @@ public class PersonAddController {
 
         //拿到输入的路径
         String inputFolder = request.getParameter("folder");
-        if (StringUtils.isBlank(inputFolder)){
-            warning  = "not right folder";
+        if (StringUtils.isBlank(inputFolder)) {
+            warning = "not right folder";
         }
 
         List<String> pushSuccessList = new ArrayList<>();
@@ -87,9 +82,9 @@ public class PersonAddController {
         pushFailedList.add("g");
         pushFailedList.add("g");
 
-        modelMap.put("wa",warning);
-        modelMap.put("su",pushSuccessList);
-        modelMap.put("fa",pushFailedList);
+        modelMap.put("wa", "Process Result: " + warning);
+        modelMap.put("su", pushSuccessList);
+        modelMap.put("fa", pushFailedList);
         return "personPush/result";
     }
 
