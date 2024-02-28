@@ -876,7 +876,7 @@ public class ExcelFillController2 {
 
             //每行第8列为描述
             XSSFCell rnc8 = rowN.createCell(7);
-            rnc8.setCellValue("dec");
+            rnc8.setCellValue(oneFr.getDescription());
             rnc8.setCellStyle(contentCellStyle);
 
             //每行第9列为时间
