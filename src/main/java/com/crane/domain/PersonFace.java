@@ -8,7 +8,7 @@ public class PersonFace {
 
     private String groupUuid;
 
-    private Map<String,String> imageData;
+    private Map<String,Object> imageData;
 
 
     public String getName() {
@@ -27,11 +27,11 @@ public class PersonFace {
         this.groupUuid = groupUuid;
     }
 
-    public Map<String, String> getImageData() {
+    public Map<String, Object> getImageData() {
         return imageData;
     }
 
-    public void setImageData(Map<String, String> imageData) {
+    public void setImageData(Map<String, Object> imageData) {
         this.imageData = imageData;
     }
 }

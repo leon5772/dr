@@ -3,6 +3,7 @@ package com.crane.controller;
 import com.crane.domain.PersonFace;
 import com.crane.utils.DataRouterConstant;
 import com.crane.utils.http.HttpPoolUtil;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
@@ -102,7 +103,7 @@ public class PersonAddController {
 
     private String uploadAndFormat(File[] inputFileArr) {
 
-        Map<String, Object> imgDataMap = new HashMap<>();
+        Map<String, String> imgDataMap = new HashMap<>();
 
         ObjectMapper objectMapper = new ObjectMapper();
         String re = "";
@@ -111,17 +112,44 @@ public class PersonAddController {
 
             //批量上传并拿到url
             for (File oneInputFile : inputFileArr) {
+
+                //先批量上传照片
                 String url = "http://" + DataRouterConstant.NEURO_API + "/v1/person/uploadImage";
-                //Header[] headers = {new BasicHeader("X-Auth-Token", genesisToken)};
                 Header[] headers = {new BasicHeader("Content-Type", "application/json")};
-                HttpPoolUtil.uploadFace(url,oneInputFile.getAbsolutePath(),headers);
+                String res = HttpPoolUtil.uploadFace(url, oneInputFile.getAbsolutePath(), headers);
+
+                //读取结果并放入字典
+                JsonNode resNode = objectMapper.readTree(res);
+                String uploadUri = resNode.get("data").get("uri").asText();
+                imgDataMap.put(oneInputFile.getName(), uploadUri);
             }
 
             //形成幻方的格式
-            List<PersonFace> fList = new ArrayList<>();
-            File[] newFileArr = folder.listFiles();
-            for (File oneNewFile : newFileArr) {
+            List<PersonFace> pfList = new ArrayList<>();
+            imgDataMap.forEach((key,value)->{
+
+                //一个实体类
                 PersonFace pf = new PersonFace();
+
+                //名字的信息
+                int lastDotIndex = value.lastIndexOf(".");
+                String oneImgName = value.substring(0,lastDotIndex);
+                pf.setName(oneImgName);
+
+                //分组id
+                pf.setGroupUuid("addffdef");
+
+                //图片的信息
+                Map<String,Object> imgInfoMap = new HashMap<>();
+                imgInfoMap.put("imageType",1);
+                imgInfoMap.put("imageUri",key);
+                pf.setImageData(imgInfoMap);
+
+            });
+
+            for (File oneNewFile : inputFileArr) {
+
+
 
                 //去掉后缀名
                 String oneFileName = oneNewFile.getName();
