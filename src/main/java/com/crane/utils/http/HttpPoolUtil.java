@@ -310,7 +310,7 @@ public class HttpPoolUtil {
         return null;
     }
 
-    public static String uploadFace(String uri, String picFilePath, String sceneText, Header... heads) {
+    public static String uploadFace(String uri, String picFilePath, Header... heads) {
 
         HttpPost httpPost = new HttpPost(uri);
         CloseableHttpResponse response = null;
@@ -329,9 +329,6 @@ public class HttpPoolUtil {
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
             builder.setCharset(StandardCharsets.UTF_8);
-
-            // 添加字符串参数
-            builder.addTextBody("scene", sceneText, ContentType.TEXT_PLAIN);
 
             // 添加图片文件
             File imageFile = new File(picFilePath);

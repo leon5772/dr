@@ -1,8 +1,12 @@
 package com.crane.controller;
 
 import com.crane.domain.PersonFace;
+import com.crane.utils.DataRouterConstant;
+import com.crane.utils.http.HttpPoolUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Header;
+import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -106,8 +110,11 @@ public class PersonAddController {
         try {
 
             //批量上传并拿到url
-            for (File oneInput : inputFileArr) {
-
+            for (File oneInputFile : inputFileArr) {
+                String url = "http://" + DataRouterConstant.NEURO_API + "/v1/person/uploadImage";
+                //Header[] headers = {new BasicHeader("X-Auth-Token", genesisToken)};
+                Header[] headers = {new BasicHeader("Content-Type", "application/json")};
+                HttpPoolUtil.uploadFace(url,oneInputFile.getAbsolutePath(),headers);
             }
 
             //形成幻方的格式
