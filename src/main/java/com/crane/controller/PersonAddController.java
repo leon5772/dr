@@ -4,23 +4,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.*;
 
 @Controller
@@ -94,17 +89,18 @@ public class PersonAddController {
         return "personPush/result";
     }
 
-    @GetMapping("/img/face/{imageName}")
-    public ResponseEntity<byte[]> downloadImage(@PathVariable String imageName) throws IOException, IOException {
-        Resource resource = new ClassPathResource("/metadata/img/face" + imageName);
-        byte[] imageBytes = Files.readAllBytes(resource.getFile().toPath());
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        headers.setContentDispositionFormData("attachment", imageName);
+    @GetMapping("/images/{filename}")
+    public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
 
-        return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+        Resource resource = new FileSystemResource("./metadata/data/img/face/20210501092433_87c18.jpg");
+
+        return ResponseEntity
+                .ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
+
 
     private String formatAndOnline(File[] files) {
 
