@@ -373,7 +373,7 @@ public class HttpPoolUtil {
         CloseableHttpResponse response = null;
 
         RequestConfig requestConfig = RequestConfig.custom()
-                .setSocketTimeout(5000) // 设置读取超时时间为5秒
+                .setSocketTimeout(50000) // 设置读取超时时间为50秒
                 .build();
 
         CloseableHttpClient httpClientSP = HttpClients.custom()
