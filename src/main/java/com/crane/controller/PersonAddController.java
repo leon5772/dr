@@ -67,7 +67,7 @@ public class PersonAddController {
                         if (nameSet.size() < files.length) {
                             warning = "name repeat or pic not 'jpg' 'jpeg' 'png'.";
                         } else {
-                            String imgDataJson = formatAndOnline(inputFolder,files);
+                            String imgDataJson = formatAndOnline(inputFolder, files);
                         }
                     } else {
                         warning = "empty folder";
@@ -105,7 +105,7 @@ public class PersonAddController {
     }
 
 
-    private String formatAndOnline(String inputFolder,File[] files) {
+    private String formatAndOnline(String inputFolder, File[] files) {
 
         Map<String, Object> imgDataMap = new HashMap<>();
 
@@ -115,17 +115,21 @@ public class PersonAddController {
         try {
 
             //清空旧的图片
-            for (File oneFile:files){
-                oneFile.delete();
+            File folder = new File(FACE_IMG_FOL);
+            File[] oldPics = folder.listFiles();
+            if (oldPics!=null){
+                for (File oneOld : oldPics) {
+                    oneOld.delete();
+                }
             }
 
             //拷贝新的图片
-            FileUtils.copyDirectory(new File(inputFolder),new File(FACE_IMG_FOL));
+            FileUtils.copyDirectory(new File(inputFolder), new File(FACE_IMG_FOL));
 
             re = objectMapper.writeValueAsString(imgDataMap);
 
-        } catch (Exception ignored) {
-
+        } catch (Exception e) {
+            logger.error("process pic error",e);
         }
 
         return re;
