@@ -36,6 +36,7 @@ public class PersonAddController {
 
         //消息
         String warning = "success";
+        ObjectMapper objectMapper = new ObjectMapper();
 
         //拿到输入的路径
         String inputFolder = request.getParameter("folder");
@@ -65,7 +66,38 @@ public class PersonAddController {
                         if (nameSet.size() < files.length) {
                             warning = "name repeat or pic not 'jpg|jpeg|bmp|png|JPG|JPEG|BMP|PNG'.";
                         } else {
-                            String imgDataJson = uploadAndFormat(files);
+
+                            //去拿组的id，如果没有不继续
+                            String groupUUID = "";
+                            String url = "http://" + DataRouterConstant.NEURO_API + " /v1/group/list";
+                            Header[] headers = {new BasicHeader("Content-Type", "application/json")};
+                            String res = HttpPoolUtil.post(url, "{\"pageSize\":\"20\"}", headers);
+                            JsonNode resNode = objectMapper.readTree(res);
+                            //读取响应数据
+                            JsonNode groupListNode = resNode.get("data").get("list");
+                            for (JsonNode oneGroupNode : groupListNode) {
+                                String oneGroupName = oneGroupNode.get("name").asText();
+                                if (oneGroupName.equals("POI")) {
+                                    groupUUID = oneGroupNode.get("uuid").asText();
+                                    break;
+                                }
+                            }
+
+                            if (StringUtils.isNotBlank(groupUUID)) {
+
+                                //先上传图片
+                                String imgDataJson = uploadAndFormat(files, groupUUID);
+
+                                //拿到图片链接，发送给批量写库接口
+                                String batchInsertUrl = "http://" + DataRouterConstant.NEURO_API + "/v1/person/batch_add";
+                                Header[] batchInsertHeaders = {new BasicHeader("Content-Type", "application/json")};
+                                String batchInsertRes = HttpPoolUtil.post(batchInsertUrl, imgDataJson, batchInsertHeaders);
+                                System.out.println(batchInsertRes);
+
+                                //根据响应页面显示写入消息
+                            } else {
+                                warning = "no group name called poi";
+                            }
                         }
                     } else {
                         warning = "empty folder";
@@ -101,7 +133,7 @@ public class PersonAddController {
 //                .body(resource);
 //    }
 
-    private String uploadAndFormat(File[] inputFileArr) {
+    private String uploadAndFormat(File[] inputFileArr, String groupUUID) {
 
         Map<String, String> imgDataMap = new HashMap<>();
 
@@ -126,40 +158,29 @@ public class PersonAddController {
 
             //形成幻方的格式
             List<PersonFace> pfList = new ArrayList<>();
-            imgDataMap.forEach((key,value)->{
+            imgDataMap.forEach((key, value) -> {
 
                 //一个实体类
                 PersonFace pf = new PersonFace();
 
                 //名字的信息
                 int lastDotIndex = value.lastIndexOf(".");
-                String oneImgName = value.substring(0,lastDotIndex);
+                String oneImgName = value.substring(0, lastDotIndex);
                 pf.setName(oneImgName);
 
                 //分组id
-                pf.setGroupUuid("addffdef");
+                pf.setGroupUuid(groupUUID);
 
                 //图片的信息
-                Map<String,Object> imgInfoMap = new HashMap<>();
-                imgInfoMap.put("imageType",1);
-                imgInfoMap.put("imageUri",key);
+                Map<String, Object> imgInfoMap = new HashMap<>();
+                imgInfoMap.put("imageType", 1);
+                imgInfoMap.put("imageUri", key);
                 pf.setImageData(imgInfoMap);
 
+                pfList.add(pf);
             });
 
-            for (File oneNewFile : inputFileArr) {
-
-
-
-                //去掉后缀名
-                String oneFileName = oneNewFile.getName();
-                int lastDotIndex = oneFileName.lastIndexOf(".");
-                pf.setName(oneFileName.substring(0, lastDotIndex));
-                Map<String, String>
-            }
-
-
-            re = objectMapper.writeValueAsString(imgDataMap);
+            re = objectMapper.writeValueAsString(pfList);
 
         } catch (Exception e) {
             logger.error("format json error", e);
