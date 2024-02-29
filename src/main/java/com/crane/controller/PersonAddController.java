@@ -10,6 +10,7 @@ import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +25,9 @@ import java.util.*;
 public class PersonAddController {
 
     private static Logger logger = LoggerFactory.getLogger(PersonAddController.class);
+
+    @Value("${tag_agent_config.neuro.address}")
+    private String magAddress;
 
     @GetMapping("")
     public String personPush(HttpServletRequest request) {
@@ -69,7 +73,7 @@ public class PersonAddController {
 
                             //去拿组的id，如果没有不继续
                             String groupUUID = "";
-                            String url = "http://" + DataRouterConstant.NEURO_API + " /v1/group/list";
+                            String url = "http://" + magAddress + DataRouterConstant.NEURO_API + " /v1/group/list";
                             Header[] headers = {new BasicHeader("Content-Type", "application/json")};
                             String res = HttpPoolUtil.post(url, "{\"pageSize\":\"20\"}", headers);
                             JsonNode resNode = objectMapper.readTree(res);
@@ -88,7 +92,7 @@ public class PersonAddController {
                                 //先上传图片
                                 List<PersonFace> pfList = uploadAndFormat(files, groupUUID);
 
-                                while(!pfList.isEmpty()) {
+                                while (!pfList.isEmpty()) {
 
                                     List<PersonFace> batch = pfList.subList(0, Math.min(50, pfList.size()));
 
@@ -111,8 +115,8 @@ public class PersonAddController {
                     warning = "not a folder";
                 }
             } catch (Exception e) {
-                logger.error("not right folder ", e);
-                warning = "not a folder";
+                logger.error("batch error ", e);
+                warning = "batch error".concat(e.getMessage());
             }
         }
 
@@ -129,7 +133,7 @@ public class PersonAddController {
 
     public String sendBatch(List<PersonFace> face) {
         //拿到图片链接，发送给批量写库接口
-        String batchInsertUrl = "http://" + DataRouterConstant.NEURO_API + "/v1/person/batch_add";
+        String batchInsertUrl = "http://" + magAddress + DataRouterConstant.NEURO_API + "/v1/person/batch_add";
         Header[] batchInsertHeaders = {new BasicHeader("Content-Type", "application/json")};
         return HttpPoolUtil.post(batchInsertUrl, face, batchInsertHeaders);
     }
@@ -158,7 +162,7 @@ public class PersonAddController {
             for (File oneInputFile : inputFileArr) {
 
                 //先批量上传照片
-                String url = "http://" + DataRouterConstant.NEURO_API + "/v1/person/uploadImage";
+                String url = "http://" + magAddress + DataRouterConstant.NEURO_API + "/v1/person/uploadImage";
                 Header[] headers = {new BasicHeader("Content-Type", "application/json")};
                 String res = HttpPoolUtil.uploadFace(url, oneInputFile.getAbsolutePath(), headers);
 
