@@ -42,6 +42,11 @@ public class PersonAddController {
         String warning = "success";
         ObjectMapper objectMapper = new ObjectMapper();
 
+        //
+        List<String> totalList = new ArrayList<>();
+        List<String> pushSuccessList = new ArrayList<>();
+        List<String> pushFailedList = new ArrayList<>();
+
         //拿到输入的路径
         String inputFolder = request.getParameter("folder");
         if (StringUtils.isBlank(inputFolder)) {
@@ -93,6 +98,9 @@ public class PersonAddController {
 
                                 //先上传图片
                                 List<PersonFace> pfList = uploadAndFormat(files, groupUUID);
+                                for (PersonFace onP:pfList){
+                                    totalList.add(onP.getName());
+                                }
 
                                 while (!pfList.isEmpty()) {
 
@@ -100,7 +108,11 @@ public class PersonAddController {
 
                                     // 调用接口处理数据
                                     String onceInsert = sendBatch(batch);
-                                    System.out.println(onceInsert);
+                                    JsonNode oneReNode = objectMapper.readTree(onceInsert);
+                                    JsonNode suNodeArr = oneReNode.get("data").get("successes");
+                                    for (JsonNode oneSu:suNodeArr){
+                                        pushSuccessList.add(oneSu.get("name").asText());
+                                    }
 
                                     // 从原list中移除已处理数据
                                     pfList.removeAll(batch);
@@ -123,14 +135,9 @@ public class PersonAddController {
             }
         }
 
-        //
-        List<String> pushSuccessList = new ArrayList<>();
-        List<String> pushFailedList = new ArrayList<>();
-
-
         modelMap.put("wa", "Notice : " + warning);
         modelMap.put("su", pushSuccessList);
-        modelMap.put("fa", pushFailedList);
+        modelMap.put("fa", totalList.removeAll(pushSuccessList));
         return "personPush/result";
     }
 
