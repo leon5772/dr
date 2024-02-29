@@ -1,18 +1,13 @@
 package com.crane.controller;
 
+import com.crane.domain.PersonFace;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,8 +17,6 @@ import java.util.*;
 @Controller
 @RequestMapping("/person_add_group")
 public class PersonAddController {
-
-    private static final String FACE_IMG_FOL = "./metadata/data/img/face/";
 
     private static Logger logger = LoggerFactory.getLogger(PersonAddController.class);
 
@@ -67,7 +60,7 @@ public class PersonAddController {
                         if (nameSet.size() < files.length) {
                             warning = "name repeat or pic not 'jpg' 'jpeg' 'png'.";
                         } else {
-                            String imgDataJson = formatAndOnline(inputFolder, files);
+                            String imgDataJson = uploadAndFormat(files);
                         }
                     } else {
                         warning = "empty folder";
@@ -92,20 +85,18 @@ public class PersonAddController {
         return "personPush/result";
     }
 
+//    @GetMapping("/images/{filename}")
+//    public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
+//
+//        Resource resource = new FileSystemResource(FACE_IMG_FOL.concat(filename));
+//
+//        return ResponseEntity
+//                .ok()
+//                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+//                .body(resource);
+//    }
 
-    @GetMapping("/images/{filename}")
-    public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
-
-        Resource resource = new FileSystemResource(FACE_IMG_FOL.concat(filename));
-
-        return ResponseEntity
-                .ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-                .body(resource);
-    }
-
-
-    private String formatAndOnline(String inputFolder, File[] files) {
+    private String uploadAndFormat(File[] inputFileArr) {
 
         Map<String, Object> imgDataMap = new HashMap<>();
 
@@ -114,22 +105,29 @@ public class PersonAddController {
 
         try {
 
-            //清空旧的图片
-            File folder = new File(FACE_IMG_FOL);
-            File[] oldPics = folder.listFiles();
-            if (oldPics!=null){
-                for (File oneOld : oldPics) {
-                    oneOld.delete();
-                }
+            //批量上传并拿到url
+            for (File oneInput : inputFileArr) {
+                
             }
 
-            //拷贝新的图片
-            FileUtils.copyDirectory(new File(inputFolder), new File(FACE_IMG_FOL));
+            //形成幻方的格式
+            List<PersonFace> fList = new ArrayList<>();
+            File[] newFileArr = folder.listFiles();
+            for (File oneNewFile : newFileArr) {
+                PersonFace pf = new PersonFace();
+
+                //去掉后缀名
+                String oneFileName = oneNewFile.getName();
+                int lastDotIndex = oneFileName.lastIndexOf(".");
+                pf.setName(oneFileName.substring(0, lastDotIndex));
+                Map<String, String>
+            }
+
 
             re = objectMapper.writeValueAsString(imgDataMap);
 
         } catch (Exception e) {
-            logger.error("process pic error",e);
+            logger.error("format json error", e);
         }
 
         return re;
