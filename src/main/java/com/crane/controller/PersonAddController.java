@@ -87,25 +87,17 @@ public class PersonAddController {
 
                                 //先上传图片
                                 List<PersonFace> pfList = uploadAndFormat(files, groupUUID);
-                                int elNum = pfList.size();
-                                if (elNum <= 50) {
-                                    sendBatch(pfList);
-                                } else {
-                                    int ch = 0;
-                                    if (elNum % 50 == 0) {
-                                        ch = elNum / 50;
-                                    } else {
-                                        ch = (elNum / 50) + 1;
-                                    }
 
-                                    for (int i = 0; i < ch; i++) {
-                                        int start = i*50;
-                                        int end = (i+1)*50;
-                                        if (start>=elNum){
-                                            break;
-                                        }
-                                        sendBatch(pfList.subList(start,end));
-                                    }
+                                while(!pfList.isEmpty()) {
+
+                                    List<PersonFace> batch = pfList.subList(0, Math.min(50, pfList.size()));
+
+                                    // 调用接口处理数据
+                                    sendBatch(batch);
+
+                                    // 从原list中移除已处理数据
+                                    pfList.removeAll(batch);
+
                                 }
 
                             } else {
