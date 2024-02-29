@@ -99,7 +99,8 @@ public class PersonAddController {
                                     List<PersonFace> batch = pfList.subList(0, Math.min(50, pfList.size()));
 
                                     // 调用接口处理数据
-                                    sendBatch(batch);
+                                    String onceInsert = sendBatch(batch);
+                                    System.out.println(onceInsert);
 
                                     // 从原list中移除已处理数据
                                     pfList.removeAll(batch);
@@ -169,8 +170,12 @@ public class PersonAddController {
 
                 //读取结果并放入字典
                 JsonNode resNode = objectMapper.readTree(res);
-                String uploadUri = resNode.get("data").get("uri").asText();
-                imgDataMap.put(oneInputFile.getName(), uploadUri);
+                if(resNode.get("code").asInt()==0){
+                    String uploadUri = resNode.get("data").get("uri").asText();
+                    imgDataMap.put(oneInputFile.getName(), uploadUri);
+                }else{
+                    continue;
+                }
             }
 
             //形成幻方的格式
@@ -180,8 +185,8 @@ public class PersonAddController {
                 PersonFace pf = new PersonFace();
 
                 //名字的信息
-                int lastDotIndex = value.lastIndexOf(".");
-                String oneImgName = value.substring(0, lastDotIndex);
+                int lastDotIndex = key.lastIndexOf(".");
+                String oneImgName = key.substring(0, lastDotIndex);
                 pf.setName(oneImgName);
 
                 //分组id
@@ -190,7 +195,7 @@ public class PersonAddController {
                 //图片的信息
                 Map<String, Object> imgInfoMap = new HashMap<>();
                 imgInfoMap.put("imageType", 1);
-                imgInfoMap.put("imageUri", key);
+                imgInfoMap.put("imageUri", value);
                 pf.setImageData(imgInfoMap);
 
                 pfList.add(pf);
