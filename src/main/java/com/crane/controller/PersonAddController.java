@@ -137,7 +137,8 @@ public class PersonAddController {
 
         modelMap.put("wa", "Notice : " + warning);
         modelMap.put("su", pushSuccessList);
-        modelMap.put("fa", totalList.removeAll(pushSuccessList));
+        totalList.removeAll(pushSuccessList);
+        modelMap.put("fa", totalList);
         return "personPush/result";
     }
 
