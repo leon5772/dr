@@ -75,8 +75,8 @@ public class PersonAddController {
                             String groupUUID = "";
                             String url = "http://" + magAddress + DataRouterConstant.NEURO_API + "/v1/group/list";
                             Header[] headers = {new BasicHeader("Content-Type", "application/json")};
-                            Map<String,Object> jsonBodyMap = new HashMap<>();
-                            jsonBodyMap.put("pageSize",20);
+                            Map<String, Object> jsonBodyMap = new HashMap<>();
+                            jsonBodyMap.put("pageSize", 20);
                             String res = HttpPoolUtil.post(url, jsonBodyMap, headers);
                             JsonNode resNode = objectMapper.readTree(res);
                             //读取响应数据
@@ -138,7 +138,10 @@ public class PersonAddController {
         //拿到图片链接，发送给批量写库接口
         String batchInsertUrl = "http://" + magAddress + DataRouterConstant.NEURO_API + "/v1/person/batch_add";
         Header[] batchInsertHeaders = {new BasicHeader("Content-Type", "application/json")};
-        return HttpPoolUtil.post(batchInsertUrl, face, batchInsertHeaders);
+
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("persons", face);
+        return HttpPoolUtil.post(batchInsertUrl, paramMap, batchInsertHeaders);
     }
 
 //    @GetMapping("/images/{filename}")
@@ -170,10 +173,10 @@ public class PersonAddController {
 
                 //读取结果并放入字典
                 JsonNode resNode = objectMapper.readTree(res);
-                if(resNode.get("code").asInt()==0){
+                if (resNode.get("code").asInt() == 0) {
                     String uploadUri = resNode.get("data").get("uri").asText();
                     imgDataMap.put(oneInputFile.getName(), uploadUri);
-                }else{
+                } else {
                     continue;
                 }
             }
