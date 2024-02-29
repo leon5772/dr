@@ -96,7 +96,7 @@ public class PersonAddController {
 
     @GetMapping("/img/face/{imageName}")
     public ResponseEntity<byte[]> downloadImage(@PathVariable String imageName) throws IOException, IOException {
-        Resource resource = new ClassPathResource("metadata/img/face" + imageName);
+        Resource resource = new ClassPathResource("/metadata/img/face" + imageName);
         byte[] imageBytes = Files.readAllBytes(resource.getFile().toPath());
 
         HttpHeaders headers = new HttpHeaders();
