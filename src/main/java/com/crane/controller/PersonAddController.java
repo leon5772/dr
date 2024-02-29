@@ -73,9 +73,11 @@ public class PersonAddController {
 
                             //去拿组的id，如果没有不继续
                             String groupUUID = "";
-                            String url = "http://" + magAddress + DataRouterConstant.NEURO_API + " /v1/group/list";
+                            String url = "http://" + magAddress + DataRouterConstant.NEURO_API + "/v1/group/list";
                             Header[] headers = {new BasicHeader("Content-Type", "application/json")};
-                            String res = HttpPoolUtil.post(url, "{\"pageSize\":\"20\"}", headers);
+                            Map<String,Object> jsonBodyMap = new HashMap<>();
+                            jsonBodyMap.put("pageSize",20);
+                            String res = HttpPoolUtil.post(url, jsonBodyMap, headers);
                             JsonNode resNode = objectMapper.readTree(res);
                             //读取响应数据
                             JsonNode groupListNode = resNode.get("data").get("list");
@@ -163,8 +165,7 @@ public class PersonAddController {
 
                 //先批量上传照片
                 String url = "http://" + magAddress + DataRouterConstant.NEURO_API + "/v1/person/uploadImage";
-                Header[] headers = {new BasicHeader("Content-Type", "application/json")};
-                String res = HttpPoolUtil.uploadFace(url, oneInputFile.getAbsolutePath(), headers);
+                String res = HttpPoolUtil.uploadFace(url, oneInputFile.getAbsolutePath());
 
                 //读取结果并放入字典
                 JsonNode resNode = objectMapper.readTree(res);
