@@ -96,7 +96,7 @@ public class PersonAddController {
 
                                 while (!pfList.isEmpty()) {
 
-                                    List<PersonFace> batch = pfList.subList(0, Math.min(50, pfList.size()));
+                                    List<PersonFace> batch = pfList.subList(0, Math.min(10, pfList.size()));
 
                                     // 调用接口处理数据
                                     String onceInsert = sendBatch(batch);
@@ -141,7 +141,7 @@ public class PersonAddController {
 
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("persons", face);
-        return HttpPoolUtil.post(batchInsertUrl, paramMap, batchInsertHeaders);
+        return HttpPoolUtil.batchAddPerson(batchInsertUrl, paramMap, batchInsertHeaders);
     }
 
 //    @GetMapping("/images/{filename}")
