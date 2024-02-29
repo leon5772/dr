@@ -22,6 +22,8 @@ import java.util.*;
 @RequestMapping("/person_add_group")
 public class PersonAddController {
 
+    private static final String FACE_IMG_FOL = "./metadata/data/img/face/";
+
     private static Logger logger = LoggerFactory.getLogger(PersonAddController.class);
 
     @GetMapping("")
@@ -93,7 +95,7 @@ public class PersonAddController {
     @GetMapping("/images/{filename}")
     public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
 
-        Resource resource = new FileSystemResource("./metadata/data/img/face/".concat(filename));
+        Resource resource = new FileSystemResource(FACE_IMG_FOL.concat(filename));
 
         return ResponseEntity
                 .ok()
@@ -106,6 +108,12 @@ public class PersonAddController {
 
         Map<String, Object> imgDataMap = new HashMap<>();
 
+        //清空旧的图片
+        for (File oneFile:files){
+            oneFile.delete();
+        }
+
+        //拷贝新的图片
 
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -118,7 +126,6 @@ public class PersonAddController {
 
         return re;
     }
-
 
 
     private static boolean isImageFile(String fileName) {
