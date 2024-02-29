@@ -86,15 +86,28 @@ public class PersonAddController {
                             if (StringUtils.isNotBlank(groupUUID)) {
 
                                 //先上传图片
-                                String imgDataJson = uploadAndFormat(files, groupUUID);
+                                List<PersonFace> pfList = uploadAndFormat(files, groupUUID);
+                                int elNum = pfList.size();
+                                if (elNum <= 50) {
+                                    sendBatch(pfList);
+                                } else {
+                                    int ch = 0;
+                                    if (elNum % 50 == 0) {
+                                        ch = elNum / 50;
+                                    } else {
+                                        ch = (elNum / 50) + 1;
+                                    }
 
-                                //拿到图片链接，发送给批量写库接口
-                                String batchInsertUrl = "http://" + DataRouterConstant.NEURO_API + "/v1/person/batch_add";
-                                Header[] batchInsertHeaders = {new BasicHeader("Content-Type", "application/json")};
-                                String batchInsertRes = HttpPoolUtil.post(batchInsertUrl, imgDataJson, batchInsertHeaders);
-                                System.out.println(batchInsertRes);
+                                    for (int i = 0; i < ch; i++) {
+                                        int start = i*50;
+                                        int end = (i+1)*50;
+                                        if (start>=elNum){
+                                            break;
+                                        }
+                                        sendBatch(pfList.subList(start,end));
+                                    }
+                                }
 
-                                //根据响应页面显示写入消息
                             } else {
                                 warning = "no group name called poi";
                             }
@@ -122,6 +135,13 @@ public class PersonAddController {
         return "personPush/result";
     }
 
+    public String sendBatch(List<PersonFace> face) {
+        //拿到图片链接，发送给批量写库接口
+        String batchInsertUrl = "http://" + DataRouterConstant.NEURO_API + "/v1/person/batch_add";
+        Header[] batchInsertHeaders = {new BasicHeader("Content-Type", "application/json")};
+        return HttpPoolUtil.post(batchInsertUrl, face, batchInsertHeaders);
+    }
+
 //    @GetMapping("/images/{filename}")
 //    public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
 //
@@ -133,12 +153,12 @@ public class PersonAddController {
 //                .body(resource);
 //    }
 
-    private String uploadAndFormat(File[] inputFileArr, String groupUUID) {
+    private List<PersonFace> uploadAndFormat(File[] inputFileArr, String groupUUID) {
 
         Map<String, String> imgDataMap = new HashMap<>();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        String re = "";
+        List<PersonFace> pfList = new ArrayList<>();
 
         try {
 
@@ -157,7 +177,6 @@ public class PersonAddController {
             }
 
             //形成幻方的格式
-            List<PersonFace> pfList = new ArrayList<>();
             imgDataMap.forEach((key, value) -> {
 
                 //一个实体类
@@ -180,13 +199,13 @@ public class PersonAddController {
                 pfList.add(pf);
             });
 
-            re = objectMapper.writeValueAsString(pfList);
+            return pfList;
 
         } catch (Exception e) {
             logger.error("format json error", e);
         }
 
-        return re;
+        return pfList;
     }
 
 
