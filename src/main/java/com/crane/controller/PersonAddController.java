@@ -1,6 +1,7 @@
 package com.crane.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +67,7 @@ public class PersonAddController {
                         if (nameSet.size() < files.length) {
                             warning = "name repeat or pic not 'jpg' 'jpeg' 'png'.";
                         } else {
-                            String imgDataJson = formatAndOnline(files);
+                            String imgDataJson = formatAndOnline(inputFolder,files);
                         }
                     } else {
                         warning = "empty folder";
@@ -104,22 +105,25 @@ public class PersonAddController {
     }
 
 
-    private String formatAndOnline(File[] files) {
+    private String formatAndOnline(String inputFolder,File[] files) {
 
         Map<String, Object> imgDataMap = new HashMap<>();
 
-        //清空旧的图片
-        for (File oneFile:files){
-            oneFile.delete();
-        }
-
-        //拷贝新的图片
-
-
         ObjectMapper objectMapper = new ObjectMapper();
         String re = "";
+
         try {
+
+            //清空旧的图片
+            for (File oneFile:files){
+                oneFile.delete();
+            }
+
+            //拷贝新的图片
+            FileUtils.copyDirectory(new File(inputFolder),new File(FACE_IMG_FOL));
+
             re = objectMapper.writeValueAsString(imgDataMap);
+
         } catch (Exception ignored) {
 
         }
