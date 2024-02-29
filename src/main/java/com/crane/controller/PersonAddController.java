@@ -93,7 +93,7 @@ public class PersonAddController {
     @GetMapping("/images/{filename}")
     public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
 
-        Resource resource = new FileSystemResource("./metadata/data/img/face/20210501092433_87c18.jpg");
+        Resource resource = new FileSystemResource("./metadata/data/img/face/".concat(filename));
 
         return ResponseEntity
                 .ok()
