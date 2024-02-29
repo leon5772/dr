@@ -367,4 +367,51 @@ public class HttpPoolUtil {
         return null;
     }
 
+    public static String batchAddPerson(String uri, Object params, Header... heads) {
+
+        HttpPost httpPost = new HttpPost(uri);
+        CloseableHttpResponse response = null;
+
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setSocketTimeout(5000) // 设置读取超时时间为5秒
+                .build();
+
+        CloseableHttpClient httpClientSP = HttpClients.custom()
+                .setDefaultRequestConfig(requestConfig)
+                .build();
+
+        try {
+
+            StringEntity paramEntity = new StringEntity(JSON.toJSONString(params));
+            paramEntity.setContentEncoding("UTF-8");
+            paramEntity.setContentType("application/json");
+            httpPost.setEntity(paramEntity);
+
+            if (heads != null) {
+                httpPost.setHeaders(heads);
+            }
+
+            response = httpClientSP.execute(httpPost);
+            int code = response.getStatusLine().getStatusCode();
+            String result = EntityUtils.toString(response.getEntity());
+            if (code > 199 && code < 300) {
+                return result;
+            } else {
+
+                return null;
+            }
+        } catch (IOException e) {
+            logger.error("收集服务配置http请求异常", e);
+        } finally {
+            try {
+                if (response != null) {
+                    response.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
 }
