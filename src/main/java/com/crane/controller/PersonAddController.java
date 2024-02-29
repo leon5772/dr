@@ -58,7 +58,7 @@ public class PersonAddController {
 
                         //如果图片类型不一样，但是名字重复了，或是文件夹
                         if (nameSet.size() < files.length) {
-                            warning = "name repeat or pic not 'jpg' 'jpeg' 'png'.";
+                            warning = "name repeat or pic not 'jpg|jpeg|bmp|png|JPG|JPEG|BMP|PNG'.";
                         } else {
                             String imgDataJson = uploadAndFormat(files);
                         }
@@ -107,7 +107,7 @@ public class PersonAddController {
 
             //批量上传并拿到url
             for (File oneInput : inputFileArr) {
-                
+
             }
 
             //形成幻方的格式
@@ -135,7 +135,7 @@ public class PersonAddController {
 
 
     private static boolean isImageFile(String fileName) {
-        String[] imageExtensions = {".jpg", ".jpeg", ".png"};
+        String[] imageExtensions = {".jpg", ".jpeg", ".png", "bmp"};
         for (String extension : imageExtensions) {
             if (fileName.toLowerCase().endsWith(extension)) {
                 return true;
