@@ -1999,11 +1999,25 @@ public class ExcelFillController2 {
             //底库的信息
             String frType = oneSceneNode.get("alarmMinor").asText();
             if (frType.equalsIgnoreCase("face_comparison_successful")) {
-                oneMagFr.setSimilarity(oneSceneNode.get("recognitionInfo").get("faceScore").asDouble());
-                String targetUrl = oneSceneNode.get("recognitionInfo").get("personImageUri").asText();
-                oneMagFr.setTargetImgUrl("http:" + targetUrl);
-                oneMagFr.setMatchName(oneSceneNode.get("recognitionInfo").get("personName").asText());
-                oneMagFr.setListName(oneSceneNode.get("recognitionInfo").get("personGroupName").asText());
+
+                if (oneSceneNode.has("recognitionInfo")) {
+                    JsonNode riNode = oneSceneNode.get("recognitionInfo");
+                    boolean flag1 = riNode.has("faceScore");
+                    boolean flag2 = riNode.has("personImageUri");
+                    boolean flag3 = riNode.has("personName");
+                    boolean flag4 = riNode.has("personGroupName");
+
+                    if (flag1 && flag2 && flag3 && flag4) {
+                        oneMagFr.setSimilarity(riNode.get("faceScore").asDouble());
+                        String targetUrl = riNode.get("personImageUri").asText();
+                        oneMagFr.setTargetImgUrl("http:" + targetUrl);
+                        oneMagFr.setMatchName(riNode.get("personName").asText());
+                        oneMagFr.setListName(riNode.get("personGroupName").asText());
+                    }else{
+                        oneMagFr.setListName("No Match");
+                    }
+                }
+
             }
 
             //pop
