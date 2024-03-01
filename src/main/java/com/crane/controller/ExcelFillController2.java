@@ -2014,7 +2014,7 @@ public class ExcelFillController2 {
                         oneMagFr.setMatchName(riNode.get("personName").asText());
                         oneMagFr.setListName(riNode.get("personGroupName").asText());
                     }else{
-                        oneMagFr.setListName("No Match");
+                        continue;
                     }
                 }
 
